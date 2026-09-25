@@ -1,56 +1,30 @@
-# Welcome to your Expo app 👋
+# Wedding Vendor App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+> Working name. The final name is picked in Phase 5 (see [Name Ideas](docs/PROJECT_PLAN.md#ongoing-name-ideas)).
 
-## Get started
+A cross-platform mobile app (iOS and Android) for finding and booking every wedding vendor, organized by event: roka, mehndi, jaago, anand karaj, reception, and more.
 
-1. Install dependencies
+- **Founders:** Kirat and Fezy (50/50)
+- **Launch market:** Northern California Punjabi weddings (510, 916, 408, 209, 530)
+- **Approach:** Build the app and prove it works with sample vendors first. Handle the name, LLC, and other official steps once the app is running.
 
-   ```bash
-   npm install
-   ```
+## Stack
 
-2. Start the app
+| Layer | Tool |
+| --- | --- |
+| App | Expo (React Native), TypeScript, Expo Router |
+| Backend | Supabase (auth, Postgres, file storage) |
+| Code style | ESLint and Prettier |
+| Builds | EAS Build (TestFlight and Play internal testing) |
+| Design | Figma |
 
-   ```bash
-   npx expo start
-   ```
+## Docs
 
-In the output, you'll find options to open the app in a
+- [Project plan and checklist](docs/PROJECT_PLAN.md): every phase and task, with checkboxes
+- [Decisions log](docs/DECISIONS.md): what we decided and why
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## How we work
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-### Other setup steps
-
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- Every feature gets its own branch and a pull request. The other partner reviews before merging.
+- Never commit passwords or API keys. Use `.env` files (already ignored by git).
+- Every task lives on the task board. Decisions go in the decisions log.
