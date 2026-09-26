@@ -1,0 +1,32 @@
+{
+  "app": {
+    "name": "Wedding Vendor App"
+  },
+  "tabs": {
+    "home": "Home",
+    "search": "Search",
+    "saved": "Saved",
+    "profile": "Profile"
+  },
+  "home": {
+    "headline": "Every vendor for every event of your wedding",
+    "subtitle": "Roka to reception. Northern California.",
+    "browseByEvent": "Browse by event",
+    "eventsPlaceholder": "Events and vendor categories load from the database in the next step."
+  },
+  "search": {
+    "placeholder": "Search dhol, mehndi, halls…"
+  },
+  "saved": {
+    "empty": "Nothing saved yet. Tap the heart on any vendor to keep them here, grouped by event."
+  },
+  "profile": {
+    "language": "Language",
+    "english": "English",
+    "punjabi": "ਪੰਜਾਬੀ",
+    "textSize": "Text size"
+  },
+  "common": {
+    "comingSoon": "Coming soon"
+  }
+}
