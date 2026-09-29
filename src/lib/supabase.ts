@@ -7,7 +7,7 @@
  * database decides what each user can read and write. Never put the secret key
  * or the database password in an EXPO_PUBLIC_ variable.
  */
-import 'expo-sqlite/localStorage/install';
+import './install-local-storage';
 
 import { createClient } from '@supabase/supabase-js';
 import { AppState } from 'react-native';
