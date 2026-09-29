@@ -1,0 +1,106 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { router, useLocalSearchParams } from 'expo-router';
+import { Linking, ScrollView, StyleSheet, View } from 'react-native';
+
+import { AppText } from '@/components/app-text';
+import { Button } from '@/components/button';
+import { Card } from '@/components/card';
+import { Screen } from '@/components/screen';
+import { Colors, Spacing } from '@/constants/theme';
+import { useHomeEvents } from '@/data/reference';
+import { useInquiryVendor } from '@/features/inquiry/inquiry-helpers';
+import { localized } from '@/i18n/localized';
+import { useLocale } from '@/i18n/locale-context';
+
+/**
+ * "Sent" (vision S12): what happens next, and the honest faster route (call or
+ * text now), because that's how this community books. `?queued=1` when the
+ * app's daily email limit was reached and it goes out tomorrow.
+ */
+export default function AskSentScreen() {
+  const { t, locale } = useLocale();
+  const params = useLocalSearchParams<{ vendorId?: string; event?: string; queued?: string }>();
+  const vendor = useInquiryVendor(params.vendorId ?? '');
+  const events = useHomeEvents();
+
+  const name = vendor.data ? localized(vendor.data.name, locale) : '';
+  const event = events.data
+    ?.flatMap((section) => section.events)
+    .find((candidate) => candidate.slug === params.event);
+  const callNumber = vendor.data?.callPhone ?? vendor.data?.whatsappPhone ?? null;
+  const textNumber = vendor.data?.textPhone ?? vendor.data?.callPhone ?? null;
+
+  return (
+    <Screen edges={['top', 'bottom']}>
+      <ScrollView contentContainerStyle={styles.content}>
+        <View style={styles.check}>
+          <Ionicons name="checkmark-circle" size={72} color={Colors.success} />
+        </View>
+        <AppText variant="title" accessibilityRole="header" style={styles.center}>
+          {params.queued
+            ? t('inquiry.sent.queuedTitle', { vendor: name })
+            : t('inquiry.sent.title', { vendor: name })}
+        </AppText>
+        <AppText variant="bodyLg" color="text2" style={styles.center}>
+          {t('inquiry.sent.next')}
+        </AppText>
+
+        {(callNumber || textNumber) && (
+          <Card style={styles.card}>
+            <AppText variant="heading">{t('inquiry.sent.faster')}</AppText>
+            {callNumber && (
+              <Button
+                variant="secondary"
+                icon="call-outline"
+                label={t('inquiry.sent.callNow')}
+                onPress={() => Linking.openURL(`tel:${callNumber}`)}
+              />
+            )}
+            {textNumber && (
+              <Button
+                variant="secondary"
+                icon="chatbubble-outline"
+                label={t('inquiry.sent.textNow')}
+                onPress={() => Linking.openURL(`sms:${textNumber}`)}
+              />
+            )}
+          </Card>
+        )}
+
+        <Card style={styles.card}>
+          <AppText>
+            {event
+              ? t('inquiry.sent.savedTo', { event: localized(event.name, locale) })
+              : t('inquiry.sent.savedNotSure')}
+          </AppText>
+          <Button
+            variant="text"
+            label={t('inquiry.sent.viewSaved')}
+            onPress={() => {
+              router.back();
+              router.navigate('/saved');
+            }}
+          />
+        </Card>
+
+        <Button label={t('location.done')} onPress={() => router.back()} />
+      </ScrollView>
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  content: {
+    gap: Spacing.xl,
+    paddingVertical: Spacing.xxl,
+  },
+  check: {
+    alignItems: 'center',
+  },
+  center: {
+    textAlign: 'center',
+  },
+  card: {
+    gap: Spacing.md,
+  },
+});

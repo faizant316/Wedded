@@ -196,5 +196,79 @@
       "anywhere": "Near {{place}} · any distance",
       "hint": "Choose where to search from"
     }
+  },
+  "inquiry": {
+    "title": "Ask about price & date",
+    "whichEvent": "Which event?",
+    "date": "When is it?",
+    "pickDate": "Pick the date",
+    "dateUnsure": "Not sure yet",
+    "guests": "About how many guests?",
+    "guestBands": {
+      "under_50": "Under 50",
+      "50_100": "50 to 100",
+      "100_250": "100 to 250",
+      "250_500": "250 to 500",
+      "500_plus": "500+",
+      "not_sure": "Not sure"
+    },
+    "guestsInMessage": {
+      "under_50": "fewer than 50",
+      "50_100": "50 to 100",
+      "100_250": "100 to 250",
+      "250_500": "250 to 500",
+      "500_plus": "500 or more"
+    },
+    "where": "Where?",
+    "whereHint": "Your city or the hall. Vendors need it to quote travel.",
+    "message": "Message",
+    "useSuggested": "Use the suggested message",
+    "signInAtSend": "When you tap Send, we'll ask you to sign in with your email. Nothing you typed is lost.",
+    "replyBy": "How should they reply?",
+    "replyWays": {
+      "call": "Call",
+      "text": "Text",
+      "whatsapp": "WhatsApp",
+      "email": "Email"
+    },
+    "consent": "We'll send your inquiry to {{vendor}} with your name, phone and email. They reply to you directly. You get a copy.",
+    "send": "Send",
+    "alreadyAsked": "You already asked {{vendor}} on {{date}}. Send again?",
+    "sendAgain": "Send again",
+    "discardTitle": "Discard this message?",
+    "discardBody": "What you typed won't be sent.",
+    "keepEditing": "Keep editing",
+    "discard": "Discard",
+    "auto": {
+      "withDateAndGuests": "Sat Sri Akal, we're planning {{events}} on {{date}} in {{place}} for about {{guests}} guests. Could you share your price and whether you're available? Thank you.",
+      "withDate": "Sat Sri Akal, we're planning {{events}} on {{date}} in {{place}}. Could you share your price and whether you're available? Thank you.",
+      "withGuests": "Sat Sri Akal, we're planning {{events}} in {{place}} for about {{guests}} guests. Could you share your price? Thank you.",
+      "plain": "Sat Sri Akal, we're planning {{events}} in {{place}}. Could you share your price? Thank you.",
+      "and": "and",
+      "wedding": "a wedding",
+      "ourCity": "our city"
+    },
+    "errors": {
+      "guests": "Pick about how many guests (or Not sure).",
+      "place": "Type your city or the hall.",
+      "message": "Please write a message.",
+      "tooManyHour": "You've sent 5 inquiries in the last hour. Please wait a little, or call the vendor.",
+      "tooManyDay": "You've sent 15 inquiries today. Please try again tomorrow, or call the vendor.",
+      "vendorGone": "This vendor is no longer listed.",
+      "invalid": "Something in the form needs another look. Check the date and try again.",
+      "failed": "Couldn't send. Your message is saved here, so please try again.",
+      "offline": "You're offline. Your message is saved here; send it when you're connected."
+    },
+    "sent": {
+      "title": "Sent to {{vendor}}",
+      "queuedTitle": "We'll send it to {{vendor}} first thing tomorrow",
+      "next": "Most vendors reply within 1 to 2 days by call or text. A copy is in your email.",
+      "faster": "Want a faster answer?",
+      "callNow": "Call now",
+      "textNow": "Text now",
+      "savedTo": "Saved to {{event}} in your Saved list.",
+      "savedNotSure": "Saved to your Saved list.",
+      "viewSaved": "View saved"
+    }
   }
 }
