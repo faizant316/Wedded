@@ -61,3 +61,6 @@ example
 
 # Real vendor photos for the upload script (never commit them)
 /photos/
+
+# Real vendor details for the import script (emails, owner notes: never commit them)
+/vendor-data/

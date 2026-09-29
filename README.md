@@ -53,6 +53,17 @@ Copy `.env.example` to `.env.local` and fill in the two values from `npm run db:
 
 If a local sign-in email arrives as a link instead of a 6-digit code, Docker is serving a stale copy of `supabase/templates/sign-in-code.html` (switching git branches can replace the file). Run `npm run db:stop && npm run db:start`; your local data is kept.
 
+### Adding a real vendor
+
+Write the vendor's details in a JSON file in `vendor-data/` (gitignored, since it holds their email and your notes). Copy [docs/examples/vendor.example.json](docs/examples/vendor.example.json): field names are the `vendors` columns, plus `categories` (1 to 3 slugs, primary first), `events`, `private` (email, owner name, notes: never shown in the app), `links` (a hall's approved caterers, only ones both sides confirmed) and, for a public address only, `latitude` and `longitude` (in Google Maps, right-click the building and click the numbers). Phone numbers can be typed any way. Home-based vendors leave out the address and coordinates and get their city's centre point. The top of `scripts/vendor-file.ts` lists every field.
+
+```bash
+npm run vendors:import -- vendor-data/sunrise.json --local --dry-run   # check only
+npm run vendors:import -- vendor-data/sunrise.json --local             # save
+```
+
+Everything is checked before anything is saved, and each problem is explained. Running it again updates the vendor (a field left out keeps its value; `null` clears it). A real vendor taking a founding number a sample vendor has gets it, and the sample loses it. Without `--local`, set `SUPABASE_URL` and `SUPABASE_SECRET_KEY` for the hosted database. Add their photos next with `npm run photos:upload`.
+
 ### Vendor photos
 
 `npm run photos:samples` gives every sample vendor three labelled placeholder photos on your local database (run it after `npm run db:reset`, which clears them). To add real photos, put them in a folder with one subfolder per vendor slug:

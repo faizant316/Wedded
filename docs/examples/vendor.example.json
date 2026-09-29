@@ -1,0 +1,50 @@
+[
+  {
+    "slug": "sunrise-palace-banquet-hall",
+    "status": "published",
+    "name": "Sunrise Palace Banquet Hall",
+    "name_pa": "ਸਨਰਾਈਜ਼ ਪੈਲੇਸ ਬੈਂਕੁਇਟ ਹਾਲ",
+    "tagline": "Seats 600. Bring a caterer from our approved list.",
+    "bio": "Family-run hall for receptions, sangeets and jaagos, five minutes from downtown.",
+    "city": "Yuba City",
+    "address_visibility": "public",
+    "address_line": "100 Example Road, Yuba City, CA 95991",
+    "latitude": 39.1404,
+    "longitude": -121.6169,
+    "call_phone": "(530) 555-0199",
+    "text_phone": "(530) 555-0199",
+    "preferred_contact": "call",
+    "office_hours": "Tuesday to Sunday, 11 AM to 7 PM",
+    "languages": ["en", "pa"],
+    "price_display": "starting_at",
+    "price_from": 45,
+    "price_unit": "plate",
+    "price_note": "Food included. Weekday discounts.",
+    "years_in_business": 12,
+    "founding_number": 1,
+    "last_verified_at": "2026-10-15",
+    "details": {
+      "seated_capacity": 600,
+      "in_house_catering": "optional",
+      "outside_catering": "approved_list",
+      "alcohol_policy": "byob",
+      "corkage": 400,
+      "ghori_allowed": true,
+      "dhol_outside_allowed": true,
+      "curfew": "00:30",
+      "parking_spaces": 300
+    },
+    "categories": ["banquet-hall"],
+    "events": ["reception", "sangeet", "jaago", "chunni-kurmai", "viah-di-roti"],
+    "private": {
+      "email": "bookings@example.com",
+      "checks_email": true,
+      "owner_name": "Example Owner",
+      "notes": "Met at the hall on Oct 15. Wants the QR tent for the front desk."
+    },
+    "links": [
+      { "vendor": "saffron-tandoor-catering", "kind": "approved_at" },
+      { "vendor": "royal-feast-caterers", "kind": "approved_at" }
+    ]
+  }
+]
