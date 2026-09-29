@@ -24,7 +24,17 @@
     "language": "Language",
     "english": "English",
     "punjabi": "ਪੰਜਾਬੀ",
-    "textSize": "Text size"
+    "textSize": "Text size",
+    "account": {
+      "signInTitle": "Save vendors and ask about prices",
+      "signInBody": "Make a free account with just your email. You can keep browsing without one.",
+      "signIn": "Sign in",
+      "finishTitle": "Finish setting up your account",
+      "finishBody": "Add your name, city and phone so vendors can reach you.",
+      "finish": "Continue",
+      "edit": "Edit my details",
+      "signOut": "Sign out"
+    }
   },
   "common": {
     "comingSoon": "Coming soon"
@@ -52,7 +62,10 @@
       "emailRequired": "Please type your email.",
       "emailInvalid": "Check your email. It should look like name@example.com.",
       "adultRequired": "You need to be 18 or older to make an account."
-    }
+    },
+    "emailLockedHint": "This is the email you signed in with.",
+    "save": "Save",
+    "saveFailed": "We couldn't save your details. Check your internet and try again."
   },
   "counts": {
     "vendorTypes": {
@@ -92,6 +105,31 @@
       "hand": "hand",
       "turban": "turban",
       "day": "day"
+    }
+  },
+  "signIn": {
+    "title": "Sign in or create an account",
+    "subtitle": "We'll email you a 6-digit code. No password needed.",
+    "email": "Your email",
+    "sendCode": "Email me a code",
+    "checkEmail": "Check your email",
+    "codeSentTo": "We sent a 6-digit code to {{email}}.",
+    "code": "6-digit code",
+    "verify": "Sign in",
+    "checkSpam": "Can't find it? Check your spam or junk folder.",
+    "resend": "Send a new code",
+    "resendIn": "You can ask for a new code in {{seconds}} seconds",
+    "newCodeSent": "We sent a new code. Check your email.",
+    "changeEmail": "Use a different email",
+    "signingIn": "Signing you in…",
+    "close": "Close",
+    "errors": {
+      "emailInvalid": "Check your email. It should look like name@example.com.",
+      "codeLength": "Type all 6 digits of the code.",
+      "codeWrong": "That code didn't work. It may be old or mistyped. Check the email, or send a new code.",
+      "tooMany": "Please wait a minute, then ask for a new code.",
+      "network": "We couldn't reach the internet. Check your connection and try again.",
+      "generic": "Something went wrong. Please try again."
     }
   }
 }

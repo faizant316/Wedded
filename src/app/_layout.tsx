@@ -19,6 +19,7 @@ import { useEffect } from 'react';
 
 import { Colors } from '@/constants/theme';
 import { queryClient } from '@/data/query-client';
+import { SessionProvider } from '@/features/auth/session';
 import { LocaleProvider } from '@/i18n/locale-context';
 
 SplashScreen.preventAutoHideAsync();
@@ -50,10 +51,15 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <LocaleProvider>
-        <StatusBar style="dark" />
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Colors.bg } }}>
-          <Stack.Screen name="(tabs)" />
-        </Stack>
+        <SessionProvider>
+          <StatusBar style="dark" />
+          <Stack
+            screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Colors.bg } }}
+          >
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="sign-in" options={{ presentation: 'modal' }} />
+          </Stack>
+        </SessionProvider>
       </LocaleProvider>
     </QueryClientProvider>
   );

@@ -38,7 +38,7 @@ export type AboutYouErrors = Partial<Record<AboutYouField, AboutYouErrorKey>>;
 const GURMUKHI_DIGIT_ZERO = 0x0a66;
 
 /** Gurmukhi digits (੦–੯) to 0–9, in case someone types or pastes them. */
-function toLatinDigits(text: string): string {
+export function toLatinDigits(text: string): string {
   return text.replace(/[੦-੯]/g, (digit) => String(digit.charCodeAt(0) - GURMUKHI_DIGIT_ZERO));
 }
 
@@ -66,6 +66,11 @@ export function normalizePhone(input: string): string | null {
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+/** True for something shaped like name@example.com (already trimmed and lowercased). */
+export function isValidEmail(email: string): boolean {
+  return EMAIL.test(email);
+}
+
 /** Every field is required: the errors to show, or the cleaned values when there are none. */
 export function validateAboutYou(draft: AboutYouDraft): {
   errors: AboutYouErrors;
@@ -85,7 +90,7 @@ export function validateAboutYou(draft: AboutYouDraft): {
 
   const email = draft.email.trim().toLowerCase();
   if (!email) errors.email = 'emailRequired';
-  else if (!EMAIL.test(email)) errors.email = 'emailInvalid';
+  else if (!isValidEmail(email)) errors.email = 'emailInvalid';
 
   if (!draft.isAdult) errors.isAdult = 'adultRequired';
 
