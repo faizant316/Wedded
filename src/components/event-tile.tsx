@@ -18,7 +18,8 @@ export type EventTileProps = {
   vendorCount?: number;
   /** A real photo from the event, when there is one. */
   photoUrl?: string | null;
-  onPress: () => void;
+  /** Opens the event. Without it the tile is display-only: no chevron, not tappable. */
+  onPress?: () => void;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -45,6 +46,7 @@ export function EventTile({
   return (
     <Card
       onPress={onPress}
+      accessible
       accessibilityLabel={[primary.text, ...counts].join(', ')}
       accessibilityLanguage={primary.lang}
       style={[styles.card, !!photoUrl && styles.withPhoto, style]}
@@ -65,12 +67,14 @@ export function EventTile({
           </AppText>
         )}
       </View>
-      <Ionicons
-        name="chevron-forward"
-        size={Sizes.icon * scale}
-        color={Colors.text2}
-        style={styles.chevron}
-      />
+      {onPress && (
+        <Ionicons
+          name="chevron-forward"
+          size={Sizes.icon * scale}
+          color={Colors.text2}
+          style={styles.chevron}
+        />
+      )}
     </Card>
   );
 }
