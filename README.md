@@ -28,7 +28,25 @@ npm run typecheck     # TypeScript
 npm run format        # Prettier (format:check runs in CI)
 ```
 
-Copy `.env.example` to `.env.local` and fill in the Supabase values once the project exists.
+### Local database (Supabase)
+
+Development runs on a local Supabase in Docker, so the dev database never pauses. One-time setup on a Mac:
+
+```bash
+brew install colima docker supabase/tap/supabase
+colima start --cpu 4 --memory 6 --disk 40   # Docker engine; run again after a restart
+```
+
+Then, from the repo:
+
+```bash
+npm run db:start      # starts Supabase locally (first run downloads a few GB)
+npm run db:status     # shows the local URL and publishable key
+npm run db:reset      # rebuilds the database from supabase/migrations and seed.sql
+npm run db:stop
+```
+
+Copy `.env.example` to `.env.local` and fill in the two values from `npm run db:status`. To test on a phone with Expo Go, use your Mac's Wi-Fi IP instead of `127.0.0.1` (`ipconfig getifaddr en0`). Supabase Studio, a web UI for the local database, is at http://127.0.0.1:54323.
 
 ## Layout
 
@@ -38,7 +56,8 @@ Copy `.env.example` to `.env.local` and fill in the Supabase values once the pro
 | `src/components/` | Reusable UI. `AppText` is the only text component: it picks the Latin or Gurmukhi font and sets line height |
 | `src/constants/theme.ts` | Colour, spacing, radius and type-scale tokens from the product vision |
 | `src/i18n/` | English and Punjabi strings, the `useLocale()` hook and the persisted language setting |
-| `src/lib/` | Small utilities (device storage) |
+| `src/lib/` | Small utilities (device storage, the Supabase client) |
+| `supabase/` | Local Supabase config, and later the database migrations and seed data |
 | `docs/` | Plan, decisions, product vision |
 
 ## Docs
