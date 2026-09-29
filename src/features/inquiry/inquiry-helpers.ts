@@ -46,7 +46,14 @@ type Translate = (key: string, options?: Record<string, string | number>) => str
 export function suggestedMessage(
   t: Translate,
   locale: Locale,
-  parts: { events: LocalizedText[]; date: string | null; place: string; guests: GuestBand | null },
+  parts: {
+    events: LocalizedText[];
+    date: string | null;
+    place: string;
+    guests: GuestBand | null;
+    /** Asking to visit a venue ("Book a tour"). */
+    tour?: boolean;
+  },
 ): string {
   const joiner = t('inquiry.auto.and');
   const events =
@@ -54,13 +61,15 @@ export function suggestedMessage(
       ? parts.events.map((event) => localized(event, locale)).join(` ${joiner} `)
       : t('inquiry.auto.wedding');
   const knownGuests = parts.guests && parts.guests !== 'not_sure' ? parts.guests : null;
-  const key = parts.date
-    ? knownGuests
-      ? 'withDateAndGuests'
-      : 'withDate'
-    : knownGuests
-      ? 'withGuests'
-      : 'plain';
+  const key = parts.tour
+    ? 'tour'
+    : parts.date
+      ? knownGuests
+        ? 'withDateAndGuests'
+        : 'withDate'
+      : knownGuests
+        ? 'withGuests'
+        : 'plain';
   return t(`inquiry.auto.${key}`, {
     events,
     date: parts.date ? formatDate(parts.date) : '',
@@ -75,6 +84,8 @@ export type InquiryVendor = {
   name: LocalizedText;
   city: string;
   category: LocalizedText | null;
+  /** The primary category's slug, which decides the category questions. */
+  categorySlug: string | null;
   callPhone: string | null;
   textPhone: string | null;
   whatsappPhone: string | null;
@@ -84,7 +95,7 @@ async function fetchInquiryVendor(vendorId: string): Promise<InquiryVendor | nul
   const { data, error } = await supabase
     .from('vendors')
     .select(
-      'id, slug, name, name_pa, city, call_phone, text_phone, whatsapp_phone, vendor_categories(position, category:categories(name))',
+      'id, slug, name, name_pa, city, call_phone, text_phone, whatsapp_phone, vendor_categories(position, category:categories(slug, name))',
     )
     .eq('id', vendorId)
     .maybeSingle();
@@ -97,6 +108,7 @@ async function fetchInquiryVendor(vendorId: string): Promise<InquiryVendor | nul
     name: data.name_pa ? { en: data.name, pa: data.name_pa } : { en: data.name },
     city: data.city,
     category: primary ? asLocalizedText(primary.category?.name) : null,
+    categorySlug: primary?.category?.slug ?? null,
     callPhone: data.call_phone,
     textPhone: data.text_phone,
     whatsappPhone: data.whatsapp_phone,

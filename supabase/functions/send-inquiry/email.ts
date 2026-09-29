@@ -84,6 +84,81 @@ function escapeHtml(value: string): string {
     .replaceAll("'", '&#39;');
 }
 
+/** "Harjit Kaur" as "Harjit K." */
+function shortName(name: string): string {
+  const [first, ...rest] = name.trim().split(/\s+/);
+  const last = rest.at(-1);
+  return last ? `${first} ${last[0].toUpperCase()}.` : first;
+}
+
+/** " (530)" for a US or Canada number, else nothing. */
+function areaCode(e164: string): string {
+  const us = /^\+1(\d{3})/.exec(e164);
+  return us ? ` (${us[1]})` : '';
+}
+
+const DETAIL_VALUES: Record<string, Record<string, string>> = {
+  catering: {
+    in_house: "The hall's food",
+    own: 'Bringing their own caterer',
+    not_sure: 'Not sure',
+  },
+  alcohol: { yes: 'Yes', no: 'No', not_sure: 'Not sure' },
+  food: { veg: 'Veg only', veg_nonveg: 'Veg and non-veg', jhatka: 'Jhatka', halal: 'Halal' },
+};
+
+const yesNo = (value: unknown) => (value === true ? 'Yes' : value === false ? 'No' : null);
+
+function capitalise(word: string): string {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
+/** The category answers (inquiry.details) as booking-sheet rows; unknown keys are skipped. */
+export function detailRows(details: Record<string, unknown>): [string, string][] {
+  const rows: [string, string][] = [];
+  const text = (value: unknown) => (typeof value === 'string' ? value.slice(0, 80) : null);
+
+  if (Array.isArray(details.tourSlots) && details.tourSlots.length > 0) {
+    const slots = details.tourSlots
+      .slice(0, 3)
+      .filter((slot): slot is { date: string; part: string } =>
+        typeof slot?.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(slot.date) &&
+        typeof slot?.part === 'string'
+      )
+      .map((slot) => `${formatDate(slot.date)} (${slot.part})`);
+    if (slots.length > 0) rows.push(['Could visit', slots.join('; ')]);
+  }
+  const catering = DETAIL_VALUES.catering[String(details.catering)];
+  if (catering) {
+    const caterer = text(details.ownCaterer);
+    rows.push([
+      'Food',
+      details.catering === 'own' && caterer ? `${catering}: ${caterer}` : catering,
+    ]);
+  }
+  const alcohol = DETAIL_VALUES.alcohol[String(details.alcohol)];
+  if (alcohol) rows.push(['Alcohol', alcohol]);
+  const ghoriDhol = yesNo(details.ghoriDhol);
+  if (ghoriDhol) rows.push(['Baraat with ghori and dhol', ghoriDhol]);
+  const sameDay = yesNo(details.sameDay);
+  if (sameDay) rows.push(['Lunch and evening same day', sameDay]);
+  const food = DETAIL_VALUES.food[String(details.food)];
+  if (food) rows.push(['Food', food]);
+  if (Array.isArray(details.liveStations) && details.liveStations.length > 0) {
+    rows.push([
+      'Live counters',
+      details.liveStations.filter((s) => typeof s === 'string').slice(0, 10).map(capitalise).join(
+        ', ',
+      ),
+    ]);
+  }
+  const hall = text(details.hall);
+  if (hall) rows.push(['Hall', hall]);
+  const tasting = yesNo(details.tasting);
+  if (tasting) rows.push(['Tasting', tasting]);
+  return rows;
+}
+
 export type InquiryEmailInput = {
   inquiryId: string;
   channel: 'email' | 'relay';
@@ -117,16 +192,24 @@ export function buildInquiryEmail(input: InquiryEmailInput): OutgoingEmail {
   // Replies to Apple's private relay addresses bounce, so vendors reply by phone instead
   const replyable = sender.email && !sender.email.endsWith('@privaterelay.appleid.com');
 
-  const events = input.eventNames.length > 0 ? input.eventNames.join(', ') : 'Not sure yet';
+  const isTour = inquiry.details.tour === true;
+  const eventList = input.eventNames.length > 0 ? input.eventNames.join(' + ') : 'Wedding';
   const date = inquiry.eventDate ? formatDate(inquiry.eventDate) : 'Date not fixed yet';
   const time = inquiry.startTime ? ` (around ${formatTime(inquiry.startTime)})` : '';
   const guests = GUEST_LABELS[inquiry.guestBand];
   const firstName = sender.name.split(' ')[0];
-  const subjectEvents = input.eventNames.length > 0 ? input.eventNames.join(' + ') : 'Wedding';
+  const phone = formatPhone(sender.phone);
 
-  let subject = `Inquiry: ${subjectEvents}, ${
-    inquiry.eventDate ? formatDate(inquiry.eventDate) : 'date not fixed'
-  }, ${guests.toLowerCase()} guests, from ${firstName} (${sender.city})`;
+  // The booking sheet subject (vision §10): "Jaago · Sat, Jun 13, 2027 ·
+  // Yuba City · 100 to 250 guests · from Harjit K. (530)"
+  let subject = [
+    ...(isTour ? ['Tour request'] : []),
+    eventList,
+    inquiry.eventDate ? formatDate(inquiry.eventDate) : 'date not fixed',
+    inquiry.location,
+    inquiry.guestBand === 'not_sure' ? 'guests not sure' : `${guests.toLowerCase()} guests`,
+    `from ${shortName(sender.name)}${areaCode(sender.phone)}`,
+  ].join(' · ');
   if (input.channel === 'relay') subject = `[Forward to ${input.vendorName}] ${subject}`;
 
   const notes: string[] = [];
@@ -143,19 +226,32 @@ export function buildInquiryEmail(input: InquiryEmailInput): OutgoingEmail {
   }
 
   const rows: [string, string][] = [
-    ['Events', events],
+    ['Events', input.eventNames.length > 0 ? input.eventNames.join(', ') : 'Not sure yet'],
     ['Date', `${date}${time}`],
     ['Guests', guests],
     ['Where', inquiry.location],
+    ...detailRows(inquiry.details),
     ['Best way to reply', CONTACT_LABELS[inquiry.preferredContact]],
-    ['Phone', formatPhone(sender.phone)],
   ];
   if (sender.email) rows.push(['Email', sender.email]);
+
+  const digits = sender.phone.replace(/\D/g, '');
+  const replyLinks: [string, string][] = [
+    ['Call', `tel:${sender.phone}`],
+    ['Text', `sms:${sender.phone}`],
+    ['WhatsApp', `https://wa.me/${digits}`],
+  ];
+
+  const heading = isTour
+    ? `${sender.name} (${sender.city}) would like to visit ${input.vendorName}`
+    : `New inquiry for ${input.vendorName} from ${sender.name} (${sender.city})`;
 
   const text = [
     ...notes,
     ...(notes.length > 0 ? [''] : []),
-    `New inquiry for ${input.vendorName} from ${sender.name} (${sender.city}).`,
+    `${heading}.`,
+    '',
+    `Phone: ${phone}`,
     '',
     ...rows.map(([label, value]) => `${label}: ${value}`),
     '',
@@ -165,12 +261,19 @@ export function buildInquiryEmail(input: InquiryEmailInput): OutgoingEmail {
     replyable
       ? `Reply to this email, or contact ${firstName} directly by ${
         CONTACT_LABELS[inquiry.preferredContact].toLowerCase()
-      }.`
-      : `Please contact ${firstName} by phone: ${formatPhone(sender.phone)}.`,
+      }: ${phone}.`
+      : `Please contact ${firstName} by phone: ${phone}.`,
     '',
     '--',
     `Sent through Wedding Vendor App. Families contact you directly; we never charge for introductions. Reference: ${input.inquiryId}`,
   ].join('\n');
+
+  const button = (label: string, href: string) =>
+    `<a href="${
+      escapeHtml(href)
+    }" style="display:inline-block;margin:0 8px 8px 0;padding:12px 18px;background:#8a1c30;color:#ffffff;border-radius:10px;font-size:16px;font-weight:bold;text-decoration:none;">${
+      escapeHtml(label)
+    }</a>`;
 
   const html = `<!doctype html>
 <html><body style="margin:0;padding:24px;background:#fdf8f0;font-family:Arial,Helvetica,sans-serif;color:#2b1a12;">
@@ -182,15 +285,19 @@ ${
       }</p>`
     ).join('\n')
   }
-<h1 style="font-size:20px;margin:0 0 16px;">New inquiry for ${escapeHtml(input.vendorName)} from ${
-    escapeHtml(sender.name)
-  } (${escapeHtml(sender.city)})</h1>
+<h1 style="font-size:20px;margin:0 0 12px;">${escapeHtml(heading)}</h1>
+<p style="font-size:30px;font-weight:bold;letter-spacing:1px;margin:0 0 12px;">${
+    escapeHtml(phone)
+  }</p>
+<p style="margin:0 0 16px;">${
+    replyLinks.map(([label, href]) => button(`Reply by ${label}`, href)).join('')
+  }</p>
 <table style="border-collapse:collapse;font-size:16px;margin:0 0 16px;">
 ${
     rows.map(([label, value]) =>
-      `<tr><td style="padding:4px 16px 4px 0;color:#5c4a40;">${
+      `<tr><td style="padding:6px 16px 6px 0;color:#5c4a40;vertical-align:top;">${
         escapeHtml(label)
-      }</td><td style="padding:4px 0;font-weight:bold;">${escapeHtml(value)}</td></tr>`
+      }</td><td style="padding:6px 0;font-weight:bold;">${escapeHtml(value)}</td></tr>`
     ).join('\n')
   }
 </table>

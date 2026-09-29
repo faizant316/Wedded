@@ -18,6 +18,16 @@ import { useSendInquiry, type GuestBand, type ReplyBy, type SendOutcome } from '
 import { useHomeEvents } from '@/data/reference';
 import { normalizePhone } from '@/features/auth/about-you-validation';
 import { useSession } from '@/features/auth/session';
+import { CatererQuestions, VenueQuestions } from '@/features/inquiry/category-questions';
+import {
+  catererDetails,
+  emptyCatererAnswers,
+  emptyVenueAnswers,
+  questionSetFor,
+  venueDetails,
+  type CatererAnswers,
+  type VenueAnswers,
+} from '@/features/inquiry/details';
 import {
   formatDate,
   fromDateString,
@@ -34,12 +44,14 @@ const REPLY_BY: ReplyBy[] = ['call', 'text', 'whatsapp', 'email'];
 
 /**
  * "Ask about price & date" (vision S11), a modal. `?vendorId=` is required;
- * `&event=` preselects the event they came from. Anyone can fill it in; Send
+ * `&event=` preselects the event they came from; `&kind=tour` on a venue asks
+ * for a visit ("Book a tour") with up to three preferred times. Anyone can fill it in; Send
  * asks logged-out people to sign in, then sends the same draft.
  */
 export default function AskScreen() {
   const { t, locale } = useLocale();
-  const params = useLocalSearchParams<{ vendorId?: string; event?: string }>();
+  const params = useLocalSearchParams<{ vendorId?: string; event?: string; kind?: string }>();
+  const isTour = params.kind === 'tour';
   const vendorId = params.vendorId ?? '';
   const vendor = useInquiryVendor(vendorId);
   const events = useHomeEvents();
@@ -59,6 +71,9 @@ export default function AskScreen() {
   const [error, setError] = useState<string>();
   const [duplicateAt, setDuplicateAt] = useState<string | null>(null);
   const [touched, setTouched] = useState(false);
+  const [venueAnswers, setVenueAnswers] = useState<VenueAnswers>(emptyVenueAnswers);
+  const [catererAnswers, setCatererAnswers] = useState<CatererAnswers>(emptyCatererAnswers);
+  const questionSet = questionSetFor(vendor.data?.categorySlug ?? null);
 
   const allEvents = events.data?.flatMap((section) => section.events) ?? [];
   const chosenEvents = allEvents.filter((event) => eventSlugs.includes(event.slug));
@@ -67,6 +82,7 @@ export default function AskScreen() {
     date: dateUnsure ? null : date,
     place,
     guests,
+    tour: isTour && questionSet === 'venue',
   });
   const message = ownMessage ?? suggested;
 
@@ -158,6 +174,12 @@ export default function AskScreen() {
       language: locale,
       name: name.trim() || undefined,
       phone: cleanPhone ?? undefined,
+      details:
+        questionSet === 'venue'
+          ? venueDetails(venueAnswers, isTour)
+          : questionSet === 'caterer'
+            ? catererDetails(catererAnswers)
+            : {},
       sendAgain,
     };
     requireSignIn(() =>
@@ -182,7 +204,7 @@ export default function AskScreen() {
     <Screen edges={['top', 'bottom']}>
       <View style={styles.topBar}>
         <AppText variant="heading" accessibilityRole="header" style={styles.grow}>
-          {t('inquiry.title')}
+          {t(isTour && questionSet === 'venue' ? 'inquiry.tourTitle' : 'inquiry.title')}
         </AppText>
         <Pressable
           accessibilityRole="button"
@@ -294,6 +316,17 @@ export default function AskScreen() {
           onChangeText={change(setPlace)}
           maxLength={120}
         />
+
+        {questionSet === 'venue' && (
+          <VenueQuestions
+            answers={venueAnswers}
+            onChange={change(setVenueAnswers)}
+            isTour={isTour}
+          />
+        )}
+        {questionSet === 'caterer' && (
+          <CatererQuestions answers={catererAnswers} onChange={change(setCatererAnswers)} />
+        )}
 
         <View style={styles.section}>
           <TextField
