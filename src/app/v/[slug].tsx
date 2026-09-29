@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import * as Linking from 'expo-linking';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import type { ComponentProps } from 'react';
-import { Alert, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { ActionButton } from '@/components/action-button';
 import { AppText, useFontScale } from '@/components/app-text';
@@ -135,8 +135,9 @@ function LinkedVendors({ title, vendors }: { title: string; vendors: LinkedVendo
 }
 
 /** Three square photos per row (vision doc S9 item 10), with credits read out. */
-function PhotoGrid({ photos }: { photos: VendorPhoto[] }) {
+function PhotoGrid({ vendorId, photos }: { vendorId: string; photos: VendorPhoto[] }) {
   const { t } = useLocale();
+  const router = useRouter();
   const rows: VendorPhoto[][] = [];
   for (let i = 0; i < photos.length; i += 3) rows.push(photos.slice(i, i + 3));
 
@@ -144,17 +145,31 @@ function PhotoGrid({ photos }: { photos: VendorPhoto[] }) {
     <View style={styles.grid}>
       {rows.map((row) => (
         <View key={row[0].id} style={styles.gridRow}>
-          {row.map((photo) => (
-            <Image
-              key={photo.id}
-              source={{ uri: photo.url.small }}
-              placeholder={photo.blurhash ? { blurhash: photo.blurhash } : undefined}
-              contentFit="cover"
-              accessible
-              accessibilityLabel={photo.credit ?? t('vendor.photo')}
-              style={styles.gridPhoto}
-            />
-          ))}
+          {row.map((photo) => {
+            const index = photos.indexOf(photo);
+            return (
+              <Pressable
+                key={photo.id}
+                accessibilityRole="imagebutton"
+                accessibilityLabel={t('gallery.open', {
+                  number: index + 1,
+                  total: photos.length,
+                })}
+                onPress={() =>
+                  router.push({ pathname: '/gallery', params: { vendorId, index: String(index) } })
+                }
+                style={styles.gridPhoto}
+              >
+                <Image
+                  source={{ uri: photo.url.small }}
+                  placeholder={photo.blurhash ? { blurhash: photo.blurhash } : undefined}
+                  contentFit="cover"
+                  accessible={false}
+                  style={styles.gridImage}
+                />
+              </Pressable>
+            );
+          })}
           {Array.from({ length: 3 - row.length }, (_, i) => (
             <View key={`gap-${i}`} style={styles.gridPhoto} />
           ))}
@@ -294,13 +309,24 @@ export default function VendorProfileScreen() {
     body = (
       <>
         {cover ? (
-          <Image
-            source={{ uri: cover.url.medium }}
-            placeholder={cover.blurhash ? { blurhash: cover.blurhash } : undefined}
-            contentFit="cover"
-            accessible={false}
-            style={styles.coverPhoto}
-          />
+          <Pressable
+            accessibilityRole="imagebutton"
+            accessibilityLabel={t('gallery.open', { number: 1, total: allPhotos.length })}
+            onPress={() =>
+              router.push({
+                pathname: '/gallery',
+                params: { vendorId: v.id, index: String(allPhotos.indexOf(cover)) },
+              })
+            }
+          >
+            <Image
+              source={{ uri: cover.url.medium }}
+              placeholder={cover.blurhash ? { blurhash: cover.blurhash } : undefined}
+              contentFit="cover"
+              accessible={false}
+              style={styles.coverPhoto}
+            />
+          </Pressable>
         ) : (
           <View style={styles.cover}>
             <Ionicons
@@ -436,7 +462,7 @@ export default function VendorProfileScreen() {
             <AppText variant="heading" accessibilityRole="header">
               {t('vendor.photos')}
             </AppText>
-            <PhotoGrid photos={allPhotos} />
+            <PhotoGrid vendorId={v.id} photos={allPhotos} />
           </View>
         )}
 
@@ -579,6 +605,10 @@ const styles = StyleSheet.create({
     flex: 1,
     aspectRatio: 1,
     borderRadius: Radius.checkbox,
+    overflow: 'hidden',
+  },
+  gridImage: {
+    flex: 1,
   },
   realWedding: {
     padding: 0,

@@ -106,6 +106,11 @@
     "photoBy": "Photo by {{name}}",
     "bookTour": "Book a tour"
   },
+  "gallery": {
+    "close": "Close",
+    "open": "Open photo {{number}} of {{total}}",
+    "photoOf": "Photo {{number}} of {{total}}"
+  },
   "founding": {
     "title": "Founding vendors",
     "intro": "The first vendors to join, in the order they joined.",
