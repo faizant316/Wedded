@@ -486,6 +486,9 @@ export default function VendorProfileScreen() {
             variant="secondary"
             icon={saved ? 'heart' : 'heart-outline'}
             label={saved ? t('vendor.saved') : t('vendor.save')}
+            accessibilityLabel={t(saved ? 'vendorCard.unsave' : 'vendorCard.save', {
+              name: localized(vendor.data.name, locale),
+            })}
             onPress={() => vendor.data && toggleSave(vendor.data.id, event)}
             style={!stackButtons && styles.save}
           />
