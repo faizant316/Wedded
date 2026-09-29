@@ -617,6 +617,89 @@ export type Database = {
           },
         ];
       };
+      vendor_media: {
+        Row: {
+          blurhash: string | null;
+          created_at: string;
+          credit_text: string | null;
+          credit_vendor_id: string | null;
+          event_slug: string | null;
+          height: number;
+          id: string;
+          is_cover: boolean;
+          kind: string;
+          sort_order: number;
+          storage_path: string;
+          updated_at: string;
+          vendor_id: string;
+          venue_vendor_id: string | null;
+          width: number;
+        };
+        Insert: {
+          blurhash?: string | null;
+          created_at?: string;
+          credit_text?: string | null;
+          credit_vendor_id?: string | null;
+          event_slug?: string | null;
+          height: number;
+          id?: string;
+          is_cover?: boolean;
+          kind?: string;
+          sort_order?: number;
+          storage_path: string;
+          updated_at?: string;
+          vendor_id: string;
+          venue_vendor_id?: string | null;
+          width: number;
+        };
+        Update: {
+          blurhash?: string | null;
+          created_at?: string;
+          credit_text?: string | null;
+          credit_vendor_id?: string | null;
+          event_slug?: string | null;
+          height?: number;
+          id?: string;
+          is_cover?: boolean;
+          kind?: string;
+          sort_order?: number;
+          storage_path?: string;
+          updated_at?: string;
+          vendor_id?: string;
+          venue_vendor_id?: string | null;
+          width?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'vendor_media_credit_vendor_id_fkey';
+            columns: ['credit_vendor_id'];
+            isOneToOne: false;
+            referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'vendor_media_event_slug_fkey';
+            columns: ['event_slug'];
+            isOneToOne: false;
+            referencedRelation: 'events';
+            referencedColumns: ['slug'];
+          },
+          {
+            foreignKeyName: 'vendor_media_vendor_id_fkey';
+            columns: ['vendor_id'];
+            isOneToOne: false;
+            referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'vendor_media_venue_vendor_id_fkey';
+            columns: ['venue_vendor_id'];
+            isOneToOne: false;
+            referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       vendor_private: {
         Row: {
           checks_email: boolean | null;
@@ -844,6 +927,7 @@ export type Database = {
         };
         Returns: {
           city: string;
+          cover_path: string;
           distance_miles: number;
           founding_number: number;
           id: string;

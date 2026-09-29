@@ -12,6 +12,8 @@ import { useSession } from '@/features/auth/session';
 import { asLocalizedText, type LocalizedText } from '@/i18n/localized';
 import { supabase } from '@/lib/supabase';
 
+import { photoUrl } from './vendor-media';
+
 export const savedKeys = {
   all: ['saved'] as const,
   list: (userId: string) => [...savedKeys.all, userId] as const,
@@ -30,6 +32,8 @@ export type SavedVendor = {
     city: string;
     category: LocalizedText | null;
     startingPrice: { amount: number; unit?: PriceUnit } | null;
+    /** Small cover photo, or null when they have none. */
+    photoUrl: string | null;
   } | null;
 };
 
@@ -47,11 +51,19 @@ function isPriceUnit(value: string | null): value is PriceUnit {
   return value !== null && PRICE_UNITS.includes(value);
 }
 
+/** The cover photo (or first photo) as a small URL. */
+function coverOf(media: { storage_path: string; is_cover: boolean; sort_order: number }[]) {
+  const [first] = [...media].sort(
+    (a, b) => Number(b.is_cover) - Number(a.is_cover) || a.sort_order - b.sort_order,
+  );
+  return first ? photoUrl(first.storage_path, 'small') : null;
+}
+
 async function fetchSaved(): Promise<SavedVendor[]> {
   const { data, error } = await supabase
     .from('saved_vendors')
     .select(
-      'id, vendor_id, event_slug, vendor:vendors(slug, name, name_pa, city, price_display, price_from, price_unit, vendor_categories(position, category:categories(name)))',
+      'id, vendor_id, event_slug, vendor:vendors(slug, name, name_pa, city, price_display, price_from, price_unit, vendor_categories(position, category:categories(name)), vendor_media!vendor_media_vendor_id_fkey(storage_path, is_cover, sort_order))',
     )
     .order('created_at', { ascending: false });
   if (error) throw error;
@@ -71,6 +83,7 @@ async function fetchSaved(): Promise<SavedVendor[]> {
       eventSlug: row.event_slug,
       vendor: {
         slug: vendor.slug,
+        photoUrl: coverOf(vendor.vendor_media),
         name: vendor.name_pa ? { en: vendor.name, pa: vendor.name_pa } : { en: vendor.name },
         city: vendor.city,
         category: primary ? asLocalizedText(primary.category?.name) : null,

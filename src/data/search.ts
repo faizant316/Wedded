@@ -12,6 +12,8 @@ import { asLocalizedText, type LocalizedText } from '@/i18n/localized';
 import { supabase } from '@/lib/supabase';
 import type { Database } from '@/types/database';
 
+import { photoUrl } from './vendor-media';
+
 type SearchFunction = Database['public']['Functions']['search_vendors'];
 type Nullable<T> = { [K in keyof T]: T[K] | null };
 
@@ -48,6 +50,8 @@ export type VendorResult = {
   withinSearchRadius: boolean | null;
   latitude: number;
   longitude: number;
+  /** Small cover photo for VendorCard, or null when they have no photos yet. */
+  photoUrl: string | null;
 };
 
 const PRICE_UNITS: readonly string[] = [
@@ -106,6 +110,7 @@ export async function searchVendors(params: VendorSearch): Promise<VendorResult[
       withinSearchRadius: row.within_search_radius,
       latitude: row.latitude ?? 0,
       longitude: row.longitude ?? 0,
+      photoUrl: row.cover_path ? photoUrl(row.cover_path, 'small') : null,
     };
   });
 }
