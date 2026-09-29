@@ -80,6 +80,13 @@ Settings for the hosted project (set once with `supabase secrets set NAME=value`
 | `FOUNDERS_EMAIL` | Founders' emails, comma-separated: a blind copy of every inquiry, and relayed inquiries for vendors who don't use email |
 | `INQUIRY_TEST_INBOX` | While testing, every vendor email goes here instead of to the vendor |
 
+The nightly job that sends queued inquiries (when the daily email limit was reached) reads two values from the database's Vault. Set them once per hosted project in the SQL editor:
+
+```sql
+select vault.create_secret('https://<project-ref>.supabase.co', 'project_url');
+select vault.create_secret('<service role key>', 'service_role_key');
+```
+
 ## Layout
 
 | Path | What lives there |

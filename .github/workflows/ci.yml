@@ -83,6 +83,9 @@ jobs:
             (cd "$dir" && deno check index.ts && deno lint && deno fmt --check)
             echo "::endgroup::"
           done
+          echo "::group::supabase/functions/_shared/"
+          (cd supabase/functions/_shared && deno lint && deno fmt --check)
+          echo "::endgroup::"
 
   # Squash-merge the PR into main as soon as the checks pass, so nobody has to
   # click merge. Drafts are skipped: open a draft when the other founder should

@@ -972,6 +972,7 @@ export type Database = {
         };
         Returns: Json;
       };
+      inquiry_emails_left_today: { Args: Record<PropertyKey, never>; Returns: number };
       search_vendors: {
         Args: {
           category_slug?: string;

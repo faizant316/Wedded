@@ -18,8 +18,8 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-import { buildInquiryEmail, sendEmail } from './email.ts';
-import { parseInquiry } from './validate.ts';
+import { buildInquiryEmail, sendEmail } from '../_shared/inquiry-email.ts';
+import { parseInquiry } from '../_shared/inquiry-input.ts';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ??

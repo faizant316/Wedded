@@ -11,7 +11,7 @@
 // How it's sent: Resend when RESEND_API_KEY is set (production), otherwise
 // the local Mailpit when MAILPIT_URL is set (npm run db:start).
 
-import type { Contact, GuestBand, InquiryInput } from './validate.ts';
+import type { Contact, GuestBand, InquiryInput } from './inquiry-input.ts';
 
 export type OutgoingEmail = {
   from: string;
