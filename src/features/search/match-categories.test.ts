@@ -1,0 +1,48 @@
+import { matchCategories } from './match-categories';
+
+const categories = [
+  { slug: 'dhol', name: { en: 'Dhol player', pa: 'ਢੋਲੀ' }, aliases: ['dhol', 'dholi', 'ਢੋਲ'] },
+  { slug: 'dholki-singers', name: { en: 'Dholki and sangeet singers' }, aliases: [] },
+  {
+    slug: 'mehndi-artist',
+    name: { en: 'Mehndi artist', pa: 'ਮਹਿੰਦੀ' },
+    aliases: ['henna', 'mehendi'],
+  },
+  {
+    slug: 'banquet-hall',
+    name: { en: 'Banquet hall', pa: 'ਬੈਂਕੁਇਟ ਹਾਲ' },
+    aliases: ['hall', 'palace'],
+  },
+  { slug: 'community-center', name: { en: 'Community center' }, aliases: ['community hall'] },
+];
+const slugs = (text: string) => matchCategories(categories, text).map((c) => c.slug);
+
+describe('matchCategories', () => {
+  it('puts an exact alias first', () => {
+    expect(slugs('dhol')).toEqual(['dhol', 'dholki-singers']);
+  });
+
+  it('matches Gurmukhi names and aliases', () => {
+    expect(slugs('ਢੋਲ')).toEqual(['dhol']);
+    expect(slugs('ਮਹਿੰਦੀ')).toEqual(['mehndi-artist']);
+  });
+
+  it('matches the words parents use', () => {
+    expect(slugs('henna')).toEqual(['mehndi-artist']);
+    expect(slugs('palace')).toEqual(['banquet-hall']);
+  });
+
+  it('matches a word inside a longer name', () => {
+    expect(slugs('hall')).toEqual(['banquet-hall', 'community-center']);
+  });
+
+  it('ignores case and extra spaces', () => {
+    expect(slugs('  DHOL  ')).toEqual(slugs('dhol'));
+  });
+
+  it('matches nothing for empty or unknown text', () => {
+    expect(slugs('')).toEqual([]);
+    expect(slugs('   ')).toEqual([]);
+    expect(slugs('zzz')).toEqual([]);
+  });
+});
