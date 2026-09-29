@@ -208,3 +208,104 @@ from (values
   ('00000000-0000-4000-8000-000000000008', array['reception', 'mehndi', 'maiyan', 'sangeet', 'chunni-kurmai', 'jaago', 'milni']),
   ('00000000-0000-4000-8000-000000000009', array['anand-karaj', 'reception', 'choora', 'chunni-kurmai', 'sangeet'])
 ) as v (vendor_id, events);
+
+-- More sample vendors across the reception categories -------------------------
+-- The November demo needs 20 to 25 (vision §13). Same rules as above: made-up
+-- names, 555-01xx numbers, example.com emails, city points for home-based
+-- vendors. A few carry founding numbers for the Founding Wall.
+
+create temporary table more_samples (
+  n integer, slug text, name text, tagline text, city_slug text, radius smallint,
+  category text, category2 text, price_display text, price_from integer, price_to integer,
+  unit text, phone text, contact text, languages text[], events text[], founding smallint
+);
+
+insert into more_samples values
+  (10, 'grand-sutter-hotel-ballroom', 'Grand Sutter Hotel Ballroom', 'Ballroom for 600 with in-house catering and a bridal suite.',
+    'yuba-city', 25, 'hotel-ballroom', null, 'starting_at', 85, null, 'plate', '+15305550110', 'call', '{en,pa}',
+    '{reception,viah-di-roti,sangeet}', 2),
+  (11, 'saffron-tandoor-catering', 'Saffron Tandoor Catering', 'Punjabi menus for 100 to 1,200 guests, live tandoor on site.',
+    'yuba-city', 50, 'caterer', 'live-counters', 'starting_at', 18, null, 'person', '+15305550111', 'call', '{pa,en}',
+    '{reception,jaago,viah-di-roti,sangeet,mehndi,roka,chunni-kurmai}', 3),
+  (12, 'royal-feast-caterers', 'Royal Feast Caterers', 'Veg and non-veg, jhatka on request, halwai for home functions.',
+    'sacramento', 100, 'caterer', 'halwai', 'starting_at', 20, null, 'person', '+19165550112', 'text', '{en,pa,hi}',
+    '{reception,jaago,viah-di-roti,sangeet,mehndi,maiyan,akhand-paath}', null),
+  (13, 'dhol-di-awaaz', 'Dhol Di Awaaz', 'Dhol for baraat, jaago and reception entrances.',
+    'yuba-city', 50, 'dhol', null, 'starting_at', 350, null, 'event', '+15305550113', 'whatsapp', '{pa,en}',
+    '{jaago,baraat,sehra-ghori,reception,mehndi,sangeet}', 4),
+  (14, 'valley-beats-dj', 'Valley Beats DJ', 'Bhangra and Bollywood, with an MC in Punjabi and English.',
+    'yuba-city', 100, 'dj', 'mc-host', 'starting_at', 1200, null, 'event', '+15305550114', 'text', '{en,pa}',
+    '{reception,jaago,sangeet,mehndi,chunni-kurmai}', null),
+  (15, 'glowline-lighting', 'Glowline Lighting & LED', 'Uplighting, LED walls and dance floors.',
+    'sacramento', 100, 'lighting', null, 'starting_at', 900, null, 'event', '+19165550115', 'call', '{en}',
+    '{reception,jaago,sangeet}', null),
+  (16, 'marigold-stage-decor', 'Marigold Stage Decor', 'Reception stages, phulkari mehndi setups and jaago decor.',
+    'yuba-city', 50, 'decorator', 'florist', 'range', 3000, 12000, 'event', '+15305550116', 'call', '{pa,en}',
+    '{reception,mehndi,sangeet,jaago,maiyan,chunni-kurmai}', 5),
+  (17, 'frames-by-jas', 'Frames by Jas', 'Gurdwara-experienced photography, every event.',
+    'sacramento', 250, 'photographer', null, 'starting_at', 2500, null, 'event', '+19165550117', 'instagram', '{en,pa}',
+    '{anand-karaj,reception,jaago,mehndi,milni,doli,choora}', null),
+  (18, 'reel-story-films', 'Reel Story Films', 'Wedding films and same-day edits.',
+    'fremont', 250, 'videographer', 'drone', 'starting_at', 3000, null, 'event', '+15105550118', 'text', '{en}',
+    '{anand-karaj,reception,jaago,mehndi,milni,doli,choora}', null),
+  (19, 'bridal-glam-by-noor', 'Bridal Glam by Noor', 'Bridal makeup and hair, ready early for the Anand Karaj.',
+    'yuba-city', 50, 'makeup', null, 'starting_at', 300, null, 'event', '+15305550119', 'text', '{en,pa}',
+    '{anand-karaj,reception,choora,sangeet}', null),
+  (20, 'sufi-nights-live', 'Sufi Nights Live', 'Live Punjabi and Sufi sets with a four-piece band.',
+    'stockton', 250, 'live-singer', null, 'starting_at', 1500, null, 'event', '+12095550120', 'call', '{pa,en}',
+    '{reception,sangeet,jaago}', null),
+  (21, 'bhangra-empire-team', 'Bhangra Empire', 'Bhangra and giddha performances and entrances.',
+    'fremont', 250, 'bhangra-team', null, 'starting_at', 800, null, 'event', '+15105550121', 'instagram', '{en,pa}',
+    '{reception,sangeet,jaago,baraat}', null),
+  (22, 'pour-house-bartending', 'Pour House Bartending', 'Licensed bartenders for receptions and jaagos.',
+    'sacramento', 100, 'bar-service', null, 'starting_at', 1500, null, 'event', '+19165550122', 'call', '{en}',
+    '{reception,jaago}', null),
+  (23, 'shield-event-security', 'Shield Event Security', 'Licensed guards, as most halls require when alcohol is served.',
+    'yuba-city', 100, 'security', null, 'starting_at', 45, null, 'hour', '+15305550123', 'call', '{en,pa}',
+    '{reception,jaago}', null),
+  (24, 'sweet-rasoi-cakes', 'Sweet Rasoi Cakes', 'Eggless wedding cakes and dessert tables.',
+    'elk-grove', 50, 'cake-desserts', null, 'starting_at', 250, null, 'event', '+19165550124', 'text', '{en,pa}',
+    '{reception}', null),
+  (25, 'snapbox-360-booth', 'SnapBox 360 Booth', 'Photo booth and 360 booth with instant prints.',
+    'sacramento', 100, 'photo-booth', null, 'starting_at', 600, null, 'event', '+19165550125', 'text', '{en}',
+    '{reception,sangeet}', null);
+
+insert into public.vendors (
+  id, slug, status, is_sample, name, tagline, city, location, service_radius_miles,
+  call_phone, text_phone, preferred_contact, languages,
+  price_display, price_from, price_to, price_unit, founding_number
+)
+select
+  ('00000000-0000-4000-8000-0000000000' || lpad(m.n::text, 2, '0'))::uuid, m.slug, 'published', true,
+  m.name, m.tagline, c.name, c.location, m.radius, m.phone, m.phone, m.contact, m.languages,
+  m.price_display, m.price_from, m.price_to, m.unit, m.founding
+from more_samples m
+join public.cities c on c.slug = m.city_slug;
+
+-- The hotel ballroom has a public address
+update public.vendors
+set address_visibility = 'public',
+    address_line = '700 Sample Plaza Dr, Yuba City, CA 95991',
+    location = 'SRID=4326;POINT(-121.6150 39.1380)',
+    office_hours = 'Every day, 9 AM to 6 PM',
+    details = '{"seated_capacity": 600, "in_house_catering": "yes", "outside_catering": "no",
+      "alcohol_policy": "full_bar", "bridal_suite": true, "parking_spaces": 300}'
+where slug = 'grand-sutter-hotel-ballroom';
+
+insert into public.vendor_private (vendor_id, email, checks_email, owner_name)
+select ('00000000-0000-4000-8000-0000000000' || lpad(m.n::text, 2, '0'))::uuid,
+  replace(m.slug, '-', '.') || '@example.com', true, 'Sample Owner ' || m.n
+from more_samples m;
+
+insert into public.vendor_categories (vendor_id, category_slug, position)
+select ('00000000-0000-4000-8000-0000000000' || lpad(m.n::text, 2, '0'))::uuid, m.category, 1
+from more_samples m
+union all
+select ('00000000-0000-4000-8000-0000000000' || lpad(m.n::text, 2, '0'))::uuid, m.category2, 2
+from more_samples m where m.category2 is not null;
+
+insert into public.vendor_events (vendor_id, event_slug)
+select ('00000000-0000-4000-8000-0000000000' || lpad(m.n::text, 2, '0'))::uuid, unnest(m.events)
+from more_samples m;
+
+drop table more_samples;
