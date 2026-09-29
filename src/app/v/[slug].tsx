@@ -8,11 +8,13 @@ import { ActionButton } from '@/components/action-button';
 import { AppText, useFontScale } from '@/components/app-text';
 import { BackButton } from '@/components/back-button';
 import { Button } from '@/components/button';
+import { Card } from '@/components/card';
 import { groupIcon } from '@/components/group-icon';
 import { Screen } from '@/components/screen';
 import { StateView } from '@/components/state-view';
 import { BorderWidth, Colors, Radius, Sizes, Spacing } from '@/constants/theme';
 import { useSavedEventsFor, useSaveVendor } from '@/data/saved';
+import { useVendorLinks, type LinkedVendor } from '@/data/vendor-links';
 import { useVendor, type HallFacts, type VendorPrice } from '@/data/vendors';
 import { bilingual, localized, vendorText } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
@@ -92,6 +94,44 @@ function factLabels(facts: HallFacts, t: Translate): string[] {
   return labels;
 }
 
+/**
+ * Other vendors linked to this one (approved caterers, venues that approved
+ * them, worked with), each opening their own profile. Nothing when empty.
+ */
+function LinkedVendors({ title, vendors }: { title: string; vendors: LinkedVendor[] }) {
+  const router = useRouter();
+  const { locale } = useLocale();
+  const scale = useFontScale('body');
+  if (vendors.length === 0) return null;
+
+  return (
+    <View style={styles.section}>
+      <AppText variant="heading" accessibilityRole="header">
+        {title}
+      </AppText>
+      {vendors.map((linked) => {
+        const name = localized(linked.name, locale);
+        return (
+          <Card
+            key={linked.id}
+            onPress={() => router.push({ pathname: '/v/[slug]', params: { slug: linked.slug } })}
+            accessibilityLabel={`${name}, ${linked.city}`}
+            style={styles.linkRow}
+          >
+            <View style={styles.lineText}>
+              <AppText variant="bodyLg" weight={700}>
+                {name}
+              </AppText>
+              <AppText color="text2">{linked.city}</AppText>
+            </View>
+            <Ionicons name="chevron-forward" size={Sizes.icon * scale} color={Colors.text2} />
+          </Card>
+        );
+      })}
+    </View>
+  );
+}
+
 /** S9 Vendor profile. Deep link: /v/{slug}. Opens over the tabs. */
 export default function VendorProfileScreen() {
   // `event` is set when they came from an event, so Save and Ask use it.
@@ -100,6 +140,7 @@ export default function VendorProfileScreen() {
   const { locale, t } = useLocale();
   const scale = useFontScale('body');
   const vendor = useVendor(slug);
+  const links = useVendorLinks(vendor.data?.id ?? '');
   const { toggleSave } = useSaveVendor();
   const saved = useSavedEventsFor(vendor.data?.id ?? '').length > 0;
 
@@ -326,6 +367,20 @@ export default function VendorProfileScreen() {
           </View>
         )}
 
+        {links.data && (
+          <>
+            <LinkedVendors
+              title={t('vendor.approvedCaterers')}
+              vendors={links.data.approvedCaterers}
+            />
+            <LinkedVendors
+              title={t('vendor.approvedAt', { count: links.data.approvedAt.length })}
+              vendors={links.data.approvedAt}
+            />
+            <LinkedVendors title={t('vendor.workedWith')} vendors={links.data.workedWith} />
+          </>
+        )}
+
         {bio && (
           <View style={styles.section}>
             <AppText variant="heading" accessibilityRole="header">
@@ -430,6 +485,12 @@ const styles = StyleSheet.create({
   },
   tabular: {
     fontVariant: ['tabular-nums'],
+  },
+  linkRow: {
+    minHeight: Sizes.row,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
   },
   actions: {
     flexDirection: 'row',

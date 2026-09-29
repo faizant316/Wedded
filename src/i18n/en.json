@@ -91,7 +91,13 @@
     "openFailed": "This phone couldn't open that. Try the number under Contact.",
     "save": "Save",
     "saved": "Saved",
-    "ask": "Ask about price & date"
+    "ask": "Ask about price & date",
+    "approvedCaterers": "Approved caterers",
+    "approvedAt": {
+      "one": "Approved at 1 venue",
+      "other": "Approved at {{count}} venues"
+    },
+    "workedWith": "Has worked with"
   },
   "founding": {
     "title": "Founding vendors",
