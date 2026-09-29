@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, StyleSheet } from 'react-native';
 
 import { AppText, useFontScale } from '@/components/app-text';
-import { BorderWidth, Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { BorderWidth, Colors, Elevation, Radius, Sizes, Spacing } from '@/constants/theme';
 import { useLocale } from '@/i18n/locale-context';
 
 /**
@@ -37,9 +37,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.sm,
     borderRadius: Radius.button,
-    borderWidth: BorderWidth.strong,
+    borderWidth: BorderWidth.control,
     borderColor: Colors.borderInput,
     backgroundColor: Colors.surface,
+    boxShadow: Elevation.card,
   },
   pressed: {
     borderColor: Colors.primary,

@@ -1,8 +1,9 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Colors, FontFamilies, Sizes } from '@/constants/theme';
+import { Colors, Elevation, FontFamilies, Radius, Sizes, Spacing } from '@/constants/theme';
 import { useLocale } from '@/i18n/locale-context';
 
 type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
@@ -40,7 +41,8 @@ export default function TabsLayout() {
           paddingBottom: insets.bottom + 6,
           paddingTop: 6,
           backgroundColor: Colors.surface,
-          borderTopColor: Colors.border,
+          borderTopWidth: 0,
+          boxShadow: Elevation.bar,
         },
         tabBarLabelStyle: {
           fontFamily: FontFamilies[locale][600],
@@ -48,6 +50,8 @@ export default function TabsLayout() {
           lineHeight: 18,
         },
         tabBarItemStyle: { minHeight: Sizes.tapTarget },
+        // Room for the pill around the current tab's icon.
+        tabBarIconStyle: { width: Sizes.tabIcon + Spacing.lg * 2, height: Sizes.tabIcon + 4 },
       }}
     >
       {TABS.map((tab) => (
@@ -56,12 +60,16 @@ export default function TabsLayout() {
           name={tab.name}
           options={{
             title: t(tab.labelKey),
+            // The current tab's icon sits on a soft maroon pill, as well as
+            // being filled, so the colour isn't the only signal.
             tabBarIcon: ({ color, focused }) => (
-              <Ionicons
-                name={focused ? tab.iconFilled : tab.icon}
-                size={Sizes.tabIcon}
-                color={color}
-              />
+              <View style={[styles.iconPill, focused && styles.iconPillActive]}>
+                <Ionicons
+                  name={focused ? tab.iconFilled : tab.icon}
+                  size={Sizes.tabIcon}
+                  color={color}
+                />
+              </View>
             ),
           }}
         />
@@ -69,3 +77,14 @@ export default function TabsLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  iconPill: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: 2,
+    borderRadius: Radius.chip,
+  },
+  iconPillActive: {
+    backgroundColor: Colors.primaryTint,
+  },
+});

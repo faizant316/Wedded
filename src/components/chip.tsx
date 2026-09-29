@@ -8,7 +8,15 @@ import {
 } from 'react-native';
 
 import { AppText, useFontScale } from '@/components/app-text';
-import { BorderWidth, Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import {
+  BorderWidth,
+  Colors,
+  gradient,
+  Gradients,
+  Radius,
+  Sizes,
+  Spacing,
+} from '@/constants/theme';
 
 export type ChipProps = Omit<PressableProps, 'children' | 'style'> & {
   label: string;
@@ -58,18 +66,18 @@ export function Chip({
       {...rest}
       style={({ pressed }) => [
         styles.chip,
-        selected && styles.selected,
         pressed && styles.pressed,
+        selected && styles.selected,
         disabled && styles.disabled,
         style,
       ]}
     >
       {selected && (
-        <Ionicons name="checkmark" size={Sizes.iconSmall * scale} color={Colors.primary} />
+        <Ionicons name="checkmark" size={Sizes.iconSmall * scale} color={Colors.onPrimary} />
       )}
       <AppText
         variant="label"
-        color={disabled ? 'text2' : selected ? 'primary' : 'text'}
+        color={disabled ? 'text2' : selected ? 'onPrimary' : 'text'}
         style={styles.label}
       >
         {label}
@@ -95,7 +103,8 @@ const styles = StyleSheet.create({
   },
   selected: {
     borderColor: Colors.primary,
-    backgroundColor: Colors.primaryTint,
+    backgroundColor: Colors.primary,
+    ...gradient(Gradients.primary),
   },
   pressed: {
     backgroundColor: Colors.primaryTint,

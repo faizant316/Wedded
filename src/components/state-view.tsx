@@ -11,7 +11,8 @@ import {
 
 import { AppText } from '@/components/app-text';
 import { Button } from '@/components/button';
-import { Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { SkeletonCards } from '@/components/skeleton';
+import { Colors, gradient, Gradients, Radius, Sizes, Spacing } from '@/constants/theme';
 import { useLocale } from '@/i18n/locale-context';
 
 type IoniconName = ComponentProps<typeof Ionicons>['name'];
@@ -23,7 +24,11 @@ type Common = {
 };
 
 export type StateViewProps =
-  | (Common & { state: 'loading' })
+  | (Common & {
+      state: 'loading';
+      /** cards (default): pulsing card shapes. spinner: for dark screens like the photo viewer. */
+      look?: 'cards' | 'spinner';
+    })
   | (Common & {
       state: 'empty';
       message: string;
@@ -58,12 +63,13 @@ export function StateView(props: StateViewProps) {
         accessibilityRole="progressbar"
         accessibilityLabel={message}
         accessibilityState={{ busy: true }}
-        style={[styles.container, style]}
+        style={[props.look === 'spinner' ? styles.container : styles.skeleton, style]}
       >
-        <ActivityIndicator size="large" color={Colors.primary} />
-        <AppText variant="bodyLg" color="text2" style={styles.message}>
-          {message}
-        </AppText>
+        {props.look === 'spinner' ? (
+          <ActivityIndicator size="large" color={Colors.primary} />
+        ) : (
+          <SkeletonCards />
+        )}
       </View>
     );
   }
@@ -102,11 +108,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.xxl,
   },
+  skeleton: {
+    paddingVertical: Spacing.sm,
+  },
   iconCircle: {
     alignSelf: 'center',
-    padding: Spacing.lg,
+    padding: Spacing.xl,
     borderRadius: Radius.circle,
-    backgroundColor: Colors.primaryTint,
+    backgroundColor: Colors.accentTint,
+    ...gradient(Gradients.iconWash),
   },
   message: {
     textAlign: 'center',

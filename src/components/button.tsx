@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { ComponentProps } from 'react';
 import {
   ActivityIndicator,
+  Animated,
   Pressable,
   StyleSheet,
   type PressableProps,
@@ -10,7 +11,21 @@ import {
 } from 'react-native';
 
 import { AppText, useFontScale } from '@/components/app-text';
-import { BorderWidth, Colors, Radius, Sizes, Spacing, type ColorToken } from '@/constants/theme';
+import { usePressFeedback } from '@/components/motion';
+import {
+  BorderWidth,
+  Colors,
+  Elevation,
+  gradient,
+  Gradients,
+  noGradient,
+  Radius,
+  Sizes,
+  Spacing,
+  type ColorToken,
+} from '@/constants/theme';
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 type IoniconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -48,24 +63,30 @@ export function Button({
   disabled = false,
   style,
   accessibilityLabel,
+  onPressIn,
+  onPressOut,
   ...rest
 }: ButtonProps) {
   const labelColor: ColorToken = disabled ? 'text2' : LABEL_COLOR[variant];
   const scale = useFontScale('button');
+  const press = usePressFeedback(onPressIn, onPressOut);
+  const off = disabled || loading;
 
   return (
-    <Pressable
+    <AnimatedPressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
-      accessibilityState={{ disabled: disabled || loading, busy: loading }}
-      disabled={disabled || loading}
+      accessibilityState={{ disabled: off, busy: loading }}
+      disabled={off}
       {...rest}
-      style={({ pressed }) => [
+      {...press.handlers}
+      style={[
         styles.base,
         styles[variant],
-        pressed && pressedStyles[variant],
+        press.pressed && pressedStyles[variant],
         disabled && variant !== 'text' && styles.disabled,
         style,
+        { transform: press.transform },
       ]}
     >
       {loading ? (
@@ -76,7 +97,7 @@ export function Button({
       <AppText variant="button" color={labelColor} style={styles.label}>
         {label}
       </AppText>
-    </Pressable>
+    </AnimatedPressable>
   );
 }
 
@@ -93,6 +114,8 @@ const styles = StyleSheet.create({
   },
   primary: {
     backgroundColor: Colors.primary,
+    ...gradient(Gradients.primary),
+    boxShadow: Elevation.button,
   },
   secondary: {
     backgroundColor: Colors.surface,
@@ -108,6 +131,8 @@ const styles = StyleSheet.create({
   disabled: {
     backgroundColor: Colors.skeleton,
     borderColor: Colors.skeleton,
+    ...noGradient,
+    boxShadow: 'none',
   },
   label: {
     flexShrink: 1,
@@ -118,6 +143,7 @@ const styles = StyleSheet.create({
 const pressedStyles = StyleSheet.create({
   primary: {
     backgroundColor: Colors.primaryPressed,
+    ...noGradient,
   },
   secondary: {
     backgroundColor: Colors.primaryTint,

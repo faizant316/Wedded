@@ -1,4 +1,5 @@
 import {
+  Animated,
   Pressable,
   StyleSheet,
   View,
@@ -7,7 +8,10 @@ import {
   type ViewStyle,
 } from 'react-native';
 
-import { BorderWidth, Colors, Radius, Spacing } from '@/constants/theme';
+import { usePressFeedback } from '@/components/motion';
+import { Colors, Elevation, Radius, Spacing } from '@/constants/theme';
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export type CardProps = Omit<ViewProps, 'style'> & {
   /** Makes the whole card one tap target. Give it an `accessibilityLabel` that
@@ -17,11 +21,14 @@ export type CardProps = Omit<ViewProps, 'style'> & {
 };
 
 /**
- * White rounded surface on the cream page. Grows with its content (never a
- * fixed height) so Punjabi and large text don't clip. Pass `style={{ padding: 0 }}`
- * for edge-to-edge photos; the corners clip the photo.
+ * White rounded surface lifted off the cream page by a soft shadow. Grows with
+ * its content (never a fixed height) so Punjabi and large text don't clip.
+ * Tappable cards shrink a little while held. Pass `style={{ padding: 0 }}` for
+ * edge-to-edge photos; the corners clip the photo.
  */
 export function Card({ onPress, style, children, ...rest }: CardProps) {
+  const press = usePressFeedback();
+
   if (!onPress) {
     return (
       <View {...rest} style={[styles.card, style]}>
@@ -31,14 +38,15 @@ export function Card({ onPress, style, children, ...rest }: CardProps) {
   }
 
   return (
-    <Pressable
+    <AnimatedPressable
       accessibilityRole="button"
       {...rest}
+      {...press.handlers}
       onPress={onPress}
-      style={({ pressed }) => [styles.card, pressed && styles.pressed, style]}
+      style={[styles.card, press.pressed && styles.pressed, style, { transform: press.transform }]}
     >
       {children}
-    </Pressable>
+    </AnimatedPressable>
   );
 }
 
@@ -46,13 +54,11 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: Colors.surface,
     borderRadius: Radius.card,
-    borderWidth: BorderWidth.hairline,
-    borderColor: Colors.border,
     padding: Spacing.lg,
     overflow: 'hidden',
+    boxShadow: Elevation.card,
   },
   pressed: {
-    backgroundColor: Colors.bg,
-    borderColor: Colors.borderInput,
+    backgroundColor: Colors.surfacePressed,
   },
 });

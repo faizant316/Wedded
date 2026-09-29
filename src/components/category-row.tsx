@@ -5,7 +5,8 @@ import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useFontScale } from '@/components/app-text';
 import { BilingualName } from '@/components/bilingual-name';
 import { Card } from '@/components/card';
-import { BorderWidth, Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { IconTile } from '@/components/icon-tile';
+import { Colors, Sizes, Spacing } from '@/constants/theme';
 import { bilingual, type LocalizedText } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
 
@@ -22,7 +23,7 @@ export type CategoryRowProps = {
 
 /**
  * One category as a full-width row (vision doc S5, "Vendors you'll need"):
- * icon in a cream circle, the name in both scripts, and a chevron.
+ * icon in a marigold tile, the name in both scripts, and a chevron.
  */
 export function CategoryRow({
   name,
@@ -41,9 +42,7 @@ export function CategoryRow({
       accessibilityLanguage={primary.lang}
       style={[styles.row, style]}
     >
-      <View style={styles.iconCircle}>
-        <Ionicons name={icon} size={Sizes.icon} color={Colors.primary} />
-      </View>
+      <IconTile icon={icon} />
       <View style={styles.name}>
         <BilingualName name={name} />
       </View>
@@ -59,16 +58,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.md,
     paddingVertical: Spacing.md,
-  },
-  iconCircle: {
-    width: Sizes.iconCircle,
-    height: Sizes.iconCircle,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: Radius.circle,
-    borderWidth: BorderWidth.hairline,
-    borderColor: Colors.border,
-    backgroundColor: Colors.bg,
   },
   name: {
     flex: 1,

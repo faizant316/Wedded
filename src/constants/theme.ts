@@ -1,3 +1,5 @@
+import { Platform, type ViewStyle } from 'react-native';
+
 /**
  * Design tokens. See docs/PRODUCT_VISION.md section 4 ("How it looks").
  * Light theme only for now; dark mode is a Phase 8 item.
@@ -15,7 +17,9 @@ export const Colors = {
   primary: '#8A1C30', // maroon: buttons, active tab, links
   primaryPressed: '#6E1526',
   primaryTint: '#F7E6E9', // selected chips
+  primaryDeep: '#5C0F1F', // the dark end of the maroon gradients (hero, primary buttons)
   accent: '#F0A030', // marigold: fills only, never text (2.05:1 on cream)
+  accentTint: '#FDF0D9', // marigold wash behind icons
   kesari: '#A8500A', // text-safe saffron, "Founding vendor" text
   success: '#3D6B33', // mehndi green
   pink: '#B4335C',
@@ -23,8 +27,10 @@ export const Colors = {
   error: '#B3261E',
   errorPressed: '#8F1E18', // pressed state of red (danger) buttons
   skeleton: '#EFE3D6',
+  surfacePressed: '#FBF4EA', // a card while it's pressed
   scrim: 'rgba(43, 26, 20, 0.55)',
   onPrimary: '#FFFFFF',
+  onPrimary2: '#F6DCE1', // secondary text on maroon: 7.1:1 on primary, 5.8:1 on the hero's lightest stop
   viewer: '#000000', // full-screen photo viewer background (vision S10)
   qrDark: '#000000', // QR codes: scanners need true black on white
   qrLight: '#FFFFFF',
@@ -43,10 +49,11 @@ export const Spacing = {
 } as const;
 
 export const Radius = {
-  card: 16,
-  button: 14,
+  card: 20,
+  button: 16,
   chip: 22,
-  sheet: 20,
+  sheet: 24,
+  tile: 16, // icon tiles on rows and category cards
   checkbox: 6,
   circle: 999,
 } as const;
@@ -73,6 +80,51 @@ export const Sizes = {
   pageGutter: 16,
 } as const;
 
+/**
+ * Soft, layered shadows (a tight contact shadow plus a wide ambient one)
+ * instead of outlines, so cards lift off the cream page. `boxShadow` works on
+ * iOS, Android (new architecture) and the web.
+ */
+export const Elevation = {
+  card: '0px 1px 2px rgba(43, 26, 20, 0.06), 0px 4px 12px rgba(43, 26, 20, 0.06)',
+  raised: '0px 2px 6px rgba(43, 26, 20, 0.10), 0px 14px 32px rgba(43, 26, 20, 0.14)',
+  button: '0px 2px 4px rgba(92, 15, 31, 0.18), 0px 8px 18px rgba(138, 28, 48, 0.24)',
+  bar: '0px -8px 24px rgba(43, 26, 20, 0.08)',
+} as const;
+
+/** CSS gradients from the brand colours. Apply with `gradient()`. */
+export const Gradients = {
+  // White text on it stays above 7:1 at the lightest stop.
+  hero: 'linear-gradient(155deg, #A0233A 0%, #8A1C30 45%, #5C0F1F 100%)',
+  primary: 'linear-gradient(180deg, #9A2238 0%, #8A1C30 60%, #7A1729 100%)',
+  // The thin phulkari stripe under the Home header (vision §4).
+  phulkari:
+    'linear-gradient(90deg, #F0A030 0%, #A8500A 25%, #B4335C 50%, #A8500A 75%, #F0A030 100%)',
+  eventEdge: 'linear-gradient(180deg, #F0A030 0%, #A8500A 100%)',
+  iconWash: 'linear-gradient(140deg, #FEF5E6 0%, #FBE3BC 100%)',
+  // Darkens the bottom of a cover photo so badges on it stay readable.
+  photoScrim: 'linear-gradient(180deg, rgba(43, 26, 20, 0) 55%, rgba(43, 26, 20, 0.45) 100%)',
+} as const;
+
+/** A gradient background. React Native calls it experimental_backgroundImage; the web, backgroundImage. */
+export function gradient(value: string): ViewStyle {
+  return Platform.OS === 'web'
+    ? ({ backgroundImage: value } as ViewStyle)
+    : { experimental_backgroundImage: value };
+}
+
+/** Turns a gradient off again, e.g. for a pressed or disabled button. */
+export const noGradient: ViewStyle =
+  Platform.OS === 'web'
+    ? ({ backgroundImage: 'none' } as ViewStyle)
+    : { experimental_backgroundImage: [] };
+
+/** Press feedback: short, no bounce (vision §4 Motion). */
+export const Motion = {
+  pressScale: 0.97,
+  pressMs: 120,
+} as const;
+
 export const BorderWidth = {
   hairline: 1, // cards and dividers
   control: 1.5, // chip and pill outlines
@@ -85,9 +137,9 @@ export const BorderWidth = {
  * height (vowel marks stack above and below and clip when line height is tight).
  */
 export const Typography = {
-  display: { size: 32, weight: 700, lineHeight: 1.2, lineHeightPa: 1.3, maxScale: 1.6 },
-  title: { size: 24, weight: 700, lineHeight: 1.25, lineHeightPa: 1.35, maxScale: 1.8 },
-  heading: { size: 20, weight: 700, lineHeight: 1.3, lineHeightPa: 1.4, maxScale: 2 },
+  display: { size: 34, weight: 800, lineHeight: 1.2, lineHeightPa: 1.3, maxScale: 1.6 },
+  title: { size: 26, weight: 800, lineHeight: 1.25, lineHeightPa: 1.35, maxScale: 1.8 },
+  heading: { size: 20, weight: 800, lineHeight: 1.3, lineHeightPa: 1.4, maxScale: 2 },
   bodyLg: { size: 19, weight: 500, lineHeight: 1.45, lineHeightPa: 1.65, maxScale: 2 },
   body: { size: 17, weight: 500, lineHeight: 1.45, lineHeightPa: 1.65, maxScale: 2 },
   label: { size: 15, weight: 600, lineHeight: 1.35, lineHeightPa: 1.55, maxScale: 1.6 },

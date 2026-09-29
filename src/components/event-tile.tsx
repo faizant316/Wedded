@@ -5,7 +5,7 @@ import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { AppText, useFontScale } from '@/components/app-text';
 import { BilingualName } from '@/components/bilingual-name';
 import { Card } from '@/components/card';
-import { Colors, Sizes, Spacing } from '@/constants/theme';
+import { Colors, gradient, Gradients, Sizes, Spacing } from '@/constants/theme';
 import { bilingual, type LocalizedText } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
 
@@ -51,6 +51,7 @@ export function EventTile({
       accessibilityLanguage={primary.lang}
       style={[styles.card, !!photoUrl && styles.withPhoto, style]}
     >
+      {!photoUrl && <View style={styles.accent} />}
       {photoUrl && (
         <Image
           source={{ uri: photoUrl }}
@@ -93,6 +94,12 @@ const styles = StyleSheet.create({
     width: Sizes.eventPhoto,
     alignSelf: 'stretch',
     backgroundColor: Colors.skeleton,
+  },
+  // A marigold-to-saffron edge on cards without a photo.
+  accent: {
+    width: Spacing.sm,
+    alignSelf: 'stretch',
+    ...gradient(Gradients.eventEdge),
   },
   text: {
     flex: 1,

@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'rea
 
 import { AppText, useFontScale } from '@/components/app-text';
 import { Card } from '@/components/card';
-import { Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { Colors, Elevation, gradient, Gradients, Radius, Sizes, Spacing } from '@/constants/theme';
 import { localized, type LocalizedText } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
 
@@ -142,9 +142,10 @@ export function VendorCard({
           />
         ) : (
           <View style={[styles.photo, styles.noPhoto]}>
-            <Ionicons name="image-outline" size={Sizes.iconLarge} color={Colors.textDisabled} />
+            <Ionicons name="image-outline" size={Sizes.iconLarge} color={Colors.kesari} />
           </View>
         )}
+        {badges.length > 0 && <View style={styles.scrim} pointerEvents="none" />}
         {onToggleSave && (
           <Pressable
             accessibilityRole="button"
@@ -181,12 +182,12 @@ export function VendorCard({
         )}
       </View>
       <View style={styles.body}>
-        <AppText variant="bodyLg" weight={700}>
+        <AppText variant="bodyLg" weight={800}>
           {vendorName}
         </AppText>
         <AppText color="text2">{details}</AppText>
         {price && (
-          <AppText weight={700} style={styles.price}>
+          <AppText weight={800} color="primary" style={styles.price}>
             {price.shown}
           </AppText>
         )}
@@ -207,6 +208,11 @@ const styles = StyleSheet.create({
   noPhoto: {
     alignItems: 'center',
     justifyContent: 'center',
+    ...gradient(Gradients.iconWash),
+  },
+  scrim: {
+    ...StyleSheet.absoluteFill,
+    ...gradient(Gradients.photoScrim),
   },
   heart: {
     position: 'absolute',
@@ -218,6 +224,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: Radius.circle,
     backgroundColor: Colors.surface,
+    boxShadow: Elevation.raised,
   },
   heartPressed: {
     backgroundColor: Colors.primaryTint,
@@ -239,6 +246,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.xs,
     borderRadius: Radius.chip,
     backgroundColor: Colors.surface,
+    boxShadow: Elevation.card,
   },
   body: {
     gap: Spacing.xs,

@@ -1,11 +1,12 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
+import type Ionicons from '@expo/vector-icons/Ionicons';
 import type { ComponentProps } from 'react';
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 
 import { AppText } from '@/components/app-text';
 import { BilingualName } from '@/components/bilingual-name';
 import { Card } from '@/components/card';
-import { BorderWidth, Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { IconTile } from '@/components/icon-tile';
+import { Sizes, Spacing } from '@/constants/theme';
 import { bilingual, type LocalizedText } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
 
@@ -26,7 +27,7 @@ export type CategoryTileProps = {
 };
 
 /**
- * One vendor category: icon in a cream circle, the name in both scripts, and
+ * One vendor category: icon in a marigold tile, the name in both scripts, and
  * a count. Made for a two-column grid (give each tile `flex: 1`); it grows
  * taller rather than clipping when names wrap.
  */
@@ -52,9 +53,7 @@ export function CategoryTile({
       accessibilityLanguage={primary.lang}
       style={[styles.card, style]}
     >
-      <View style={styles.iconCircle}>
-        <Ionicons name={icon} size={Sizes.icon} color={Colors.primary} />
-      </View>
+      <IconTile icon={icon} />
       <BilingualName name={name} />
       {count && (
         <AppText variant="label" color="text2">
@@ -69,15 +68,5 @@ const styles = StyleSheet.create({
   card: {
     minHeight: Sizes.tile,
     gap: Spacing.sm,
-  },
-  iconCircle: {
-    width: Sizes.iconCircle,
-    height: Sizes.iconCircle,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: Radius.circle,
-    borderWidth: BorderWidth.hairline,
-    borderColor: Colors.border,
-    backgroundColor: Colors.bg,
   },
 });

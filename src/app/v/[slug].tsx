@@ -16,7 +16,16 @@ import { groupIcon } from '@/components/group-icon';
 import { Screen } from '@/components/screen';
 import { StateView } from '@/components/state-view';
 import { appLink } from '@/constants/links';
-import { BorderWidth, Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import {
+  BorderWidth,
+  Colors,
+  Elevation,
+  gradient,
+  Gradients,
+  Radius,
+  Sizes,
+  Spacing,
+} from '@/constants/theme';
 import { useSavedEventsFor, useSaveVendor } from '@/data/saved';
 import { useVendorLinks, type LinkedVendor } from '@/data/vendor-links';
 import { useRealWeddingsAt, useVendorPhotos, type VendorPhoto } from '@/data/vendor-media';
@@ -579,7 +588,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: Radius.card,
-    backgroundColor: Colors.primaryTint,
+    backgroundColor: Colors.accentTint,
+    ...gradient(Gradients.iconWash),
   },
   founding: {
     flexDirection: 'row',
@@ -628,13 +638,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     gap: Spacing.md,
   },
+  // Full width (out past the page gutter), lifted by a shadow instead of a line.
   bottomBar: {
     flexDirection: 'row',
     gap: Spacing.md,
+    marginHorizontal: -Sizes.pageGutter,
+    paddingHorizontal: Sizes.pageGutter,
     paddingVertical: Spacing.md,
-    borderTopWidth: BorderWidth.hairline,
-    borderTopColor: Colors.border,
     backgroundColor: Colors.bg,
+    boxShadow: Elevation.bar,
   },
   bottomBarStacked: {
     flexDirection: 'column',

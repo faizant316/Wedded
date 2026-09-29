@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
-import { AppText } from '@/components/app-text';
+import { AppText, useFontScale } from '@/components/app-text';
 import { Button } from '@/components/button';
 import { CategoryRow } from '@/components/category-row';
 import { EventTile } from '@/components/event-tile';
@@ -11,7 +11,7 @@ import { LanguageToggle } from '@/components/language-toggle';
 import { Screen } from '@/components/screen';
 import { SearchButton } from '@/components/search-button';
 import { StateView } from '@/components/state-view';
-import { Colors, Spacing } from '@/constants/theme';
+import { Colors, Elevation, gradient, Gradients, Radius, Spacing } from '@/constants/theme';
 import { useCategoryGroups, useHomeEvents } from '@/data/reference';
 import { LocationChip } from '@/features/location/location-chip';
 import { useLocale } from '@/i18n/locale-context';
@@ -35,6 +35,9 @@ export default function HomeScreen() {
   const groups = useCategoryGroups();
   const { data: sections, status, refetch } = useHomeEvents();
   const [refreshing, setRefreshing] = useState(false);
+  // At very large text the tagline alone fills the first screen, so it steps
+  // aside and location and search stay at the top.
+  const showTagline = useFontScale('title') < 1.5;
 
   // Pull to refresh fetches again even though events are cached for a day.
   async function onRefresh() {
@@ -59,15 +62,26 @@ export default function HomeScreen() {
           />
         }
       >
-        <View style={styles.header}>
-          <AppText variant="heading" color="primary" weight={800} style={styles.wordmark}>
-            {t('app.name')}
-          </AppText>
-          <LanguageToggle />
+        <View style={styles.hero}>
+          <View style={styles.header}>
+            <AppText variant="heading" color="onPrimary" weight={800} style={styles.wordmark}>
+              {t('app.name')}
+            </AppText>
+            <LanguageToggle />
+          </View>
+          {showTagline && (
+            <View style={styles.headline}>
+              <AppText variant="title" color="onPrimary">
+                {t('home.headline')}
+              </AppText>
+              <AppText color="onPrimary2">{t('home.subtitle')}</AppText>
+            </View>
+          )}
+          <LocationChip />
+          <SearchButton onPress={startTyping} />
+          {/* The thin phulkari stripe under the header (vision §4). */}
+          <View style={styles.stripe} />
         </View>
-
-        <LocationChip />
-        <SearchButton onPress={startTyping} />
 
         <AppText variant="title" accessibilityRole="header" style={styles.browse}>
           {t('home.browseByType')}
@@ -149,6 +163,27 @@ const styles = StyleSheet.create({
   content: {
     gap: Spacing.lg,
     paddingVertical: Spacing.lg,
+  },
+  hero: {
+    gap: Spacing.lg,
+    padding: Spacing.lg,
+    paddingBottom: Spacing.xl,
+    borderRadius: Radius.sheet,
+    overflow: 'hidden',
+    backgroundColor: Colors.primary,
+    ...gradient(Gradients.hero),
+    boxShadow: Elevation.raised,
+  },
+  headline: {
+    gap: Spacing.xs,
+  },
+  stripe: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: Spacing.xs,
+    ...gradient(Gradients.phulkari),
   },
   header: {
     flexDirection: 'row',
