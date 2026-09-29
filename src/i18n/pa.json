@@ -33,6 +33,60 @@
     "widen": "{{miles}} ਮੀਲ ਤੱਕ ਦੇਖੋ",
     "showTravelers": "ਤੁਹਾਡੇ ਕੋਲ ਆਉਣ ਵਾਲੇ ਵੈਂਡਰ ਦਿਖਾਓ"
   },
+  "vendor": {
+    "notFound": "ਇਹ ਵੈਂਡਰ ਹੁਣ ਸੂਚੀ ਵਿੱਚ ਨਹੀਂ ਹੈ।",
+    "foundingNumber": "ਮੋਢੀ ਵੈਂਡਰ #{{number}}",
+    "basedIn": "{{city}} ਵਿੱਚ",
+    "travelsUpTo": "{{miles}} ਮੀਲ ਤੱਕ ਜਾਂਦੇ ਹਨ।",
+    "travelsNorcal": "ਸਾਰੇ ਉੱਤਰੀ ਕੈਲੀਫੋਰਨੀਆ ਵਿੱਚ ਜਾਂਦੇ ਹਨ।",
+    "speaks": "{{languages}} ਬੋਲਦੇ ਹਨ",
+    "languages": {
+      "en": "ਅੰਗਰੇਜ਼ੀ",
+      "pa": "ਪੰਜਾਬੀ",
+      "hi": "ਹਿੰਦੀ",
+      "ur": "ਉਰਦੂ"
+    },
+    "price": "ਕੀਮਤ",
+    "priceRange": "{{from}} ਤੋਂ {{to}}",
+    "priceRangePer": "{{from}} ਤੋਂ {{to}} / {{unit}}",
+    "pricePackages": "ਇਹਨਾਂ ਦੇ ਪੈਕੇਜ ਹਨ। ਵੇਰਵੇ ਲਈ ਪੁੱਛੋ।",
+    "priceContact": "ਕੀਮਤ ਲਈ ਇਹਨਾਂ ਨੂੰ ਪੁੱਛੋ।",
+    "priceCaption": "ਕੀਮਤਾਂ ਵੱਖ-ਵੱਖ ਹੁੰਦੀਆਂ ਹਨ। ਅੰਦਾਜ਼ਾ ਪੁੱਛੋ।",
+    "goodToKnow": "ਜਾਣਨ ਵਾਲੀਆਂ ਗੱਲਾਂ",
+    "facts": {
+      "seats": "{{count}} ਸੀਟਾਂ",
+      "outsideCateringYes": "ਬਾਹਰੋਂ ਕੇਟਰਿੰਗ ਲਿਆ ਸਕਦੇ ਹੋ",
+      "outsideCateringList": "ਇਹਨਾਂ ਦੀ ਸੂਚੀ ਵਾਲੇ ਕੇਟਰਰ",
+      "outsideCateringNo": "ਸਿਰਫ਼ ਇਹਨਾਂ ਦੀ ਆਪਣੀ ਕੇਟਰਿੰਗ",
+      "byob": "ਆਪਣੇ ਡ੍ਰਿੰਕ ਲਿਆ ਸਕਦੇ ਹੋ",
+      "byobCorkage": "ਆਪਣੇ ਡ੍ਰਿੰਕ ਲਿਆ ਸਕਦੇ ਹੋ ({{price}} ਕੋਰਕੇਜ)",
+      "fullBar": "ਪੂਰਾ ਬਾਰ",
+      "noAlcohol": "ਸ਼ਰਾਬ ਨਹੀਂ",
+      "ghoriYes": "ਘੋੜੀ ਦੀ ਇਜਾਜ਼ਤ ਹੈ",
+      "ghoriNo": "ਘੋੜੀ ਦੀ ਇਜਾਜ਼ਤ ਨਹੀਂ",
+      "curfew": "{{time}} ਤੱਕ",
+      "parking": "{{count}} ਗੱਡੀਆਂ ਲਈ ਪਾਰਕਿੰਗ"
+    },
+    "about": "ਜਾਣ-ਪਛਾਣ",
+    "contact": "ਸੰਪਰਕ",
+    "phone": "ਫ਼ੋਨ",
+    "website": "ਵੈੱਬਸਾਈਟ",
+    "call": "ਫ਼ੋਨ ਕਰੋ",
+    "text": "ਮੈਸੇਜ",
+    "whatsapp": "ਵਟਸਐਪ",
+    "instagram": "ਇੰਸਟਾਗ੍ਰਾਮ",
+    "directions": "ਰਸਤਾ",
+    "callSpoken": "{{name}} ਨੂੰ ਫ਼ੋਨ ਕਰੋ, {{phone}}",
+    "textSpoken": "{{name}} ਨੂੰ ਮੈਸੇਜ ਕਰੋ, {{phone}}",
+    "whatsappSpoken": "{{name}} ਨੂੰ ਵਟਸਐਪ 'ਤੇ ਮੈਸੇਜ ਕਰੋ",
+    "instagramSpoken": "{{name}} ਨੂੰ ਇੰਸਟਾਗ੍ਰਾਮ 'ਤੇ ਦੇਖੋ",
+    "directionsSpoken": "{{name}} ਤੱਕ ਦਾ ਰਸਤਾ",
+    "callTitle": "{{name}} ਨੂੰ ਫ਼ੋਨ ਕਰਨਾ ਹੈ?",
+    "cancel": "ਰੱਦ ਕਰੋ",
+    "openFailed": "ਇਸ ਫ਼ੋਨ 'ਤੇ ਇਹ ਨਹੀਂ ਖੁੱਲ੍ਹਿਆ। ਸੰਪਰਕ ਹੇਠਾਂ ਦਿੱਤਾ ਨੰਬਰ ਵਰਤੋ।",
+    "save": "ਸੰਭਾਲੋ",
+    "saved": "ਸੰਭਾਲਿਆ"
+  },
   "search": {
     "placeholder": "ਢੋਲ, ਮਹਿੰਦੀ, ਹਾਲ ਲੱਭੋ…",
     "label": "ਖੋਜ",
@@ -143,7 +197,9 @@
       "day": "ਦਿਨ"
     },
     "founding": "ਮੋਢੀ ਵੈਂਡਰ",
-    "travelsToYou": "ਤੁਹਾਡੇ ਕੋਲ ਆਉਂਦੇ ਹਨ"
+    "travelsToYou": "ਤੁਹਾਡੇ ਕੋਲ ਆਉਂਦੇ ਹਨ",
+    "save": "{{name}} ਨੂੰ ਸੰਭਾਲੋ",
+    "unsave": "{{name}} ਨੂੰ ਸੰਭਾਲੇ ਵਿੱਚੋਂ ਹਟਾਓ"
   },
   "signIn": {
     "title": "ਸਾਈਨ ਇਨ ਕਰੋ ਜਾਂ ਖਾਤਾ ਬਣਾਓ",

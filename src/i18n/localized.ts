@@ -52,3 +52,18 @@ export function bilingual(
     ? { primary: gurmukhi, secondary: en }
     : { primary: en, secondary: gurmukhi };
 }
+
+/**
+ * Vendor-written text stored as two columns (bio and bio_pa, tagline and
+ * tagline_pa): Punjabi in Punjabi mode when there is some, otherwise English;
+ * and when only Punjabi exists, show it in both modes rather than nothing.
+ */
+export function vendorText(
+  en: string | null | undefined,
+  pa: string | null | undefined,
+  locale: Locale,
+): string | null {
+  const english = en?.trim() ? en : null;
+  const punjabi = pa?.trim() ? pa : null;
+  return locale === 'pa' ? (punjabi ?? english) : (english ?? punjabi);
+}
