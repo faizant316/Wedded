@@ -2,6 +2,7 @@ name: CI
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
   push:
     branches: [main]
 
@@ -19,3 +20,28 @@ jobs:
       - run: npm run lint -- --max-warnings 0
       - run: npm run format:check
       - run: npm run typecheck
+
+  # Squash-merge the PR into main as soon as the checks pass, so nobody has to
+  # click merge. Drafts are skipped: open a draft when the other founder should
+  # look first, then mark it ready.
+  merge:
+    name: Merge when checks pass
+    needs: check
+    if: github.event_name == 'pull_request' && !github.event.pull_request.draft && github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      # --match-head-commit refuses to merge if new commits landed after this
+      # run started, so only the exact code that passed gets merged
+      - name: Squash-merge into main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          TITLE: ${{ github.event.pull_request.title }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: >-
+          gh pr merge "$PR" --repo "$GITHUB_REPOSITORY" --squash
+          --match-head-commit "$HEAD_SHA" --subject "$TITLE (#$PR)" --body ""

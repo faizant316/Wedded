@@ -43,6 +43,8 @@ Then, from the repo:
 npm run db:start      # starts Supabase locally (first run downloads a few GB)
 npm run db:status     # shows the local URL and publishable key
 npm run db:reset      # rebuilds the database from supabase/migrations and seed.sql
+npm run db:test       # runs the database tests in supabase/tests
+npm run db:types      # regenerates src/types/database.ts after a schema change
 npm run db:stop
 ```
 
@@ -57,7 +59,9 @@ Copy `.env.example` to `.env.local` and fill in the two values from `npm run db:
 | `src/constants/theme.ts` | Colour, spacing, radius and type-scale tokens from the product vision |
 | `src/i18n/` | English and Punjabi strings, the `useLocale()` hook and the persisted language setting |
 | `src/lib/` | Small utilities (device storage, the Supabase client) |
-| `supabase/` | Local Supabase config, and later the database migrations and seed data |
+| `src/types/database.ts` | TypeScript types generated from the database (`npm run db:types`); don't edit by hand |
+| `supabase/migrations/` | Every database change, in order. Reference data (events, categories) lives here so production gets it too |
+| `supabase/tests/` | Database tests (pgTAP): data completeness and what logged-out and signed-in users can do |
 | `docs/` | Plan, decisions, product vision |
 
 ## Docs
@@ -68,6 +72,6 @@ Copy `.env.example` to `.env.local` and fill in the two values from `npm run db:
 
 ## How we work
 
-- Every feature gets its own branch and a pull request. The other partner reviews before merging.
+- Every feature gets its own branch and a pull request. It merges itself once the checks pass; open it as a draft if you want the other partner to look first.
 - Never commit passwords or API keys. Use `.env` files (already ignored by git).
 - Every task lives on the task board. Decisions go in the decisions log.

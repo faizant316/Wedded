@@ -939,8 +939,8 @@ Effort: about 90 to 110 combined hours for the cut scope, so roughly 12 to 15 ho
 
 The plan says you both own every part and review each other's work; keep that. Split by track, not by feature, and swap review:
 
-- **Track A (Build)** drives Claude Code in VS Code, owns the repo, Supabase and the seed script, opens a pull request per feature, and merges only after Track B reviews it.
-- **Track B (Product, content, vendors)** owns Figma, the events and categories data, the event guides, the sample vendor content, the hall relationship, the founding offer and consent form, the demo script, the task board and the weekly check-in, and reviews every pull request (run it on your phone; that is the review).
+- **Track A (Build)** drives Claude Code in VS Code, owns the repo, Supabase and the seed script, and opens a pull request per feature, which merges itself once the checks pass (a draft PR waits for Track B).
+- **Track B (Product, content, vendors)** owns Figma, the events and categories data, the event guides, the sample vendor content, the hall relationship, the founding offer and consent form, the demo script, the task board and the weekly check-in, and tests what lands on `main` on your phone (that is the review).
 
 Whoever is more comfortable in code takes Track A. If that is unclear, split by what each of you would rather explain to the hall owner: the person who wants to demo the app should be the one who built the hall profile. Both of you do the Phase 1 workspace tasks in week 1, and both of you test on your own phones in week 6.
 
