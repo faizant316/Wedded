@@ -132,7 +132,8 @@
       "finishBody": "Add your name, city and phone so vendors can reach you.",
       "finish": "Continue",
       "edit": "Edit my details",
-      "signOut": "Sign out"
+      "signOut": "Sign out",
+      "deleteAccount": "Delete my account"
     }
   },
   "common": {
@@ -337,5 +338,21 @@
       "savedNotSure": "Saved to your Saved list.",
       "viewSaved": "View saved"
     }
+  },
+  "deleteAccount": {
+    "title": "Delete your account?",
+    "removes": "This removes, from the app:",
+    "items": {
+      "profile": "Your name, city and phone",
+      "saved": "Your saved vendors",
+      "inquiries": "Your list of inquiries in the app"
+    },
+    "vendorsKeep": "Vendors you already asked keep the email you sent them. Nobody else sees your details.",
+    "preferSignOut": "Prefer to keep your saved list? Sign out instead.",
+    "delete": "Delete my account",
+    "codeSent": "To make sure it's you, we sent a 6-digit code to {{email}}. Type it to delete your account.",
+    "confirm": "Delete my account now",
+    "keep": "Keep my account",
+    "failed": "We couldn't delete your account. Check your internet and try again."
   }
 }

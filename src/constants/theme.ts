@@ -21,6 +21,7 @@ export const Colors = {
   pink: '#B4335C',
   verified: '#1F6F5F',
   error: '#B3261E',
+  errorPressed: '#8F1E18', // pressed state of red (danger) buttons
   skeleton: '#EFE3D6',
   scrim: 'rgba(43, 26, 20, 0.55)',
   onPrimary: '#FFFFFF',

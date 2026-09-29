@@ -110,7 +110,7 @@ Add ideas any time during Phases 1 to 4. No checking or buying until Phase 5.
 - [x] Add vendor base location and service radius; hide street addresses for home-based vendors (Kirat)
 - [x] Build signup and login (email or phone) (Kirat; email code now, phone after the LLC)
 - [ ] Build the user profile: name, city, state, country, 18+ confirmation
-- [ ] Build in-app account deletion (required by Apple)
+- [x] Build in-app account deletion (required by Apple) (Kirat)
 - [ ] Write row level security rules in Supabase
 
 ### Step 2: Navigation and Home
