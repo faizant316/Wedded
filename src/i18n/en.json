@@ -28,7 +28,10 @@
   },
   "results": {
     "forEvent": "For {{event}}",
-    "empty": "No vendors are listed here yet."
+    "empty": "No vendors are listed here yet.",
+    "emptyNear": "No vendors here within {{miles}} mi of {{place}}.",
+    "widen": "Widen to {{miles}} mi",
+    "showTravelers": "Show vendors who travel to you"
   },
   "search": {
     "placeholder": "Search dhol, mehndi, halls…",
@@ -138,7 +141,9 @@
       "hand": "hand",
       "turban": "turban",
       "day": "day"
-    }
+    },
+    "founding": "Founding vendor",
+    "travelsToYou": "Travels to you"
   },
   "signIn": {
     "title": "Sign in or create an account",
