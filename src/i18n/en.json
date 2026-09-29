@@ -53,5 +53,45 @@
       "emailInvalid": "Check your email. It should look like name@example.com.",
       "adultRequired": "You need to be 18 or older to make an account."
     }
+  },
+  "counts": {
+    "vendorTypes": {
+      "one": "1 vendor type",
+      "other": "{{count}} vendor types"
+    },
+    "vendors": {
+      "zero": "No vendors yet",
+      "one": "1 vendor",
+      "other": "{{count}} vendors"
+    },
+    "nearYou": {
+      "zero": "None near you yet",
+      "one": "1 near you",
+      "other": "{{count}} near you"
+    }
+  },
+  "vendorCard": {
+    "from": "From {{price}}",
+    "fromPer": "From {{price}} / {{unit}}",
+    "fromPerSpoken": "From {{price}} per {{unit}}",
+    "miles": {
+      "one": "1 mi",
+      "other": "{{count}} mi"
+    },
+    "milesSpoken": {
+      "one": "1 mile away",
+      "other": "{{count}} miles away"
+    },
+    "underOneMile": "Under 1 mi",
+    "underOneMileSpoken": "Less than a mile away",
+    "units": {
+      "event": "event",
+      "hour": "hour",
+      "person": "person",
+      "plate": "plate",
+      "hand": "hand",
+      "turban": "turban",
+      "day": "day"
+    }
   }
 }

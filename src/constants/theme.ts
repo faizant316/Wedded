@@ -54,6 +54,11 @@ export const Sizes = {
   input: 56, // text fields and the checkbox row
   chip: 44, // visual height; a hit slop tops the tap target up to 48
   checkbox: 28,
+  eventTile: 96, // Home event card, minimum height
+  eventTilePhoto: 132, // the same card with a photo
+  eventPhoto: 112, // width of that photo
+  tile: 96, // category tile, minimum height
+  iconCircle: 56,
   tabBar: 64,
   tabIcon: 26,
   icon: 24,
