@@ -325,6 +325,7 @@
   "inquiry": {
     "title": "ਕੀਮਤ ਤੇ ਤਾਰੀਖ਼ ਪੁੱਛੋ",
     "whichEvent": "ਕਿਹੜਾ ਸਮਾਗਮ?",
+    "otherEvents": "ਹੋਰ ਸਮਾਗਮ",
     "date": "ਕਦੋਂ ਹੈ?",
     "pickDate": "ਤਾਰੀਖ਼ ਚੁਣੋ",
     "dateUnsure": "ਹਾਲੇ ਪੱਕਾ ਨਹੀਂ",
