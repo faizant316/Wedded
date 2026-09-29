@@ -2,9 +2,9 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { AppText } from '@/components/app-text';
+import { AppText, useFontScale } from '@/components/app-text';
 import { Card } from '@/components/card';
-import { Colors, Sizes, Spacing } from '@/constants/theme';
+import { Colors, Radius, Sizes, Spacing } from '@/constants/theme';
 import { localized, type LocalizedText } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
 
@@ -23,6 +23,10 @@ export type VendorCardProps = {
   startingPrice?: { amount: number; unit?: PriceUnit } | null;
   /** Cover photo; cropped to 3:2. */
   photoUrl?: string | null;
+  /** Shows the "Founding vendor" badge. */
+  foundingNumber?: number | null;
+  /** Shows "Travels to you": based outside your distance, but they cover your area. */
+  travelsToYou?: boolean;
   /** Opens the profile. Without it the card is display-only. */
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
@@ -48,10 +52,13 @@ export function VendorCard({
   distanceMiles,
   startingPrice,
   photoUrl,
+  foundingNumber,
+  travelsToYou = false,
   onPress,
   style,
 }: VendorCardProps) {
   const { locale, t } = useLocale();
+  const scale = useFontScale('label');
 
   let distance: { shown: string; spoken: string } | undefined;
   if (distanceMiles != null) {
@@ -85,24 +92,60 @@ export function VendorCard({
   const details = [categoryName, city, distance?.shown.replace(/ /g, '\u00a0')]
     .filter(Boolean)
     .join(' · ');
-  const spoken = [vendorName, categoryName, city, distance?.spoken, price?.spoken]
+  const badges: { key: string; label: string; icon: 'ribbon-outline' | 'car-outline' }[] = [];
+  if (foundingNumber != null) {
+    badges.push({ key: 'founding', label: t('vendorCard.founding'), icon: 'ribbon-outline' });
+  }
+  if (travelsToYou) {
+    badges.push({ key: 'travels', label: t('vendorCard.travelsToYou'), icon: 'car-outline' });
+  }
+  const spoken = [
+    vendorName,
+    categoryName,
+    city,
+    distance?.spoken,
+    ...badges.map((badge) => badge.label),
+    price?.spoken,
+  ]
     .filter(Boolean)
     .join(', ');
 
   return (
     <Card onPress={onPress} accessible accessibilityLabel={spoken} style={[styles.card, style]}>
-      {photoUrl ? (
-        <Image
-          source={{ uri: photoUrl }}
-          contentFit="cover"
-          accessible={false}
-          style={styles.photo}
-        />
-      ) : (
-        <View style={[styles.photo, styles.noPhoto]}>
-          <Ionicons name="image-outline" size={Sizes.iconLarge} color={Colors.textDisabled} />
-        </View>
-      )}
+      <View>
+        {photoUrl ? (
+          <Image
+            source={{ uri: photoUrl }}
+            contentFit="cover"
+            accessible={false}
+            style={styles.photo}
+          />
+        ) : (
+          <View style={[styles.photo, styles.noPhoto]}>
+            <Ionicons name="image-outline" size={Sizes.iconLarge} color={Colors.textDisabled} />
+          </View>
+        )}
+        {badges.length > 0 && (
+          <View style={styles.badges}>
+            {badges.map((badge) => (
+              <View key={badge.key} style={styles.badge}>
+                <Ionicons
+                  name={badge.icon}
+                  size={Sizes.iconSmall * scale}
+                  color={badge.key === 'founding' ? Colors.kesari : Colors.text}
+                />
+                <AppText
+                  variant="label"
+                  weight={700}
+                  color={badge.key === 'founding' ? 'kesari' : 'text'}
+                >
+                  {badge.label}
+                </AppText>
+              </View>
+            ))}
+          </View>
+        )}
+      </View>
       <View style={styles.body}>
         <AppText variant="bodyLg" weight={700}>
           {vendorName}
@@ -130,6 +173,24 @@ const styles = StyleSheet.create({
   noPhoto: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  badges: {
+    position: 'absolute',
+    left: Spacing.md,
+    right: Spacing.md,
+    bottom: Spacing.md,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.xs,
+  },
+  badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: Radius.chip,
+    backgroundColor: Colors.surface,
   },
   body: {
     gap: Spacing.xs,

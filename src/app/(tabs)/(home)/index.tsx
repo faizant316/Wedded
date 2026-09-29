@@ -11,6 +11,7 @@ import { SearchButton } from '@/components/search-button';
 import { StateView } from '@/components/state-view';
 import { Colors, Spacing } from '@/constants/theme';
 import { useHomeEvents } from '@/data/reference';
+import { LocationChip } from '@/features/location/location-chip';
 import { useLocale } from '@/i18n/locale-context';
 
 // Headings for the phases in culture_events. "whole_wedding" (and any phase
@@ -58,6 +59,7 @@ export default function HomeScreen() {
           <LanguageToggle />
         </View>
 
+        <LocationChip />
         <SearchButton onPress={startTyping} />
 
         <AppText variant="title" accessibilityRole="header" style={styles.browse}>
