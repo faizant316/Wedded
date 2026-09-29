@@ -4,13 +4,15 @@ import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/app-text';
 import { Button } from '@/components/button';
+import { CategoryRow } from '@/components/category-row';
 import { EventTile } from '@/components/event-tile';
+import { groupIcon } from '@/components/group-icon';
 import { LanguageToggle } from '@/components/language-toggle';
 import { Screen } from '@/components/screen';
 import { SearchButton } from '@/components/search-button';
 import { StateView } from '@/components/state-view';
 import { Colors, Spacing } from '@/constants/theme';
-import { useHomeEvents } from '@/data/reference';
+import { useCategoryGroups, useHomeEvents } from '@/data/reference';
 import { LocationChip } from '@/features/location/location-chip';
 import { useLocale } from '@/i18n/locale-context';
 
@@ -22,17 +24,22 @@ const PHASE_HEADINGS: Partial<Record<string, string>> = {
   after: 'home.phases.after',
 };
 
-/** S4 Home: the wedding's events in ceremony order, grouped by phase. */
+/**
+ * S4 Home. Vendor types come first (Venues, Food, Music...), because every
+ * vendor has a type but not every vendor lists the events they serve. Events
+ * follow as a planning checklist, in ceremony order, grouped by phase.
+ */
 export default function HomeScreen() {
   const { t } = useLocale();
   const router = useRouter();
+  const groups = useCategoryGroups();
   const { data: sections, status, refetch } = useHomeEvents();
   const [refreshing, setRefreshing] = useState(false);
 
   // Pull to refresh fetches again even though events are cached for a day.
   async function onRefresh() {
     setRefreshing(true);
-    await refetch();
+    await Promise.all([groups.refetch(), refetch()]);
     setRefreshing(false);
   }
 
@@ -63,7 +70,28 @@ export default function HomeScreen() {
         <SearchButton onPress={startTyping} />
 
         <AppText variant="title" accessibilityRole="header" style={styles.browse}>
-          {t('home.browseByEvent')}
+          {t('home.browseByType')}
+        </AppText>
+        {groups.isPending && <StateView state="loading" />}
+        {groups.isError && <StateView state="error" onRetry={() => void groups.refetch()} />}
+        {groups.data && (
+          <View style={styles.section}>
+            {groups.data.map((group) => (
+              <CategoryRow
+                key={group.slug}
+                name={group.name}
+                icon={groupIcon(group.slug)}
+                onPress={() =>
+                  router.push({ pathname: '/g/[group]', params: { group: group.slug } })
+                }
+              />
+            ))}
+            <Button variant="text" label={t('home.allCategories')} onPress={openSearch} />
+          </View>
+        )}
+
+        <AppText variant="title" accessibilityRole="header" style={styles.browse}>
+          {t('home.planByEvent')}
         </AppText>
 
         {status === 'pending' && <StateView state="loading" />}
@@ -97,15 +125,12 @@ export default function HomeScreen() {
         })}
 
         {status === 'success' && sections.length > 0 && (
-          <>
-            <Button variant="text" label={t('home.allCategories')} onPress={openSearch} />
-            <Button
-              variant="text"
-              icon="ribbon-outline"
-              label={t('home.foundingWall')}
-              onPress={() => router.push('/founding')}
-            />
-          </>
+          <Button
+            variant="text"
+            icon="ribbon-outline"
+            label={t('home.foundingWall')}
+            onPress={() => router.push('/founding')}
+          />
         )}
       </ScrollView>
     </Screen>

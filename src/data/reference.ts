@@ -191,3 +191,40 @@ async function fetchCategories(): Promise<Category[]> {
 export function useCategories() {
   return useQuery({ queryKey: referenceKeys.categories(), queryFn: fetchCategories, ...REFERENCE });
 }
+
+// Browse by vendor type ----------------------------------------------------
+
+export type CategoryGroup = {
+  slug: string;
+  name: LocalizedText;
+  /** In the founders' order within the group. */
+  categories: { slug: string; name: LocalizedText; groupSlug: string }[];
+};
+
+async function fetchCategoryGroups(): Promise<CategoryGroup[]> {
+  const { data, error } = await supabase
+    .from('category_groups')
+    .select('slug, name, sort_order, categories(slug, name, sort_order)')
+    .order('sort_order');
+  if (error) throw error;
+  return data.map((group) => ({
+    slug: group.slug,
+    name: nameOf(group),
+    categories: [...group.categories]
+      .sort((a, b) => a.sort_order - b.sort_order)
+      .map((category) => ({
+        slug: category.slug,
+        name: nameOf(category),
+        groupSlug: group.slug,
+      })),
+  }));
+}
+
+/** Vendor types grouped (Venues, Food, Music...), in the database's order. */
+export function useCategoryGroups() {
+  return useQuery({
+    queryKey: [...referenceKeys.all, 'category-groups'],
+    queryFn: fetchCategoryGroups,
+    ...REFERENCE,
+  });
+}

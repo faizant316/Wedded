@@ -43,7 +43,9 @@ export default function ResultsScreen() {
     longitude: place?.longitude,
     maxMiles,
     categorySlug,
-    eventSlug,
+    // No event filter: plenty of vendors haven't listed every event they
+    // serve, and they shouldn't disappear. The event only decides where a
+    // heart saves them.
     includeTravelers,
     limit: 100,
   });
@@ -83,8 +85,8 @@ export default function ResultsScreen() {
         </View>
       )}
       {event.data && (
-        <AppText variant="bodyLg">
-          {t('results.forEvent', { event: localized(event.data.name, locale) })}
+        <AppText color="text2">
+          {t('results.savingTo', { event: localized(event.data.name, locale) })}
         </AppText>
       )}
       <LocationChip />
