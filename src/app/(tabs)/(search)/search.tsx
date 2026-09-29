@@ -10,20 +10,29 @@ import { groupIcon } from '@/components/group-icon';
 import { Screen } from '@/components/screen';
 import { SearchField } from '@/components/search-field';
 import { StateView } from '@/components/state-view';
+import { VendorCard } from '@/components/vendor-card';
 import { Spacing } from '@/constants/theme';
 import { useCategories } from '@/data/reference';
+import { useSavedVendors, useSaveVendor } from '@/data/saved';
+import { useVendorSearch } from '@/data/search';
 import { useCategoryVendorCounts } from '@/data/vendors';
+import { useSearchLocation } from '@/features/location/search-location';
 import { matchCategories } from '@/features/search/match-categories';
+import { useDebouncedValue, vendorQuery } from '@/features/search/vendor-query';
 import { localized } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
 
 // "Popular" is the categories with the most published vendors, so it comes
 // from the data rather than a list in the app.
 const POPULAR_COUNT = 8;
+// Enough to find a vendor by name; a category's full list is one tap away.
+const VENDOR_LIMIT = 10;
 
 /**
- * S8 Search: type to match categories by English or Punjabi name and their
- * aliases (on the device for now), or pick from Popular or the A to Z grid.
+ * S8 Search: type to match vendor types by English or Punjabi name and their
+ * aliases (on the device), and vendors by name, tagline or type (from the
+ * database, nearest first, at any distance so a vendor someone was told about
+ * always turns up). Or pick from Popular or the A to Z grid.
  * Opened from Home's search box with ?focus=1, the keyboard comes up.
  */
 export default function SearchScreen() {
@@ -34,6 +43,21 @@ export default function SearchScreen() {
   const [query, setQuery] = useState('');
   const categories = useCategories();
   const counts = useCategoryVendorCounts();
+  const { place } = useSearchLocation();
+  const saves = useSavedVendors();
+  const { toggleSave } = useSaveVendor();
+  const typed = vendorQuery(query);
+  const needle = useDebouncedValue(typed);
+  const vendors = useVendorSearch(
+    {
+      latitude: place?.latitude,
+      longitude: place?.longitude,
+      maxMiles: null,
+      query: needle ?? undefined,
+      limit: VENDOR_LIMIT,
+    },
+    { enabled: needle !== null, keepPrevious: true },
+  );
   // Two columns stop fitting once the phone's text is very large.
   const columns = useFontScale('heading') >= 1.5 ? 1 : 2;
 
@@ -52,6 +76,10 @@ export default function SearchScreen() {
   const all = categories.data ?? [];
   const vendorCount = (slug: string) => counts.data?.[slug] ?? 0;
   const matches = matchCategories(all, query);
+  const savedIds = new Set((saves.data ?? []).map((save) => save.vendorId));
+  // Still typing or still fetching: don't say "nothing matches" yet.
+  const vendorsSettling = typed !== null && (needle !== typed || vendors.isFetching);
+  const foundVendors = typed !== null && needle !== null ? (vendors.data ?? []) : [];
   const popular = [...all]
     .filter((category) => vendorCount(category.slug) > 0)
     .sort((a, b) => vendorCount(b.slug) - vendorCount(a.slug))
@@ -64,23 +92,64 @@ export default function SearchScreen() {
     body = <StateView state="error" onRetry={() => void categories.refetch()} />;
   } else if (query.trim()) {
     body =
-      matches.length > 0 ? (
-        <View style={styles.list}>
-          {matches.map((category) => (
-            <CategoryRow
-              key={category.slug}
-              name={category.name}
-              icon={groupIcon(category.groupSlug)}
-              onPress={() => openCategory(category.slug)}
-            />
-          ))}
-        </View>
+      matches.length === 0 && foundVendors.length === 0 ? (
+        vendorsSettling ? (
+          <StateView state="loading" />
+        ) : vendors.isError ? (
+          <StateView state="error" onRetry={() => void vendors.refetch()} />
+        ) : (
+          <StateView
+            state="empty"
+            icon="search-outline"
+            message={t('search.noMatch', { query: query.trim() })}
+          />
+        )
       ) : (
-        <StateView
-          state="empty"
-          icon="search-outline"
-          message={t('search.noMatch', { query: query.trim() })}
-        />
+        <>
+          {matches.length > 0 && (
+            <>
+              <AppText variant="heading" accessibilityRole="header">
+                {t('search.types')}
+              </AppText>
+              <View style={styles.list}>
+                {matches.map((category) => (
+                  <CategoryRow
+                    key={category.slug}
+                    name={category.name}
+                    icon={groupIcon(category.groupSlug)}
+                    onPress={() => openCategory(category.slug)}
+                  />
+                ))}
+              </View>
+            </>
+          )}
+          {foundVendors.length > 0 && (
+            <>
+              <AppText variant="heading" accessibilityRole="header" style={styles.allTitle}>
+                {t('search.vendors')}
+              </AppText>
+              <View style={styles.list}>
+                {foundVendors.map((vendor) => (
+                  <VendorCard
+                    key={vendor.id}
+                    name={vendor.name}
+                    category={vendor.category ?? { en: '' }}
+                    city={vendor.city}
+                    distanceMiles={vendor.distanceMiles}
+                    startingPrice={vendor.startingPrice}
+                    photoUrl={vendor.photoUrl}
+                    foundingNumber={vendor.foundingNumber}
+                    saved={savedIds.has(vendor.id)}
+                    onToggleSave={() => toggleSave(vendor.id)}
+                    onPress={() =>
+                      router.push({ pathname: '/v/[slug]', params: { slug: vendor.slug } })
+                    }
+                  />
+                ))}
+              </View>
+            </>
+          )}
+        </>
       );
   } else {
     const rows = [];
