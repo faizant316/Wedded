@@ -58,6 +58,7 @@ export const Sizes = {
   eventTilePhoto: 132, // the same card with a photo
   eventPhoto: 112, // width of that photo
   tile: 96, // category tile, minimum height
+  row: 72, // list rows, e.g. the Event page's categories
   iconCircle: 56,
   tabBar: 64,
   tabIcon: 26,

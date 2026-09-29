@@ -84,6 +84,9 @@ export default function HomeScreen() {
                   name={event.name}
                   vendorTypeCount={event.vendorTypeCount}
                   vendorCount={event.vendorCount}
+                  onPress={() =>
+                    router.push({ pathname: '/e/[slug]', params: { slug: event.slug } })
+                  }
                 />
               ))}
             </View>

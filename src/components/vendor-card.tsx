@@ -23,7 +23,8 @@ export type VendorCardProps = {
   startingPrice?: { amount: number; unit?: PriceUnit } | null;
   /** Cover photo; cropped to 3:2. */
   photoUrl?: string | null;
-  onPress: () => void;
+  /** Opens the profile. Without it the card is display-only. */
+  onPress?: () => void;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -89,7 +90,7 @@ export function VendorCard({
     .join(', ');
 
   return (
-    <Card onPress={onPress} accessibilityLabel={spoken} style={[styles.card, style]}>
+    <Card onPress={onPress} accessible accessibilityLabel={spoken} style={[styles.card, style]}>
       {photoUrl ? (
         <Image
           source={{ uri: photoUrl }}
