@@ -23,6 +23,44 @@ export type Database = {
   };
   public: {
     Tables: {
+      area_codes: {
+        Row: {
+          center_city_slug: string;
+          code: string;
+          created_at: string;
+          label: NonNullable<Json>;
+          radius_miles: number;
+          sort_order: number;
+          updated_at: string;
+        };
+        Insert: {
+          center_city_slug: string;
+          code: string;
+          created_at?: string;
+          label: NonNullable<Json>;
+          radius_miles?: number;
+          sort_order: number;
+          updated_at?: string;
+        };
+        Update: {
+          center_city_slug?: string;
+          code?: string;
+          created_at?: string;
+          label?: NonNullable<Json>;
+          radius_miles?: number;
+          sort_order?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'area_codes_center_city_slug_fkey';
+            columns: ['center_city_slug'];
+            isOneToOne: false;
+            referencedRelation: 'cities';
+            referencedColumns: ['slug'];
+          },
+        ];
+      };
       categories: {
         Row: {
           aliases: string[];
@@ -87,6 +125,45 @@ export type Database = {
           name?: NonNullable<Json>;
           slug?: string;
           sort_order?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      cities: {
+        Row: {
+          aliases: string[];
+          area_code: string;
+          census_geoid: string | null;
+          created_at: string;
+          latitude: number;
+          location: unknown;
+          longitude: number;
+          name: string;
+          slug: string;
+          updated_at: string;
+        };
+        Insert: {
+          aliases?: string[];
+          area_code: string;
+          census_geoid?: string | null;
+          created_at?: string;
+          latitude: number;
+          location?: never;
+          longitude: number;
+          name: string;
+          slug: string;
+          updated_at?: string;
+        };
+        Update: {
+          aliases?: string[];
+          area_code?: string;
+          census_geoid?: string | null;
+          created_at?: string;
+          latitude?: number;
+          location?: never;
+          longitude?: number;
+          name?: string;
+          slug?: string;
           updated_at?: string;
         };
         Relationships: [];
@@ -558,12 +635,63 @@ export type Database = {
         };
         Relationships: [];
       };
+      zip_codes: {
+        Row: {
+          latitude: number;
+          location: unknown;
+          longitude: number;
+          zip: string;
+        };
+        Insert: {
+          latitude: number;
+          location?: never;
+          longitude: number;
+          zip: string;
+        };
+        Update: {
+          latitude?: number;
+          location?: never;
+          longitude?: number;
+          zip?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      search_vendors: {
+        Args: {
+          category_slug?: string;
+          event_slug?: string;
+          include_travelers?: boolean;
+          lat?: number;
+          lng?: number;
+          max_miles?: number;
+          query?: string;
+          result_limit?: number;
+          result_offset?: number;
+        };
+        Returns: {
+          city: string;
+          distance_miles: number;
+          founding_number: number;
+          id: string;
+          latitude: number;
+          longitude: number;
+          name: string;
+          name_pa: string;
+          price_display: string;
+          price_from: number;
+          price_to: number;
+          price_unit: string;
+          primary_category_name: Json;
+          primary_category_slug: string;
+          slug: string;
+          within_search_radius: boolean;
+        }[];
+      };
     };
     Enums: {
       [_ in never]: never;

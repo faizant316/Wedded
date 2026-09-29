@@ -4,6 +4,9 @@ Add newest decisions at the top. Keep each entry short: what we decided, why, an
 
 | Date | Decision | Why | Agreed by |
 | --- | --- | --- | --- |
+| 2026-09-29 | Cities and ZIP points come from the US Census 2024 Gazetteer, stored in tables; no geocoding API | Free, no keys, works offline once cached (vision section 8); the launch city list covers 510, 916, 408, 209, 530, 925, 650, 559 and 707 | Kirat |
+| 2026-09-29 | A search includes vendors whose own service radius covers you, marked as travelling to you; vendors who "will travel" further appear only on request | A Sacramento DJ who serves the valley should show up in Stockton (vision section 8); open-ended travellers would crowd local results | Kirat |
+| 2026-09-29 | Area-code chips search 40 miles around a centre city: 510 Hayward, 408 San Jose, 916 Sacramento, 209 Manteca, 530 Yuba City, 925 Pleasanton, 650 San Mateo, 559 Fresno, 707 Fairfield | Area codes are how the community describes geography (vision S22a); the centres are editable rows | Kirat |
 | 2026-09-29 | Sign-up asks only name, city, phone, email and 18+; sign-in is a 6-digit email code, no password, no subscription | Keep it as simple as possible for families; phone/SMS login needs the LLC (vision section 8) | Kirat |
 | 2026-09-29 | `profiles` doesn't store email; the sign-in email in `auth.users` is the one we use | Collect the minimum and keep one copy (CLAUDE.md privacy rule) | Kirat |
 | 2026-09-29 | 18+ is `profiles.adult_confirmed_at`, stamped by the database when the profile is created; the app can't write it | A record the user can't backdate, and never a birthdate (vision section 8) | Kirat |

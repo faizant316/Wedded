@@ -8,7 +8,8 @@
 -- (section 7): home-based, no email, a Punjabi-only bio, a very long name, an
 -- all-of-NorCal radius, hidden pricing, and no photos yet.
 --
--- Public locations of home-based vendors are city centre points.
+-- Public locations of home-based vendors are their city's point from
+-- public.cities, never their house (vision section 8).
 
 -- Banquet halls (public addresses) -----------------------------------------
 
@@ -61,7 +62,7 @@ insert into public.vendors (
   '00000000-0000-4000-8000-000000000003', 'tandoor-house-catering', 'published', true,
   'Tandoor House Catering',
   'Veg and non-veg Punjabi menus, live tandoor on request.',
-  'Fremont', 'SRID=4326;POINT(-121.9886 37.5485)', 100,
+  'Fremont', (select location from public.cities where slug = 'fremont'), 100,
   '+15105550103', '+15105550103', 'whatsapp', '{en,pa,hi}',
   'starting_at', 22, 'person', 'Minimum 100 guests.',
   '{"dietary": ["veg", "non_veg", "jhatka"], "live_stations": ["tandoor", "chaat", "jalebi"],
@@ -77,7 +78,7 @@ insert into public.vendors (
   '00000000-0000-4000-8000-000000000004', 'bass-and-bhangra-dj', 'published', true,
   'Bass & Bhangra DJ',
   'Bhangra, Bollywood and Top 40, with an MC in Punjabi and English.',
-  'Stockton', 'SRID=4326;POINT(-121.2908 37.9577)', 100, true, 'Bay Area and Yuba City at no extra charge.',
+  'Stockton', (select location from public.cities where slug = 'stockton'), 100, true, 'Bay Area and Yuba City at no extra charge.',
   '+12095550104', 'bassandbhangra', 'text', '{en,pa}',
   'starting_at', 1500, 'event',
   '{"genres": ["bhangra", "bollywood", "punjabi_folk", "top_40"], "mc_included": true,
@@ -94,7 +95,7 @@ insert into public.vendors (
   '00000000-0000-4000-8000-000000000005', 'gabru-dhol-crew', 'published', true,
   'Gabru Dhol Crew',
   'Two dholis for jaago, baraat and reception entrances.',
-  'Manteca', 'SRID=4326;POINT(-121.2161 37.7974)', 50,
+  'Manteca', (select location from public.cities where slug = 'manteca'), 50,
   '+12095550105', '+12095550105', 'whatsapp', '{pa,en}',
   'starting_at', 400, 'event', 'Two hours, two dholis.',
   '{"dholis": 2, "min_hours": 2}'
@@ -110,7 +111,7 @@ insert into public.vendors (
   '00000000-0000-4000-8000-000000000006', 'rang-mehndi', 'published', true,
   'Rang Mehndi', 'ਰੰਗ ਮਹਿੰਦੀ',
   'ਲਾੜੀ ਅਤੇ ਮਹਿਮਾਨਾਂ ਲਈ ਮਹਿੰਦੀ। ਘਰ ਆ ਕੇ ਲਗਾਉਂਦੇ ਹਾਂ।',
-  'Elk Grove', 'SRID=4326;POINT(-121.3716 38.4088)', 25,
+  'Elk Grove', (select location from public.cities where slug = 'elk-grove'), 25,
   '+19165550106', 'text', '{pa}',
   'starting_at', 300, 'event', 'Bridal. Guests from $10 a hand.'
 );
@@ -125,7 +126,7 @@ insert into public.vendors (
   '00000000-0000-4000-8000-000000000007', 'golden-moments-photo-cinema', 'published', true,
   'Golden Moments Photography and Cinematography Studio',
   'Photo, film and drone for every event, gurdwara-experienced.',
-  'San Jose', 'SRID=4326;POINT(-121.8863 37.3382)', 250,
+  'San Jose', (select location from public.cities where slug = 'san-jose'), 250,
   '+14085550107', 'goldenmomentsstudio', 'instagram', '{en,pa,hi}',
   'hidden', 12, 8
 );
@@ -139,7 +140,7 @@ insert into public.vendors (
   '00000000-0000-4000-8000-000000000008', 'phulkari-decor-events', 'published', true,
   'Phulkari Decor & Events',
   'Reception stages, mehndi and jaago village themes, garlands.',
-  'Tracy', 'SRID=4326;POINT(-121.4252 37.7397)', 100,
+  'Tracy', (select location from public.cities where slug = 'tracy'), 100,
   '+12095550108', 'call', '{en,pa}',
   'range', 4000, 15000, 'event'
 );
@@ -153,7 +154,7 @@ insert into public.vendors (
   '00000000-0000-4000-8000-000000000009', 'glow-by-simran', 'published', true,
   'Glow by Simran',
   'Bridal makeup and hair, ready by 8 AM for the Anand Karaj.',
-  'Lathrop', 'SRID=4326;POINT(-121.2766 37.8227)', 50,
+  'Lathrop', (select location from public.cities where slug = 'lathrop'), 50,
   '+12095550109', 'glowbysimran', 'instagram', '{en,pa}',
   'starting_at', 350, 'event', 'Early-morning calls from 4 AM.'
 );
