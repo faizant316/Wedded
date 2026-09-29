@@ -52,6 +52,20 @@ Copy `.env.example` to `.env.local` and fill in the two values from `npm run db:
 
 If a local sign-in email arrives as a link instead of a 6-digit code, Docker is serving a stale copy of `supabase/templates/sign-in-code.html` (switching git branches can replace the file). Run `npm run db:stop && npm run db:start`; your local data is kept.
 
+### Vendor photos
+
+`npm run photos:samples` gives every sample vendor three labelled placeholder photos on your local database (run it after `npm run db:reset`, which clears them). To add real photos, put them in a folder with one subfolder per vendor slug:
+
+```
+photos/
+  royal-orchard-banquet-hall/
+    cover.jpg          # becomes the cover (otherwise the first file does)
+    hall-stage.jpg
+    photos.json        # optional tags: { "hall-stage.jpg": { "event": "reception", "venue": "royal-orchard-banquet-hall", "credit": "frames-by-jas" } }
+```
+
+Then run `npm run photos:upload -- photos --local` for your local database, or with `SUPABASE_URL` and `SUPABASE_SECRET_KEY` set for the hosted one. Each photo is resized to 400, 1080 and 1600 wide WebP with a blurhash, uploaded, and registered. Running it again updates photos instead of duplicating them. Keep real vendor photos out of git.
+
 ### Edge Functions (server code)
 
 `supabase/functions/` holds the server code, written for Deno. `npm run db:start` serves it locally at `http://127.0.0.1:54321/functions/v1/<name>`, and emails it sends land in Mailpit. To check a function, install Deno (`brew install deno`) and run `deno check index.ts && deno lint && deno fmt --check` in its folder. CI runs the same. After adding a new function (or if a local function answers 404 or 503), restart with `npm run db:stop && npm run db:start`.
