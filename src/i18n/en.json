@@ -12,7 +12,13 @@
     "headline": "Every vendor for every event of your wedding",
     "subtitle": "Roka to reception. Northern California.",
     "browseByEvent": "Browse by event",
-    "eventsPlaceholder": "Events and vendor categories load from the database in the next step."
+    "phases": {
+      "before": "Before the wedding",
+      "weddingDay": "Wedding day",
+      "after": "After"
+    },
+    "allCategories": "See all categories A to Z",
+    "empty": "Events will show here soon."
   },
   "search": {
     "placeholder": "Search dhol, mehndi, halls…"
