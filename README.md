@@ -68,6 +68,6 @@ Copy `.env.example` to `.env.local` and fill in the two values from `npm run db:
 
 ## How we work
 
-- Every feature gets its own branch and a pull request. The other partner reviews before merging.
+- Every feature gets its own branch and a pull request. It merges itself once the checks pass; open it as a draft if you want the other partner to look first.
 - Never commit passwords or API keys. Use `.env` files (already ignored by git).
 - Every task lives on the task board. Decisions go in the decisions log.
