@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 
@@ -10,6 +10,7 @@ import { StateView } from '@/components/state-view';
 import { VendorCard } from '@/components/vendor-card';
 import { Colors, Spacing } from '@/constants/theme';
 import { useCategories, useEvent } from '@/data/reference';
+import { useSavedVendors, useSaveVendor } from '@/data/saved';
 import { useVendorSearch } from '@/data/search';
 import { LocationChip } from '@/features/location/location-chip';
 import { useSearchLocation } from '@/features/location/search-location';
@@ -30,7 +31,10 @@ export default function ResultsScreen() {
     event?: string;
   }>();
   const { locale, t } = useLocale();
+  const router = useRouter();
   const { place, maxMiles, setMaxMiles } = useSearchLocation();
+  const saves = useSavedVendors();
+  const { toggleSave } = useSaveVendor();
   const [includeTravelers, setIncludeTravelers] = useState(false);
   const categories = useCategories();
   const event = useEvent(eventSlug ?? '');
@@ -44,6 +48,13 @@ export default function ResultsScreen() {
     limit: 100,
   });
   const [refreshing, setRefreshing] = useState(false);
+
+  // With an event, the heart is for that event; without one, any save counts.
+  const savedIds = new Set(
+    (saves.data ?? [])
+      .filter((save) => eventSlug === undefined || save.eventSlug === eventSlug)
+      .map((save) => save.vendorId),
+  );
 
   const category = categories.data?.find((c) => c.slug === categorySlug);
   // While categories load, show no title rather than the raw slug.
@@ -140,6 +151,9 @@ export default function ResultsScreen() {
             startingPrice={item.startingPrice}
             foundingNumber={item.foundingNumber}
             travelsToYou={item.withinSearchRadius === false}
+            saved={savedIds.has(item.id)}
+            onToggleSave={() => toggleSave(item.id, eventSlug)}
+            onPress={() => router.push({ pathname: '/v/[slug]', params: { slug: item.slug } })}
           />
         )}
         ListHeaderComponent={header}

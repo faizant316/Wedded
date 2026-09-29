@@ -33,6 +33,60 @@
     "widen": "Widen to {{miles}} mi",
     "showTravelers": "Show vendors who travel to you"
   },
+  "vendor": {
+    "notFound": "This vendor isn't listed anymore.",
+    "foundingNumber": "Founding vendor #{{number}}",
+    "basedIn": "Based in {{city}}",
+    "travelsUpTo": "Travels up to {{miles}} mi.",
+    "travelsNorcal": "Travels anywhere in Northern California.",
+    "speaks": "Speaks {{languages}}",
+    "languages": {
+      "en": "English",
+      "pa": "Punjabi",
+      "hi": "Hindi",
+      "ur": "Urdu"
+    },
+    "price": "Price",
+    "priceRange": "{{from}} to {{to}}",
+    "priceRangePer": "{{from}} to {{to}} / {{unit}}",
+    "pricePackages": "They offer packages. Ask them for details.",
+    "priceContact": "Ask them for a price.",
+    "priceCaption": "Prices vary. Ask for a quote.",
+    "goodToKnow": "Good to know",
+    "facts": {
+      "seats": "Seats {{count}}",
+      "outsideCateringYes": "Outside caterers OK",
+      "outsideCateringList": "Outside caterers from their list",
+      "outsideCateringNo": "Their own catering only",
+      "byob": "Bring your own drinks",
+      "byobCorkage": "Bring your own drinks ({{price}} corkage)",
+      "fullBar": "Full bar",
+      "noAlcohol": "No alcohol",
+      "ghoriYes": "Ghori allowed",
+      "ghoriNo": "No ghori",
+      "curfew": "Ends by {{time}}",
+      "parking": "{{count}} parking spaces"
+    },
+    "about": "About",
+    "contact": "Contact",
+    "phone": "Phone",
+    "website": "Website",
+    "call": "Call",
+    "text": "Text",
+    "whatsapp": "WhatsApp",
+    "instagram": "Instagram",
+    "directions": "Directions",
+    "callSpoken": "Call {{name}}, {{phone}}",
+    "textSpoken": "Text {{name}}, {{phone}}",
+    "whatsappSpoken": "Message {{name}} on WhatsApp",
+    "instagramSpoken": "Open {{name}} on Instagram",
+    "directionsSpoken": "Directions to {{name}}",
+    "callTitle": "Call {{name}}?",
+    "cancel": "Cancel",
+    "openFailed": "This phone couldn't open that. Try the number under Contact.",
+    "save": "Save",
+    "saved": "Saved"
+  },
   "search": {
     "placeholder": "Search dhol, mehndi, halls…",
     "label": "Search",
@@ -143,7 +197,9 @@
       "day": "day"
     },
     "founding": "Founding vendor",
-    "travelsToYou": "Travels to you"
+    "travelsToYou": "Travels to you",
+    "save": "Save {{name}}",
+    "unsave": "Remove {{name}} from Saved"
   },
   "signIn": {
     "title": "Sign in or create an account",

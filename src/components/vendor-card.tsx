@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image';
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { AppText, useFontScale } from '@/components/app-text';
 import { Card } from '@/components/card';
@@ -27,6 +27,10 @@ export type VendorCardProps = {
   foundingNumber?: number | null;
   /** Shows "Travels to you": based outside your distance, but they cover your area. */
   travelsToYou?: boolean;
+  /** Filled heart when true. */
+  saved?: boolean;
+  /** Shows the heart; the caller saves or removes (useSaveVendor().toggleSave). */
+  onToggleSave?: () => void;
   /** Opens the profile. Without it the card is display-only. */
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
@@ -54,6 +58,8 @@ export function VendorCard({
   photoUrl,
   foundingNumber,
   travelsToYou = false,
+  saved = false,
+  onToggleSave,
   onPress,
   style,
 }: VendorCardProps) {
@@ -92,6 +98,9 @@ export function VendorCard({
   const details = [categoryName, city, distance?.shown.replace(/ /g, '\u00a0')]
     .filter(Boolean)
     .join(' · ');
+  const saveLabel = saved
+    ? t('vendorCard.unsave', { name: vendorName })
+    : t('vendorCard.save', { name: vendorName });
   const badges: { key: string; label: string; icon: 'ribbon-outline' | 'car-outline' }[] = [];
   if (foundingNumber != null) {
     badges.push({ key: 'founding', label: t('vendorCard.founding'), icon: 'ribbon-outline' });
@@ -111,7 +120,18 @@ export function VendorCard({
     .join(', ');
 
   return (
-    <Card onPress={onPress} accessible accessibilityLabel={spoken} style={[styles.card, style]}>
+    <Card
+      onPress={onPress}
+      accessible
+      accessibilityLabel={spoken}
+      // The heart sits inside the card, which screen readers treat as one
+      // element, so saving is also offered as an action on the card.
+      accessibilityActions={onToggleSave ? [{ name: 'toggleSave', label: saveLabel }] : undefined}
+      onAccessibilityAction={(event) => {
+        if (event.nativeEvent.actionName === 'toggleSave') onToggleSave?.();
+      }}
+      style={[styles.card, style]}
+    >
       <View>
         {photoUrl ? (
           <Image
@@ -124,6 +144,20 @@ export function VendorCard({
           <View style={[styles.photo, styles.noPhoto]}>
             <Ionicons name="image-outline" size={Sizes.iconLarge} color={Colors.textDisabled} />
           </View>
+        )}
+        {onToggleSave && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={saveLabel}
+            onPress={onToggleSave}
+            style={({ pressed }) => [styles.heart, pressed && styles.heartPressed]}
+          >
+            <Ionicons
+              name={saved ? 'heart' : 'heart-outline'}
+              size={Sizes.icon}
+              color={Colors.primary}
+            />
+          </Pressable>
         )}
         {badges.length > 0 && (
           <View style={styles.badges}>
@@ -173,6 +207,20 @@ const styles = StyleSheet.create({
   noPhoto: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  heart: {
+    position: 'absolute',
+    top: Spacing.sm,
+    right: Spacing.sm,
+    width: Sizes.tapTarget,
+    height: Sizes.tapTarget,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: Radius.circle,
+    backgroundColor: Colors.surface,
+  },
+  heartPressed: {
+    backgroundColor: Colors.primaryTint,
   },
   badges: {
     position: 'absolute',

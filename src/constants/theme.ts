@@ -59,6 +59,7 @@ export const Sizes = {
   eventPhoto: 112, // width of that photo
   tile: 96, // category tile, minimum height
   row: 72, // list rows, e.g. the Event page's categories
+  cover: 160, // vendor profile cover band until vendors have photos
   iconCircle: 56,
   tabBar: 64,
   tabIcon: 26,
