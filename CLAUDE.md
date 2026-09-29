@@ -16,10 +16,10 @@ Before planning any feature, read the part of the docs it touches. They are the 
 - `docs/DECISIONS.md`: decisions already made. Don't reopen one without asking; add new ones at the top.
 
 ## Where things stand (2026-09-29; update this in the PR that changes it)
-- Done: Phase 1 tech setup (ESLint, Prettier, CI), the product vision, the app shell (Home, Search, Saved and Profile tabs, theme tokens, `AppText`, English/Punjabi toggle), and a local Supabase with the app's client in `src/lib/supabase.ts`.
+- Done: Phase 1 tech setup (ESLint, Prettier, CI), the product vision, the app shell (Home, Search, Saved and Profile tabs, theme tokens, `AppText`, English/Punjabi toggle), a local Supabase with the typed client in `src/lib/supabase.ts`, and the reference data (#10): `cultures`, `events`, `culture_events` (Home order and grouping), `category_groups`, `categories`, `event_categories` (essential / nice to have), with RLS (read-only for everyone) and pgTAP tests.
 - Open: PR #7, core UI components (Button, Chip, Card, TextField, Checkbox, StateView).
-- Next (§13, week 2): schema, migrations and RLS in `supabase/migrations`, seed reference data (events and categories with Gurmukhi names and aliases); email-code login; then Home organised by event.
-- Local database: `npm run db:start`, `db:status`, `db:reset`, `db:stop` (setup steps are in the README).
+- Next (§13, week 2): vendor tables (`vendors`, `vendor_private` with zero policies, `vendor_categories` and `vendor_events` links, sample vendors in `seed.sql`); email-code login; then Home organised by event.
+- Local database: `npm run db:start`, `db:status`, `db:reset`, `db:test`, `db:types`, `db:stop` (setup steps are in the README). After a schema change, run `db:types` and commit `src/types/database.ts`.
 - Both founders build with Claude Code. Run `gh pr list` before starting so two branches don't build the same thing.
 
 ## Stack
