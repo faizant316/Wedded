@@ -277,6 +277,45 @@ export type Database = {
         };
         Relationships: [];
       };
+      saved_vendors: {
+        Row: {
+          created_at: string;
+          event_slug: string | null;
+          id: string;
+          user_id: string;
+          vendor_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          event_slug?: string | null;
+          id?: string;
+          user_id?: string;
+          vendor_id: string;
+        };
+        Update: {
+          created_at?: string;
+          event_slug?: string | null;
+          id?: string;
+          user_id?: string;
+          vendor_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'saved_vendors_event_slug_fkey';
+            columns: ['event_slug'];
+            isOneToOne: false;
+            referencedRelation: 'events';
+            referencedColumns: ['slug'];
+          },
+          {
+            foreignKeyName: 'saved_vendors_vendor_id_fkey';
+            columns: ['vendor_id'];
+            isOneToOne: false;
+            referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       vendor_categories: {
         Row: {
           category_slug: string;
