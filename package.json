@@ -51,5 +51,6 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json}\""
   },
-  "private": true
+  "private": true,
+  "license": "UNLICENSED"
 }

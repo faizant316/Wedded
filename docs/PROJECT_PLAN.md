@@ -47,12 +47,12 @@ Converted from the original PDF plan. Work through the phases in order. There ar
 - [ ] Set up the task board
 - [ ] Set up the shared Google Drive folder
 - [ ] Set up the shared Figma workspace
-- [ ] Create the shared decisions doc
+- [x] Create the shared decisions doc (Fezy)
 - [ ] Schedule the weekly check-in
 
 ### Tech
-- [ ] Create the starter Expo app and push it to the repo
-- [ ] Set up ESLint and Prettier
+- [x] Create the starter Expo app and push it to the repo (Kirat)
+- [x] Set up ESLint and Prettier (Kirat)
 - [ ] Create the Supabase project
 - [ ] Set up separate development and production environments
 - [ ] Turn on branch protection so every merge needs the other partner's review
