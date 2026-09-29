@@ -247,6 +247,36 @@ export type Database = {
         };
         Relationships: [];
       };
+      profiles: {
+        Row: {
+          adult_confirmed_at: string;
+          city: string;
+          created_at: string;
+          full_name: string;
+          id: string;
+          phone: string;
+          updated_at: string;
+        };
+        Insert: {
+          adult_confirmed_at?: string;
+          city: string;
+          created_at?: string;
+          full_name: string;
+          id: string;
+          phone: string;
+          updated_at?: string;
+        };
+        Update: {
+          adult_confirmed_at?: string;
+          city?: string;
+          created_at?: string;
+          full_name?: string;
+          id?: string;
+          phone?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       vendor_categories: {
         Row: {
           category_slug: string;
