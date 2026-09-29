@@ -99,7 +99,11 @@
       "other": "Approved at {{count}} venues"
     },
     "workedWith": "Has worked with",
-    "claim": "Are you this vendor? Claim your profile"
+    "claim": "Are you this vendor? Claim your profile",
+    "photos": "Photos",
+    "photo": "Photo",
+    "realWeddings": "Real weddings here",
+    "photoBy": "Photo by {{name}}"
   },
   "founding": {
     "title": "Founding vendors",

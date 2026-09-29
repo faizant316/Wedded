@@ -1,4 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Image } from 'expo-image';
 import * as Linking from 'expo-linking';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import type { ComponentProps } from 'react';
@@ -15,6 +16,7 @@ import { StateView } from '@/components/state-view';
 import { BorderWidth, Colors, Radius, Sizes, Spacing } from '@/constants/theme';
 import { useSavedEventsFor, useSaveVendor } from '@/data/saved';
 import { useVendorLinks, type LinkedVendor } from '@/data/vendor-links';
+import { useRealWeddingsAt, useVendorPhotos, type VendorPhoto } from '@/data/vendor-media';
 import { useVendor, type HallFacts, type VendorPrice } from '@/data/vendors';
 import { bilingual, localized, vendorText } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
@@ -132,6 +134,36 @@ function LinkedVendors({ title, vendors }: { title: string; vendors: LinkedVendo
   );
 }
 
+/** Three square photos per row (vision doc S9 item 10), with credits read out. */
+function PhotoGrid({ photos }: { photos: VendorPhoto[] }) {
+  const { t } = useLocale();
+  const rows: VendorPhoto[][] = [];
+  for (let i = 0; i < photos.length; i += 3) rows.push(photos.slice(i, i + 3));
+
+  return (
+    <View style={styles.grid}>
+      {rows.map((row) => (
+        <View key={row[0].id} style={styles.gridRow}>
+          {row.map((photo) => (
+            <Image
+              key={photo.id}
+              source={{ uri: photo.url.small }}
+              placeholder={photo.blurhash ? { blurhash: photo.blurhash } : undefined}
+              contentFit="cover"
+              accessible
+              accessibilityLabel={photo.credit ?? t('vendor.photo')}
+              style={styles.gridPhoto}
+            />
+          ))}
+          {Array.from({ length: 3 - row.length }, (_, i) => (
+            <View key={`gap-${i}`} style={styles.gridPhoto} />
+          ))}
+        </View>
+      ))}
+    </View>
+  );
+}
+
 /** S9 Vendor profile. Deep link: /v/{slug}. Opens over the tabs. */
 export default function VendorProfileScreen() {
   // `event` is set when they came from an event, so Save and Ask use it.
@@ -141,6 +173,8 @@ export default function VendorProfileScreen() {
   const scale = useFontScale('body');
   const vendor = useVendor(slug);
   const links = useVendorLinks(vendor.data?.id ?? '');
+  const photos = useVendorPhotos(vendor.data?.id ?? '');
+  const realWeddings = useRealWeddingsAt(vendor.data?.id ?? '');
   const { toggleSave } = useSaveVendor();
   const saved = useSavedEventsFor(vendor.data?.id ?? '').length > 0;
 
@@ -169,6 +203,8 @@ export default function VendorProfileScreen() {
     const tagline = vendorText(v.tagline.en, v.tagline.pa, locale);
     const bio = vendorText(v.bio.en, v.bio.pa, locale);
     const facts = factLabels(v.facts, t);
+    const allPhotos = photos.data ?? [];
+    const cover = allPhotos.find((photo) => photo.isCover) ?? allPhotos[0];
     const languages = v.languages
       .map((code) => t(`vendor.languages.${code}`, { defaultValue: code }))
       .join(', ');
@@ -255,13 +291,23 @@ export default function VendorProfileScreen() {
 
     body = (
       <>
-        <View style={styles.cover}>
-          <Ionicons
-            name={groupIcon(v.categories[0]?.groupSlug ?? '')}
-            size={Sizes.iconLarge}
-            color={Colors.primary}
+        {cover ? (
+          <Image
+            source={{ uri: cover.url.medium }}
+            placeholder={cover.blurhash ? { blurhash: cover.blurhash } : undefined}
+            contentFit="cover"
+            accessible={false}
+            style={styles.coverPhoto}
           />
-        </View>
+        ) : (
+          <View style={styles.cover}>
+            <Ionicons
+              name={groupIcon(v.categories[0]?.groupSlug ?? '')}
+              size={Sizes.iconLarge}
+              color={Colors.primary}
+            />
+          </View>
+        )}
 
         <View>
           <AppText variant="title" lang={primary.lang} accessibilityRole="header">
@@ -367,6 +413,54 @@ export default function VendorProfileScreen() {
           </View>
         )}
 
+        {allPhotos.length > 0 && (
+          <View style={styles.section}>
+            <AppText variant="heading" accessibilityRole="header">
+              {t('vendor.photos')}
+            </AppText>
+            <PhotoGrid photos={allPhotos} />
+          </View>
+        )}
+
+        {realWeddings.data && realWeddings.data.length > 0 && (
+          <View style={styles.section}>
+            <AppText variant="heading" accessibilityRole="header">
+              {t('vendor.realWeddings')}
+            </AppText>
+            {realWeddings.data.map((photo) => {
+              const by = localized(photo.vendor.name, locale);
+              return (
+                <Card
+                  key={photo.id}
+                  onPress={() =>
+                    router.push({ pathname: '/v/[slug]', params: { slug: photo.vendor.slug } })
+                  }
+                  accessibilityLabel={t('vendor.photoBy', { name: by })}
+                  style={styles.realWedding}
+                >
+                  <Image
+                    source={{ uri: photo.url.medium }}
+                    placeholder={photo.blurhash ? { blurhash: photo.blurhash } : undefined}
+                    contentFit="cover"
+                    accessible={false}
+                    style={styles.realWeddingPhoto}
+                  />
+                  <View style={styles.realWeddingCaption}>
+                    <AppText weight={700} style={styles.lineText}>
+                      {t('vendor.photoBy', { name: by })}
+                    </AppText>
+                    <Ionicons
+                      name="chevron-forward"
+                      size={Sizes.icon * scale}
+                      color={Colors.text2}
+                    />
+                  </View>
+                </Card>
+              );
+            })}
+          </View>
+        )}
+
         {links.data && (
           <>
             <LinkedVendors
@@ -449,6 +543,38 @@ const styles = StyleSheet.create({
   content: {
     gap: Spacing.lg,
     paddingVertical: Spacing.md,
+  },
+  coverPhoto: {
+    width: '100%',
+    aspectRatio: 4 / 3,
+    borderRadius: Radius.card,
+    backgroundColor: Colors.skeleton,
+  },
+  grid: {
+    gap: Spacing.xs,
+  },
+  gridRow: {
+    flexDirection: 'row',
+    gap: Spacing.xs,
+  },
+  gridPhoto: {
+    flex: 1,
+    aspectRatio: 1,
+    borderRadius: Radius.checkbox,
+  },
+  realWedding: {
+    padding: 0,
+  },
+  realWeddingPhoto: {
+    width: '100%',
+    aspectRatio: 3 / 2,
+    backgroundColor: Colors.skeleton,
+  },
+  realWeddingCaption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    padding: Spacing.lg,
   },
   cover: {
     height: Sizes.cover,
