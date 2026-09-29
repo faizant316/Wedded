@@ -4,6 +4,7 @@ Add newest decisions at the top. Keep each entry short: what we decided, why, an
 
 | Date | Decision | Why | Agreed by |
 | --- | --- | --- | --- |
+| 2026-09-29 | Search tries close spellings only when nothing matches exactly: every typed word must start a word or be within 1 edit (4 to 5 letters) or 2 (6 or more); the same rule on the phone (categories) and in `search_vendors` (vendors) | Parents type "dhool" and "photgrapher" on small keyboards, but correct spellings must never get noisier results. Edit distance, not trigrams: trigrams missed swapped letters ("mendhi", "catring") | Kirat |
 | 2026-09-29 | Home leads with vendor types (category groups, then categories); events come second as "Plan by event", and results never filter by event | Every vendor has a type, but not every vendor lists all the events they serve, so event-first browsing would leave some out; the event only decides where a save goes | Kirat |
 | 2026-09-29 | Inquiry rules live in the database function `create_inquiry` (one transaction, locked per person), called only by the `send-inquiry` Edge Function; the app can read its inquiries but not write them | The limits can't be skipped, can't be raced by double taps, and are covered by pgTAP tests (vision section 8) | Kirat |
 | 2026-09-29 | Vendors without email, or who say they don't check it, get inquiries relayed through the founders | Realistic at 50 vendors, and the best early data on who replies (vision section 8) | Kirat |
