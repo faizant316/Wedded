@@ -1,0 +1,430 @@
+import DateTimePicker from '@react-native-community/datetimepicker';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+
+import { AppText } from '@/components/app-text';
+import { Button } from '@/components/button';
+import { Card } from '@/components/card';
+import { Checkbox } from '@/components/checkbox';
+import { Chip } from '@/components/chip';
+import { FieldError } from '@/components/field-error';
+import { Screen } from '@/components/screen';
+import { StateView } from '@/components/state-view';
+import { TextField } from '@/components/text-field';
+import { Colors, Sizes, Spacing } from '@/constants/theme';
+import { useSendInquiry, type GuestBand, type ReplyBy, type SendOutcome } from '@/data/inquiries';
+import { useHomeEvents } from '@/data/reference';
+import { normalizePhone } from '@/features/auth/about-you-validation';
+import { useSession } from '@/features/auth/session';
+import {
+  formatDate,
+  fromDateString,
+  GUEST_BANDS,
+  suggestedMessage,
+  toDateString,
+  useInquiryVendor,
+} from '@/features/inquiry/inquiry-helpers';
+import { localized } from '@/i18n/localized';
+import { useLocale } from '@/i18n/locale-context';
+import { formatPhone } from '@/lib/phone';
+
+const REPLY_BY: ReplyBy[] = ['call', 'text', 'whatsapp', 'email'];
+
+/**
+ * "Ask about price & date" (vision S11), a modal. `?vendorId=` is required;
+ * `&event=` preselects the event they came from. Anyone can fill it in; Send
+ * asks logged-out people to sign in, then sends the same draft.
+ */
+export default function AskScreen() {
+  const { t, locale } = useLocale();
+  const params = useLocalSearchParams<{ vendorId?: string; event?: string }>();
+  const vendorId = params.vendorId ?? '';
+  const vendor = useInquiryVendor(vendorId);
+  const events = useHomeEvents();
+  const { profile, requireSignIn } = useSession();
+  const sending = useSendInquiry();
+
+  const [eventSlugs, setEventSlugs] = useState<string[]>(params.event ? [params.event] : []);
+  const [date, setDate] = useState<string | null>(null);
+  const [dateUnsure, setDateUnsure] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [guests, setGuests] = useState<GuestBand | null>(null);
+  const [place, setPlace] = useState(profile?.city ?? '');
+  const [ownMessage, setOwnMessage] = useState<string | null>(null);
+  const [name, setName] = useState(profile?.full_name ?? '');
+  const [phone, setPhone] = useState(profile ? formatPhone(profile.phone) : '');
+  const [replyBy, setReplyBy] = useState<ReplyBy>('text');
+  const [error, setError] = useState<string>();
+  const [duplicateAt, setDuplicateAt] = useState<string | null>(null);
+  const [touched, setTouched] = useState(false);
+
+  const allEvents = events.data?.flatMap((section) => section.events) ?? [];
+  const chosenEvents = allEvents.filter((event) => eventSlugs.includes(event.slug));
+  const suggested = suggestedMessage(t, locale, {
+    events: chosenEvents.map((event) => event.name),
+    date: dateUnsure ? null : date,
+    place,
+    guests,
+  });
+  const message = ownMessage ?? suggested;
+
+  const change =
+    <T,>(setter: (value: T) => void) =>
+    (value: T) => {
+      setter(value);
+      setTouched(true);
+      setError(undefined);
+    };
+
+  function close() {
+    if (!touched) {
+      router.back();
+      return;
+    }
+    Alert.alert(t('inquiry.discardTitle'), t('inquiry.discardBody'), [
+      { text: t('inquiry.keepEditing'), style: 'cancel' },
+      { text: t('inquiry.discard'), style: 'destructive', onPress: () => router.back() },
+    ]);
+  }
+
+  function handle(outcome: SendOutcome, sentAgain: boolean) {
+    switch (outcome.kind) {
+      case 'sent':
+      case 'queued':
+        router.replace({
+          pathname: '/ask-sent',
+          params: {
+            vendorId,
+            event: eventSlugs[0] ?? '',
+            queued: outcome.kind === 'queued' ? '1' : '',
+          },
+        });
+        return;
+      case 'duplicate':
+        setDuplicateAt(outcome.previousAt);
+        return;
+      case 'needsProfile':
+        requireSignIn(() => send(sentAgain));
+        return;
+      case 'rateLimited':
+        setError(
+          t(outcome.limit === 'day' ? 'inquiry.errors.tooManyDay' : 'inquiry.errors.tooManyHour'),
+        );
+        return;
+      case 'vendorNotFound':
+        setError(t('inquiry.errors.vendorGone'));
+        return;
+      case 'invalid':
+        setError(t('inquiry.errors.invalid'));
+        return;
+      case 'offline':
+        setError(t('inquiry.errors.offline'));
+        return;
+      default:
+        setError(t('inquiry.errors.failed'));
+    }
+  }
+
+  function send(sendAgain = false) {
+    if (!guests) {
+      setError(t('inquiry.errors.guests'));
+      return;
+    }
+    if (!place.trim()) {
+      setError(t('inquiry.errors.place'));
+      return;
+    }
+    if (!message.trim()) {
+      setError(t('inquiry.errors.message'));
+      return;
+    }
+    const cleanPhone = phone.trim() ? normalizePhone(phone) : null;
+    if (phone.trim() && !cleanPhone) {
+      setError(t('aboutYou.errors.phoneInvalid'));
+      return;
+    }
+    setError(undefined);
+    setDuplicateAt(null);
+    const draft = {
+      vendorId,
+      eventSlugs,
+      eventDate: dateUnsure ? null : date,
+      guestBand: guests,
+      location: place.trim(),
+      message: message.trim(),
+      preferredContact: replyBy,
+      language: locale,
+      name: name.trim() || undefined,
+      phone: cleanPhone ?? undefined,
+      sendAgain,
+    };
+    requireSignIn(() =>
+      sending.mutate(draft, { onSuccess: (outcome) => handle(outcome, sendAgain) }),
+    );
+  }
+
+  if (!vendorId || vendor.isError || events.isError) {
+    return <StateView state="error" onRetry={() => void vendor.refetch()} />;
+  }
+  if (vendor.isPending || events.isPending) {
+    return <StateView state="loading" />;
+  }
+  if (!vendor.data) {
+    return (
+      <StateView state="empty" icon="storefront-outline" message={t('inquiry.errors.vendorGone')} />
+    );
+  }
+  const vendorName = localized(vendor.data.name, locale);
+
+  return (
+    <Screen edges={['top', 'bottom']}>
+      <View style={styles.topBar}>
+        <AppText variant="heading" accessibilityRole="header" style={styles.grow}>
+          {t('inquiry.title')}
+        </AppText>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('signIn.close')}
+          onPress={close}
+          style={({ pressed }) => [styles.close, pressed && styles.pressed]}
+        >
+          <Ionicons name="close" size={Sizes.icon + 4} color={Colors.text} />
+        </Pressable>
+      </View>
+
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets
+      >
+        <Card style={styles.vendor}>
+          <AppText variant="bodyLg" weight={700}>
+            {vendorName}
+          </AppText>
+          <AppText color="text2">
+            {[vendor.data.category && localized(vendor.data.category, locale), vendor.data.city]
+              .filter(Boolean)
+              .join(' · ')}
+          </AppText>
+        </Card>
+
+        <Section title={t('inquiry.whichEvent')}>
+          <View style={styles.chips}>
+            {allEvents.map((event) => (
+              <Chip
+                key={event.slug}
+                label={localized(event.name, locale)}
+                selected={eventSlugs.includes(event.slug)}
+                onPress={() =>
+                  change(setEventSlugs)(
+                    eventSlugs.includes(event.slug)
+                      ? eventSlugs.filter((slug) => slug !== event.slug)
+                      : [...eventSlugs, event.slug],
+                  )
+                }
+              />
+            ))}
+            <Chip
+              label={t('saved.notSure')}
+              selected={eventSlugs.length === 0}
+              onPress={() => change(setEventSlugs)([])}
+            />
+          </View>
+        </Section>
+
+        <Section title={t('inquiry.date')}>
+          {!dateUnsure && (
+            <Button
+              variant="secondary"
+              icon="calendar-outline"
+              label={date ? formatDate(date) : t('inquiry.pickDate')}
+              onPress={() => setPickerOpen(true)}
+            />
+          )}
+          {pickerOpen && !dateUnsure && (
+            <DateTimePicker
+              value={date ? fromDateString(date) : new Date()}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              minimumDate={new Date()}
+              onChange={(event, picked) => {
+                if (Platform.OS !== 'ios') setPickerOpen(false);
+                if (event.type === 'set' && picked) change(setDate)(toDateString(picked));
+              }}
+            />
+          )}
+          {pickerOpen && Platform.OS === 'ios' && !dateUnsure && (
+            <Button
+              variant="text"
+              label={t('location.done')}
+              onPress={() => setPickerOpen(false)}
+            />
+          )}
+          <Checkbox
+            label={t('inquiry.dateUnsure')}
+            checked={dateUnsure}
+            onChange={(checked) => {
+              change(setDateUnsure)(checked);
+              if (checked) setPickerOpen(false);
+            }}
+          />
+        </Section>
+
+        <Section title={t('inquiry.guests')}>
+          <View style={styles.chips} accessibilityRole="radiogroup">
+            {GUEST_BANDS.map((band) => (
+              <Chip
+                key={band}
+                role="radio"
+                label={t(`inquiry.guestBands.${band}`)}
+                selected={guests === band}
+                onPress={() => change(setGuests)(band)}
+              />
+            ))}
+          </View>
+        </Section>
+
+        <TextField
+          type="city"
+          label={t('inquiry.where')}
+          hint={t('inquiry.whereHint')}
+          value={place}
+          onChangeText={change(setPlace)}
+          maxLength={120}
+        />
+
+        <View style={styles.section}>
+          <TextField
+            label={t('inquiry.message')}
+            value={message}
+            onChangeText={change(setOwnMessage)}
+            multiline
+            maxLength={2000}
+          />
+          {ownMessage !== null && (
+            <Button
+              variant="text"
+              label={t('inquiry.useSuggested')}
+              onPress={() => setOwnMessage(null)}
+            />
+          )}
+        </View>
+
+        {profile ? (
+          <>
+            <TextField
+              type="name"
+              label={t('aboutYou.name')}
+              value={name}
+              onChangeText={change(setName)}
+            />
+            <TextField
+              type="phone"
+              label={t('aboutYou.phone')}
+              value={phone}
+              onChangeText={change(setPhone)}
+            />
+          </>
+        ) : (
+          <AppText color="text2">{t('inquiry.signInAtSend')}</AppText>
+        )}
+
+        <Section title={t('inquiry.replyBy')}>
+          <View style={styles.chips} accessibilityRole="radiogroup">
+            {REPLY_BY.map((way) => (
+              <Chip
+                key={way}
+                role="radio"
+                label={t(`inquiry.replyWays.${way}`)}
+                selected={replyBy === way}
+                onPress={() => change(setReplyBy)(way)}
+              />
+            ))}
+          </View>
+        </Section>
+
+        <AppText color="text2">{t('inquiry.consent', { vendor: vendorName })}</AppText>
+
+        {duplicateAt && (
+          <Card style={styles.section}>
+            <AppText weight={700}>
+              {t('inquiry.alreadyAsked', {
+                vendor: vendorName,
+                date: formatDate(duplicateAt.slice(0, 10)),
+              })}
+            </AppText>
+            <Button
+              label={t('inquiry.sendAgain')}
+              onPress={() => send(true)}
+              loading={sending.isPending}
+            />
+          </Card>
+        )}
+        {error && <FieldError message={error} />}
+      </ScrollView>
+
+      <View style={styles.footer}>
+        <Button
+          label={t('inquiry.send')}
+          icon="send-outline"
+          loading={sending.isPending}
+          onPress={() => send(false)}
+        />
+      </View>
+    </Screen>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <View style={styles.section}>
+      <AppText variant="heading" accessibilityRole="header">
+        {title}
+      </AppText>
+      {children}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: Spacing.sm,
+  },
+  grow: {
+    flex: 1,
+  },
+  close: {
+    width: Sizes.tapTarget,
+    height: Sizes.tapTarget,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: Sizes.tapTarget / 2,
+  },
+  pressed: {
+    backgroundColor: Colors.primaryTint,
+  },
+  content: {
+    gap: Spacing.xl,
+    paddingVertical: Spacing.lg,
+  },
+  vendor: {
+    gap: Spacing.xs,
+  },
+  section: {
+    gap: Spacing.md,
+  },
+  chips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+  },
+  footer: {
+    paddingVertical: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+});
