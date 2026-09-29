@@ -21,6 +21,13 @@ jobs:
       - run: npm run format:check
       - run: npm run typecheck
       - run: npm test -- --ci
+      # The web build: families who scan a QR code without the app land on it.
+      # The values are placeholders; pre-rendering never calls Supabase.
+      - name: Build for web
+        run: npx expo export --platform web --output-dir /tmp/web
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ci-placeholder
 
   # Build a fresh database from supabase/migrations and check it: the pgTAP
   # tests in supabase/tests, Supabase's security and performance advisors, and
