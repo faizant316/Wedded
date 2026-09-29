@@ -90,7 +90,8 @@
     "cancel": "Cancel",
     "openFailed": "This phone couldn't open that. Try the number under Contact.",
     "save": "Save",
-    "saved": "Saved"
+    "saved": "Saved",
+    "ask": "Ask about price & date"
   },
   "founding": {
     "title": "Founding vendors",

@@ -155,7 +155,12 @@ export default function ResultsScreen() {
             travelsToYou={item.withinSearchRadius === false}
             saved={savedIds.has(item.id)}
             onToggleSave={() => toggleSave(item.id, eventSlug)}
-            onPress={() => router.push({ pathname: '/v/[slug]', params: { slug: item.slug } })}
+            onPress={() =>
+              router.push({
+                pathname: '/v/[slug]',
+                params: eventSlug ? { slug: item.slug, event: eventSlug } : { slug: item.slug },
+              })
+            }
           />
         )}
         ListHeaderComponent={header}
