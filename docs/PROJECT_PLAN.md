@@ -55,7 +55,7 @@ Converted from the original PDF plan. Work through the phases in order. There ar
 - [x] Set up ESLint and Prettier (Kirat)
 - [ ] Create the Supabase project
 - [ ] Set up separate development and production environments
-- [ ] Turn on branch protection so every merge needs the other partner's review
+- [x] Merge pull requests automatically once the checks pass; drafts wait for review
 - [ ] Get the starter app running on Kirat's phone (Expo Go)
 - [ ] Get the starter app running on Fezy's phone (Expo Go)
 
@@ -248,7 +248,7 @@ Built in this order.
 
 ## How We Work Together
 - We both own every part of the app and review each other's work
-- Every feature gets its own branch and a pull request; the other partner reviews before merging
+- Every feature gets its own branch and a pull request; it merges itself once the checks pass (open a draft to have the other partner look first)
 - Never commit passwords or API keys; use environment variables
 - Every task lives on the task board
 - Decisions get written down in the decisions doc
