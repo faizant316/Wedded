@@ -142,7 +142,7 @@
     }
   },
   "search": {
-    "placeholder": "Search dhol, halls or a vendor's name…",
+    "placeholder": "Search vendors, dhol, halls…",
     "label": "Search",
     "clear": "Clear search",
     "popular": "Popular",
