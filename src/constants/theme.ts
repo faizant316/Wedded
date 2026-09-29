@@ -25,6 +25,7 @@ export const Colors = {
   skeleton: '#EFE3D6',
   scrim: 'rgba(43, 26, 20, 0.55)',
   onPrimary: '#FFFFFF',
+  viewer: '#000000', // full-screen photo viewer background (vision S10)
 } as const;
 
 export type ColorToken = keyof typeof Colors;
