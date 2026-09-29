@@ -89,13 +89,15 @@ export type InquiryVendor = {
   callPhone: string | null;
   textPhone: string | null;
   whatsappPhone: string | null;
+  /** Events the vendor says they serve, to show those chips first. */
+  eventSlugs: string[];
 };
 
 async function fetchInquiryVendor(vendorId: string): Promise<InquiryVendor | null> {
   const { data, error } = await supabase
     .from('vendors')
     .select(
-      'id, slug, name, name_pa, city, call_phone, text_phone, whatsapp_phone, vendor_categories(position, category:categories(slug, name))',
+      'id, slug, name, name_pa, city, call_phone, text_phone, whatsapp_phone, vendor_categories(position, category:categories(slug, name)), vendor_events(event_slug)',
     )
     .eq('id', vendorId)
     .maybeSingle();
@@ -112,7 +114,28 @@ async function fetchInquiryVendor(vendorId: string): Promise<InquiryVendor | nul
     callPhone: data.call_phone,
     textPhone: data.text_phone,
     whatsappPhone: data.whatsapp_phone,
+    eventSlugs: data.vendor_events.map((row) => row.event_slug),
   };
+}
+
+/**
+ * Which event chips the form shows before "Other events" is tapped: the
+ * chosen ones (e.g. Reception, passed from results) first, then the events
+ * the vendor serves, each in ceremony order. With neither, or once expanded,
+ * every event shows.
+ */
+export function eventChips<T extends { slug: string }>(
+  all: T[],
+  chosen: string[],
+  served: string[],
+  expanded: boolean,
+): { shown: T[]; hasMore: boolean } {
+  const first = [
+    ...all.filter((event) => chosen.includes(event.slug)),
+    ...all.filter((event) => !chosen.includes(event.slug) && served.includes(event.slug)),
+  ];
+  if (expanded || first.length === 0) return { shown: all, hasMore: false };
+  return { shown: first, hasMore: first.length < all.length };
 }
 
 /** The vendor being asked, for the form's mini-card and the sent screen. Null if not listed. */

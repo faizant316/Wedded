@@ -1,7 +1,13 @@
 import en from '@/i18n/en.json';
 import pa from '@/i18n/pa.json';
 
-import { formatDate, fromDateString, suggestedMessage, toDateString } from './inquiry-helpers';
+import {
+  eventChips,
+  formatDate,
+  fromDateString,
+  suggestedMessage,
+  toDateString,
+} from './inquiry-helpers';
 
 jest.mock('@/lib/supabase', () => ({ supabase: {} }));
 
@@ -78,5 +84,38 @@ describe('suggestedMessage', () => {
     });
     expect(message).toContain('ਜਾਗੋ');
     expect(message.startsWith('ਸਤ ਸ੍ਰੀ ਅਕਾਲ ਜੀ')).toBe(true);
+  });
+});
+
+describe('eventChips', () => {
+  const all = ['roka', 'jaago', 'anand-karaj', 'reception', 'sangeet'].map((slug) => ({ slug }));
+  const slugs = (result: { shown: { slug: string }[] }) => result.shown.map((e) => e.slug);
+
+  it('puts the event they came from first, then the vendor’s events', () => {
+    const result = eventChips(all, ['reception'], ['jaago', 'reception', 'sangeet'], false);
+    expect(slugs(result)).toEqual(['reception', 'jaago', 'sangeet']);
+    expect(result.hasMore).toBe(true);
+  });
+
+  it('shows every event once expanded', () => {
+    const result = eventChips(all, ['reception'], ['jaago'], true);
+    expect(slugs(result)).toEqual(['roka', 'jaago', 'anand-karaj', 'reception', 'sangeet']);
+    expect(result.hasMore).toBe(false);
+  });
+
+  it('shows every event when there is nothing to put first', () => {
+    const result = eventChips(all, [], [], false);
+    expect(result.shown).toHaveLength(5);
+    expect(result.hasMore).toBe(false);
+  });
+
+  it('has no "Other events" when the vendor serves them all', () => {
+    const result = eventChips(
+      all,
+      [],
+      all.map((e) => e.slug),
+      false,
+    );
+    expect(result.hasMore).toBe(false);
   });
 });

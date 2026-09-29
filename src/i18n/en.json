@@ -325,6 +325,7 @@
   "inquiry": {
     "title": "Ask about price & date",
     "whichEvent": "Which event?",
+    "otherEvents": "Other events",
     "date": "When is it?",
     "pickDate": "Pick the date",
     "dateUnsure": "Not sure yet",
