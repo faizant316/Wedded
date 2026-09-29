@@ -88,7 +88,14 @@ Then `npx expo start` and scan the QR code with Expo Go. If the phone isn't on t
 
 ## 9. Check it end to end
 
-On a phone: sign in with a founder's email (the code arrives by email), fill in About you, find the hall from Home → Reception → Banquet hall, save it, send a **Book a tour** request, and check the booking sheet arrives in the Resend account's inbox. Then **Profile → My inquiries** shows it as sent.
+First the automatic check, with the three values from step 1 in your shell:
+
+```bash
+export SUPABASE_URL=https://<project-ref>.supabase.co SUPABASE_SECRET_KEY=<legacy service_role key> SUPABASE_PUBLISHABLE_KEY=<sb_publishable_… key>
+npm run demo:check -- --hall=<hall slug> --send
+```
+
+Fix anything marked `✗`. Then do it by hand on a phone: sign in with a founder's email (the code arrives by email), fill in About you, find the hall from Home → Reception → Banquet hall, save it, send a **Book a tour** request, and check the booking sheet arrives in the Resend account's inbox. Then **Profile → My inquiries** shows it as sent.
 
 ## Still open
 

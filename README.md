@@ -64,6 +64,17 @@ npm run vendors:import -- vendor-data/sunrise.json --local             # save
 
 Everything is checked before anything is saved, and each problem is explained. Running it again updates the vendor (a field left out keeps its value; `null` clears it). A real vendor taking a founding number a sample vendor has gets it, and the sample loses it. Without `--local`, set `SUPABASE_URL` and `SUPABASE_SECRET_KEY` for the hosted database. Add their photos next with `npm run photos:upload`.
 
+### Is the demo ready?
+
+`npm run demo:check -- --hall=<slug> --local` walks the November demo path (vision §13) and prints a checklist:
+- Reception and Banquet hall.
+- The hall first near Yuba City, with a price.
+- Its profile: founding #1, the six fact chips, Call and Directions, photos, "Real weddings here" and two approved caterers.
+- The Founding Wall.
+- Signed in as a throwaway family: saving the hall under Reception and sending a Book a tour request. On the local database, it also finds the booking sheet in Mailpit.
+
+`✗` means the demo breaks; `!` means it works but could look better. For the hosted database, set `SUPABASE_URL`, `SUPABASE_SECRET_KEY` and `SUPABASE_PUBLISHABLE_KEY`, and add `--send` to also send the tour request, which emails for real.
+
 ### Punjabi review sheet
 
 `npm run i18n:review -- --local` writes `punjabi-review.csv` (gitignored): every English text in the app (event names and timings, vendor types, groups, area-code chips, and the app's own words) next to its Punjabi, with the missing ones first in each section. Open it in Google Sheets or Excel, have the family fill in the **Correction** column, and give the file back to Claude Code to apply. Add `--out=<file>` to write it somewhere else.
