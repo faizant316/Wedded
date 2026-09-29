@@ -97,7 +97,15 @@ export default function HomeScreen() {
         })}
 
         {status === 'success' && sections.length > 0 && (
-          <Button variant="text" label={t('home.allCategories')} onPress={openSearch} />
+          <>
+            <Button variant="text" label={t('home.allCategories')} onPress={openSearch} />
+            <Button
+              variant="text"
+              icon="ribbon-outline"
+              label={t('home.foundingWall')}
+              onPress={() => router.push('/founding')}
+            />
+          </>
         )}
       </ScrollView>
     </Screen>

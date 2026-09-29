@@ -13,6 +13,7 @@ export const vendorKeys = {
   all: ['vendors'] as const,
   categoryCounts: () => [...vendorKeys.all, 'category-counts'] as const,
   profile: (slug: string) => [...vendorKeys.all, 'profile', slug] as const,
+  founding: () => [...vendorKeys.all, 'founding'] as const,
 };
 
 async function fetchCategoryVendorCounts(): Promise<Record<string, number>> {
@@ -177,4 +178,44 @@ export function useVendor(slug: string) {
     queryFn: () => fetchVendor(slug),
     enabled: slug.length > 0,
   });
+}
+
+// Founding Wall -------------------------------------------------------------
+
+export type FoundingVendor = {
+  slug: string;
+  foundingNumber: number;
+  name: LocalizedText;
+  city: string;
+  /** Their primary category. */
+  category: LocalizedText | null;
+};
+
+async function fetchFoundingVendors(): Promise<FoundingVendor[]> {
+  const { data, error } = await supabase
+    .from('vendors')
+    .select(
+      'slug, name, name_pa, city, founding_number, vendor_categories(position, category:categories(slug, name))',
+    )
+    .not('founding_number', 'is', null)
+    .order('founding_number');
+  if (error) throw error;
+  return data.flatMap((row) => {
+    if (row.founding_number === null) return [];
+    const primary = [...row.vendor_categories].sort((a, b) => a.position - b.position)[0];
+    return [
+      {
+        slug: row.slug,
+        foundingNumber: row.founding_number,
+        name: row.name_pa ? { en: row.name, pa: row.name_pa } : { en: row.name },
+        city: row.city,
+        category: primary ? asLocalizedText(primary.category.name) : null,
+      },
+    ];
+  });
+}
+
+/** Published vendors with a founding number, in the order they joined. */
+export function useFoundingVendors() {
+  return useQuery({ queryKey: vendorKeys.founding(), queryFn: fetchFoundingVendors });
 }

@@ -18,7 +18,8 @@
       "after": "After"
     },
     "allCategories": "See all categories A to Z",
-    "empty": "Events will show here soon."
+    "empty": "Events will show here soon.",
+    "foundingWall": "Meet our founding vendors"
   },
   "event": {
     "needsTitle": "Vendors you'll need",
@@ -86,6 +87,12 @@
     "openFailed": "This phone couldn't open that. Try the number under Contact.",
     "save": "Save",
     "saved": "Saved"
+  },
+  "founding": {
+    "title": "Founding vendors",
+    "intro": "The first vendors to join, in the order they joined.",
+    "empty": "No founding vendors yet.",
+    "rowSpoken": "Founding vendor number {{number}}, {{name}}, {{details}}"
   },
   "search": {
     "placeholder": "Search dhol, mehndi, halls…",
