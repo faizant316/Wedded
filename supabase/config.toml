@@ -397,6 +397,14 @@ deno_version = 2
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
+# Local-only settings for Edge Functions (not secrets). send-inquiry sends
+# through the local Mailpit (http://127.0.0.1:54324) instead of Resend. On
+# the hosted project set RESEND_API_KEY, INQUIRY_FROM, FOUNDERS_EMAIL and,
+# until the domain is verified, INQUIRY_TEST_INBOX with `supabase secrets set`.
+[edge_runtime.secrets]
+MAILPIT_URL = "http://supabase_inbucket_wedding-app:8025"
+FOUNDERS_EMAIL = "founders@example.com"
+
 [analytics]
 enabled = true
 port = 54327

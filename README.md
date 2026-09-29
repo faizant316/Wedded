@@ -52,6 +52,19 @@ Copy `.env.example` to `.env.local` and fill in the two values from `npm run db:
 
 If a local sign-in email arrives as a link instead of a 6-digit code, Docker is serving a stale copy of `supabase/templates/sign-in-code.html` (switching git branches can replace the file). Run `npm run db:stop && npm run db:start`; your local data is kept.
 
+### Edge Functions (server code)
+
+`supabase/functions/` holds the server code, written for Deno. `npm run db:start` serves it locally at `http://127.0.0.1:54321/functions/v1/<name>`, and emails it sends land in Mailpit. To check a function, install Deno (`brew install deno`) and run `deno check index.ts && deno lint && deno fmt --check` in its folder. CI runs the same.
+
+Settings for the hosted project (set once with `supabase secrets set NAME=value`):
+
+| Name | What it's for |
+| --- | --- |
+| `RESEND_API_KEY` | Sending inquiry emails through Resend |
+| `INQUIRY_FROM` | The sender, e.g. `Wedding Vendor App <inquiries@mail.yourdomain.com>` (needs the verified domain, Phase 5) |
+| `FOUNDERS_EMAIL` | Founders' emails, comma-separated: a blind copy of every inquiry, and relayed inquiries for vendors who don't use email |
+| `INQUIRY_TEST_INBOX` | While testing, every vendor email goes here instead of to the vendor |
+
 ## Layout
 
 | Path | What lives there |

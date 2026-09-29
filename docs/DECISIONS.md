@@ -4,6 +4,9 @@ Add newest decisions at the top. Keep each entry short: what we decided, why, an
 
 | Date | Decision | Why | Agreed by |
 | --- | --- | --- | --- |
+| 2026-09-29 | Inquiry rules live in the database function `create_inquiry` (one transaction, locked per person), called only by the `send-inquiry` Edge Function; the app can read its inquiries but not write them | The limits can't be skipped, can't be raced by double taps, and are covered by pgTAP tests (vision section 8) | Kirat |
+| 2026-09-29 | Vendors without email, or who say they don't check it, get inquiries relayed through the founders | Realistic at 50 vendors, and the best early data on who replies (vision section 8) | Kirat |
+| 2026-09-29 | Until the sending domain is verified (Phase 5), set `INQUIRY_TEST_INBOX` so every vendor email goes to the founders | Resend can only send to your own inbox without a verified domain; matches "all test inquiries go to our own inbox" | Kirat |
 | 2026-09-29 | Cities and ZIP points come from the US Census 2024 Gazetteer, stored in tables; no geocoding API | Free, no keys, works offline once cached (vision section 8); the launch city list covers 510, 916, 408, 209, 530, 925, 650, 559 and 707 | Kirat |
 | 2026-09-29 | A search includes vendors whose own service radius covers you, marked as travelling to you; vendors who "will travel" further appear only on request | A Sacramento DJ who serves the valley should show up in Stockton (vision section 8); open-ended travellers would crowd local results | Kirat |
 | 2026-09-29 | Area-code chips search 40 miles around a centre city: 510 Hayward, 408 San Jose, 916 Sacramento, 209 Manteca, 530 Yuba City, 925 Pleasanton, 650 San Mateo, 559 Fresno, 707 Fairfield | Area codes are how the community describes geography (vision S22a); the centres are editable rows | Kirat |

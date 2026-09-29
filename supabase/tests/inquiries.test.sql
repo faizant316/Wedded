@@ -1,0 +1,178 @@
+-- Inquiries: every rule in create_inquiry(), what the app's roles can and
+-- can't do, and scrubbing the sender when an account is deleted.
+
+begin;
+create extension if not exists pgtap with schema extensions;
+
+select plan(22);
+
+-- Accounts (A, C and D have profiles; B doesn't) and vendors -----------------------
+
+insert into auth.users (id, instance_id, aud, role, email) values
+  ('a0000000-0000-4000-8000-00000000000a', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'asker-a@example.com'),
+  ('b0000000-0000-4000-8000-00000000000b', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'asker-b@example.com'),
+  ('c0000000-0000-4000-8000-00000000000c', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'asker-c@example.com'),
+  ('d0000000-0000-4000-8000-00000000000d', '00000000-0000-0000-0000-00000000000d', 'authenticated', 'authenticated', 'asker-d@example.com');
+
+insert into public.profiles (id, full_name, city, phone) values
+  ('a0000000-0000-4000-8000-00000000000a', 'Asker A', 'Yuba City', '+15305550111'),
+  ('c0000000-0000-4000-8000-00000000000c', 'Asker C', 'Fremont', '+15105550112'),
+  ('d0000000-0000-4000-8000-00000000000d', 'Asker D', 'Tracy', '+12095550113');
+
+insert into public.vendors (id, slug, status, name, city, location)
+select ('40000000-0000-4000-8000-00000000000' || n)::uuid, 'ask-vendor-' || n,
+  case when n = 3 then 'draft' else 'published' end,
+  'Ask Vendor ' || n, 'Yuba City', 'SRID=4326;POINT(-121.6169 39.1404)'
+from generate_series(1, 7) as n;
+
+-- Vendor 1 reads email; vendor 2 has none (relay); the rest read email
+insert into public.vendor_private (vendor_id, email, checks_email)
+select ('40000000-0000-4000-8000-00000000000' || n)::uuid, 'vendor' || n || '@example.com', true
+from generate_series(1, 7) as n where n <> 2;
+
+-- A short way to ask, as the Edge Function does
+create function pg_temp.ask(
+  who uuid, vendor_n integer, events text[] default array['jaago'],
+  on_date date default current_date + 30, again boolean default false
+) returns jsonb language sql as $$
+  select public.create_inquiry(
+    p_user_id => who,
+    p_vendor_id => ('40000000-0000-4000-8000-00000000000' || vendor_n)::uuid,
+    p_event_slugs => events, p_event_date => on_date, p_start_time => null,
+    p_guest_band => '100_250', p_location => 'Yuba City', p_message => 'Sat Sri Akal, price please?',
+    p_preferred_contact => 'text', p_language => 'en', p_details => '{}',
+    p_sender_name => 'Asker', p_sender_phone => '+15305550111', p_sender_email => 'asker@example.com',
+    p_send_again => again)
+$$;
+
+-- The app can't skip the Edge Function ------------------------------------------------
+
+set local role anon;
+select throws_ok($$ select pg_temp.ask('a0000000-0000-4000-8000-00000000000a', 1) $$,
+  '42501', null, 'Logged-out users cannot call create_inquiry');
+reset role;
+
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub": "a0000000-0000-4000-8000-00000000000a", "role": "authenticated"}', true);
+select throws_ok($$ select pg_temp.ask('a0000000-0000-4000-8000-00000000000a', 1) $$,
+  '42501', null, 'Signed-in users cannot call create_inquiry directly (rate limits live behind the Edge Function)');
+select throws_ok(
+  $$ insert into public.inquiries (user_id, vendor_id, guest_band, location, message, preferred_contact, sender_name, sender_phone, channel)
+     values ('a0000000-0000-4000-8000-00000000000a', '40000000-0000-4000-8000-000000000001', 'not_sure', 'x', 'x', 'text', 'x', '+15305550111', 'email') $$,
+  '42501', null, 'Signed-in users cannot write inquiries directly');
+reset role;
+
+-- The rules (as the Edge Function's service role) -------------------------------------
+
+set local role service_role;
+
+select is(pg_temp.ask('b0000000-0000-4000-8000-00000000000b', 1) ->> 'outcome', 'needs_profile',
+  'No profile (About you not done): asked to finish it first');
+select is(pg_temp.ask('a0000000-0000-4000-8000-00000000000a', 3) ->> 'outcome', 'vendor_not_found',
+  'An unpublished vendor cannot be asked');
+select is(pg_temp.ask('a0000000-0000-4000-8000-00000000000a', 1, array['not-an-event']) ->> 'field', 'eventSlugs',
+  'Unknown events are refused');
+select is(pg_temp.ask('a0000000-0000-4000-8000-00000000000a', 1, on_date => current_date - 2) ->> 'field', 'eventDate',
+  'A date in the past is refused');
+
+select results_eq(
+  $$ select r ->> 'outcome', r ->> 'status', r ->> 'channel', r ->> 'vendor_email'
+     from pg_temp.ask('a0000000-0000-4000-8000-00000000000a', 1) as r $$,
+  $$ values ('created', 'sending', 'email', 'vendor1@example.com') $$,
+  'A valid inquiry is recorded, ready to email the vendor'
+);
+
+select ok(
+  exists (select 1 from public.saved_vendors
+          where user_id = 'a0000000-0000-4000-8000-00000000000a'
+            and vendor_id = '40000000-0000-4000-8000-000000000001' and event_slug = 'jaago'),
+  'Asking a vendor saves them under that event'
+);
+
+select ok(
+  (select r ->> 'outcome' = 'duplicate' and r ? 'previous_at'
+   from pg_temp.ask('a0000000-0000-4000-8000-00000000000a', 1) as r),
+  'Asking the same vendor again within 24 hours says when they last asked'
+);
+
+select is(pg_temp.ask('a0000000-0000-4000-8000-00000000000a', 1, again => true) ->> 'outcome', 'created',
+  '"Send again" goes through');
+
+select results_eq(
+  $$ select r ->> 'channel', r ->> 'vendor_email'
+     from pg_temp.ask('a0000000-0000-4000-8000-00000000000a', 2, array[]::text[]) as r $$,
+  $$ values ('relay', null::text) $$,
+  'A vendor without email is relayed through the founders'
+);
+
+select ok(
+  exists (select 1 from public.saved_vendors
+          where user_id = 'a0000000-0000-4000-8000-00000000000a'
+            and vendor_id = '40000000-0000-4000-8000-000000000002' and event_slug is null),
+  'Asking without an event saves the vendor under Not sure yet'
+);
+
+-- A has 3 in the last hour; 2 more reach the limit of 5
+select is(pg_temp.ask('a0000000-0000-4000-8000-00000000000a', 4) ->> 'outcome', 'created', 'Fourth inquiry this hour is fine');
+select is(pg_temp.ask('a0000000-0000-4000-8000-00000000000a', 5) ->> 'outcome', 'created', 'Fifth inquiry this hour is fine');
+select results_eq(
+  $$ select r ->> 'outcome', r ->> 'limit' from pg_temp.ask('a0000000-0000-4000-8000-00000000000a', 6) as r $$,
+  $$ values ('rate_limited', 'hour') $$,
+  'The sixth inquiry in an hour is refused'
+);
+
+reset role;
+
+-- C already sent 15 today (2 hours ago)
+insert into public.inquiries (user_id, vendor_id, guest_band, location, message, preferred_contact,
+  sender_name, sender_phone, channel, status, created_at)
+select 'c0000000-0000-4000-8000-00000000000c', '40000000-0000-4000-8000-000000000001', 'not_sure',
+  'Fremont', 'Earlier', 'call', 'Asker C', '+15105550112', 'email', 'sent', now() - interval '2 hours'
+from generate_series(1, 15);
+
+set local role service_role;
+select results_eq(
+  $$ select r ->> 'outcome', r ->> 'limit' from pg_temp.ask('c0000000-0000-4000-8000-00000000000c', 7) as r $$,
+  $$ values ('rate_limited', 'day') $$,
+  'The sixteenth inquiry in a day is refused'
+);
+reset role;
+
+-- The app-wide daily cap has been reached: new inquiries wait in the queue
+update public.app_config set value = to_jsonb((
+  select count(*) from public.inquiries
+  where status in ('sent', 'sending')
+    and (created_at at time zone 'America/Los_Angeles')::date = (now() at time zone 'America/Los_Angeles')::date
+)) where key = 'inquiry_daily_cap';
+
+set local role service_role;
+select is(pg_temp.ask('d0000000-0000-4000-8000-00000000000d', 7) ->> 'status', 'queued',
+  'Past the daily cap, inquiries are queued instead of failing');
+reset role;
+
+-- Reading ---------------------------------------------------------------------------------
+
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub": "a0000000-0000-4000-8000-00000000000a", "role": "authenticated"}', true);
+select is((select count(*)::int from public.inquiries), 5, 'People see their own inquiries (A sent 5)');
+select set_config('request.jwt.claims', '{"sub": "d0000000-0000-4000-8000-00000000000d", "role": "authenticated"}', true);
+select is((select count(*)::int from public.inquiries), 1, 'and nobody else''s');
+select throws_ok($$ select * from public.app_config $$, '42501', null, 'App settings are not readable through the API');
+reset role;
+
+-- Account deletion --------------------------------------------------------------------------
+
+delete from auth.users where id = 'a0000000-0000-4000-8000-00000000000a';
+
+select results_eq(
+  $$ select count(*)::int, count(sender_name)::int, count(sender_phone)::int, count(sender_email)::int
+     from public.inquiries where message = 'Sat Sri Akal, price please?' and vendor_id in (
+       '40000000-0000-4000-8000-000000000001', '40000000-0000-4000-8000-000000000002',
+       '40000000-0000-4000-8000-000000000004', '40000000-0000-4000-8000-000000000005')
+       and user_id is null $$,
+  $$ values (5, 0, 0, 0) $$,
+  'Deleting an account keeps the vendors'' inquiry history but scrubs the sender''s details'
+);
+
+select * from finish();
+rollback;

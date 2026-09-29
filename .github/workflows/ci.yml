@@ -63,12 +63,32 @@ jobs:
             exit 1
           fi
 
+  # Edge Functions are Deno code: type-check, lint and format-check each one
+  functions:
+    name: Edge Functions
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Check, lint and format-check every function
+        shell: bash
+        run: |
+          for dir in supabase/functions/*/; do
+            case "$dir" in */_*) continue ;; esac
+            echo "::group::$dir"
+            (cd "$dir" && deno check index.ts && deno lint && deno fmt --check)
+            echo "::endgroup::"
+          done
+
   # Squash-merge the PR into main as soon as the checks pass, so nobody has to
   # click merge. Drafts are skipped: open a draft when the other founder should
   # look first, then mark it ready.
   merge:
     name: Merge when checks pass
-    needs: [check, database]
+    needs: [check, database, functions]
     if: github.event_name == 'pull_request' && !github.event.pull_request.draft && github.event.pull_request.base.ref == 'main'
     runs-on: ubuntu-latest
     timeout-minutes: 5
