@@ -33,5 +33,25 @@
     "loading": "Loading…",
     "error": "Something went wrong. Check your internet, then tap Try again.",
     "tryAgain": "Try again"
+  },
+  "aboutYou": {
+    "title": "About you",
+    "name": "Your name",
+    "city": "Your city",
+    "phone": "Phone number",
+    "phoneHint": "Vendors call or text you back on this number.",
+    "email": "Email",
+    "isAdult": "I am 18 or older",
+    "submit": "Create account",
+    "fixErrors": "Please fix the parts marked in red.",
+    "errors": {
+      "nameRequired": "Please type your name.",
+      "cityRequired": "Please type your city.",
+      "phoneRequired": "Please type your phone number.",
+      "phoneInvalid": "Type a 10-digit phone number, like 530 555 0101.",
+      "emailRequired": "Please type your email.",
+      "emailInvalid": "Check your email. It should look like name@example.com.",
+      "adultRequired": "You need to be 18 or older to make an account."
+    }
   }
 }
