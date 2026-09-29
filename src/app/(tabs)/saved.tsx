@@ -101,6 +101,7 @@ function SavedItem({ save, onRemove }: { save: SavedVendor; onRemove: () => void
           category={vendor.category ?? { en: '' }}
           city={vendor.city}
           startingPrice={vendor.startingPrice}
+          photoUrl={vendor.photoUrl}
           // The vendor profile route (/v/{slug}, vision S9) is being built
           // alongside this; until it lands this opens the not-found screen.
           onPress={() => router.push(`/v/${vendor.slug}` as Href)}
