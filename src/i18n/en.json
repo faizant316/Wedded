@@ -176,7 +176,9 @@
       "finish": "Continue",
       "edit": "Edit my details",
       "signOut": "Sign out",
-      "deleteAccount": "Delete my account"
+      "deleteAccount": "Delete my account",
+      "myInquiries": "My inquiries",
+      "myInquiriesCount": "My inquiries ({{count}})"
     }
   },
   "common": {
@@ -436,5 +438,19 @@
     "confirm": "Delete my account now",
     "keep": "Keep my account",
     "failed": "We couldn't delete your account. Check your internet and try again."
+  },
+  "myInquiries": {
+    "title": "My inquiries",
+    "back": "Back",
+    "empty": "You haven't asked any vendors yet. Tap \"Ask about price & date\" on a vendor to start.",
+    "askedOn": "Asked on {{date}}",
+    "viewVendor": "View vendor",
+    "askAgain": "Ask again",
+    "status": {
+      "sent": "Sent",
+      "sending": "Sending",
+      "queued": "Sending tomorrow",
+      "failed": "Not sent"
+    }
   }
 }
