@@ -1,15 +1,12 @@
 /**
  * Small key-value storage for per-device settings (language, text size, last
  * location). Backed by expo-sqlite's kv-store, which works in Expo Go and has a
- * synchronous API so settings can be read before the first render.
+ * synchronous API so settings can be read before the first render. The web
+ * build uses storage.web.ts instead.
  */
 import Storage from 'expo-sqlite/kv-store';
 
-export const StorageKeys = {
-  locale: 'settings.locale',
-  /** Where to search from and how far, as JSON (src/features/location). */
-  searchLocation: 'settings.searchLocation',
-} as const;
+export { StorageKeys } from './storage-keys';
 
 export function readSetting(key: string): string | null {
   try {
