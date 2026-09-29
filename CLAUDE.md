@@ -14,6 +14,7 @@ Before planning any feature, read the part of the docs it touches. They are the 
   - §13 The November prototype: demo scope, what is in and out, and the week-by-week plan
 - `docs/PROJECT_PLAN.md`: the 8-phase checklist. Tick a box in the same PR that finishes the task.
 - `docs/DECISIONS.md`: decisions already made. Don't reopen one without asking; add new ones at the top.
+- `docs/HOSTED_SETUP.md`: setting up the hosted Supabase project (push, auth emails, secrets, functions, Vault), in order.
 
 ## Where things stand (2026-09-29; update this in the PR that changes it)
 - Done: Phase 1 tech setup (ESLint, Prettier, CI), the product vision, the app shell (Home, Search, Saved and Profile tabs, theme tokens, `AppText`, English/Punjabi toggle), a local Supabase with the typed client in `src/lib/supabase.ts`, and the reference data (#10): `cultures`, `events`, `culture_events` (Home order and grouping), `category_groups`, `categories`, `event_categories` (essential / nice to have), with RLS (read-only for everyone) and pgTAP tests.
