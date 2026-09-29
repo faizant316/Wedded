@@ -9,7 +9,7 @@ type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
 
 const TABS: { name: string; labelKey: string; icon: IoniconName; iconFilled: IoniconName }[] = [
   { name: '(home)', labelKey: 'tabs.home', icon: 'home-outline', iconFilled: 'home' },
-  { name: 'search', labelKey: 'tabs.search', icon: 'search-outline', iconFilled: 'search' },
+  { name: '(search)', labelKey: 'tabs.search', icon: 'search-outline', iconFilled: 'search' },
   { name: 'saved', labelKey: 'tabs.saved', icon: 'heart-outline', iconFilled: 'heart' },
   {
     name: 'profile',

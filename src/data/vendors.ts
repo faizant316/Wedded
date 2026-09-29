@@ -13,6 +13,7 @@ export const vendorKeys = {
   all: ['vendors'] as const,
   list: (categorySlug: string, eventSlug?: string) =>
     [...vendorKeys.all, 'list', categorySlug, eventSlug ?? null] as const,
+  categoryCounts: () => [...vendorKeys.all, 'category-counts'] as const,
 };
 
 export type VendorSummary = {
@@ -97,4 +98,17 @@ export function useVendorsFor(categorySlug: string, eventSlug?: string) {
     queryFn: () => fetchVendorsFor(categorySlug, eventSlug),
     enabled: categorySlug.length > 0,
   });
+}
+
+async function fetchCategoryVendorCounts(): Promise<Record<string, number>> {
+  const { data, error } = await supabase
+    .from('categories')
+    .select('slug, vendor_categories(count)');
+  if (error) throw error;
+  return Object.fromEntries(data.map((row) => [row.slug, row.vendor_categories[0]?.count ?? 0]));
+}
+
+/** How many published vendors each category has, by category slug. */
+export function useCategoryVendorCounts() {
+  return useQuery({ queryKey: vendorKeys.categoryCounts(), queryFn: fetchCategoryVendorCounts });
 }

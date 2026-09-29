@@ -31,7 +31,12 @@
     "empty": "No vendors are listed here yet."
   },
   "search": {
-    "placeholder": "Search dhol, mehndi, halls…"
+    "placeholder": "Search dhol, mehndi, halls…",
+    "label": "Search",
+    "clear": "Clear search",
+    "popular": "Popular",
+    "allCategories": "All categories A to Z",
+    "noMatch": "Nothing matches “{{query}}”. Try another word, like dhol or hall."
   },
   "saved": {
     "empty": "Nothing saved yet. Tap the heart on any vendor to keep them here, grouped by event.",
