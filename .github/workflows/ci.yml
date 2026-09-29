@@ -21,12 +21,52 @@ jobs:
       - run: npm run format:check
       - run: npm run typecheck
 
+  # Build a fresh database from supabase/migrations and check it: the pgTAP
+  # tests in supabase/tests, Supabase's security and performance advisors, and
+  # that src/types/database.ts still matches the schema. A PR that breaks the
+  # database or its access rules can't merge itself.
+  database:
+    name: Database migrations and tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.118.0
+      - name: Build the database from the migrations
+        run: supabase db start
+      # Require an explicit PASS, so a run that finds no test files can't
+      # pass silently
+      - name: Run the database tests
+        shell: bash
+        run: |
+          supabase test db | tee test-output.txt
+          grep -q '^Result: PASS' test-output.txt
+      - name: Lint database functions
+        run: supabase db lint --local --fail-on warning
+      - name: Security and performance advisors
+        run: supabase db advisors --local --fail-on warn
+      - name: Generated types match the schema
+        shell: bash
+        run: |
+          npm run db:types
+          if ! git diff --exit-code src/types/database.ts; then
+            echo "::error::src/types/database.ts is out of date. Run npm run db:types and commit it."
+            exit 1
+          fi
+
   # Squash-merge the PR into main as soon as the checks pass, so nobody has to
   # click merge. Drafts are skipped: open a draft when the other founder should
   # look first, then mark it ready.
   merge:
     name: Merge when checks pass
-    needs: check
+    needs: [check, database]
     if: github.event_name == 'pull_request' && !github.event.pull_request.draft && github.event.pull_request.base.ref == 'main'
     runs-on: ubuntu-latest
     timeout-minutes: 5
