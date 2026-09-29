@@ -476,6 +476,20 @@
       "sending": "Sending",
       "queued": "Sending tomorrow",
       "failed": "Not sent"
+    },
+    "followUp": {
+      "question": "Did {{name}} get back to you?",
+      "booked": "Yes, we booked them",
+      "deciding": "Yes, still deciding",
+      "no_reply": "No reply yet",
+      "answered": {
+        "booked": "You booked them",
+        "deciding": "They replied · you're still deciding",
+        "no_reply": "No reply yet"
+      },
+      "change": "Change",
+      "failed": "That didn't save. Check your internet, then try again.",
+      "hint": "Your answer helps us see which vendors reply. Vendors never see it."
     }
   }
 }
