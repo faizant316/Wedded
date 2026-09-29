@@ -20,7 +20,8 @@
     "empty": "Events will show here soon.",
     "foundingWall": "Meet our founding vendors",
     "browseByType": "Browse by vendor type",
-    "planByEvent": "Plan by event"
+    "planByEvent": "Plan by event",
+    "forVendors": "Are you a vendor? Get listed"
   },
   "event": {
     "needsTitle": "Vendors you'll need",
@@ -97,13 +98,38 @@
       "one": "Approved at 1 venue",
       "other": "Approved at {{count}} venues"
     },
-    "workedWith": "Has worked with"
+    "workedWith": "Has worked with",
+    "claim": "Are you this vendor? Claim your profile"
   },
   "founding": {
     "title": "Founding vendors",
     "intro": "The first vendors to join, in the order they joined.",
     "empty": "No founding vendors yet.",
     "rowSpoken": "Founding vendor number {{number}}, {{name}}, {{details}}"
+  },
+  "forVendors": {
+    "title": "List your business, free",
+    "intro": "Free listings for our first 50 founding vendors. Families browsing find you for exactly what you do. Leave your details and we'll call or text you to set up your page.",
+    "claimTitle": "Claim your profile",
+    "claimIntro": "Is this your business? Leave your details and we'll call or text you to check it's you and hand the page over.",
+    "businessName": "Business name",
+    "contactName": "Your name",
+    "category": "What do you do?",
+    "categoryHint": "For example: dhol player, banquet hall, mehndi artist.",
+    "city": "City",
+    "phone": "Phone number",
+    "phoneHint": "We'll call or text you on this number.",
+    "instagram": "Instagram (if you have one)",
+    "send": "Send",
+    "sendFailed": "That didn't send. Check your internet and tap Send again.",
+    "thanks": "Thank you! We'll call or text you soon to set up your page.",
+    "errors": {
+      "businessName": "Please type your business name.",
+      "contactName": "Please type your name.",
+      "city": "Please type your city.",
+      "phone": "Type a 10-digit phone number, like 530 555 0101.",
+      "instagram": "Check the Instagram name: letters, numbers, dots and underscores only."
+    }
   },
   "search": {
     "placeholder": "Search dhol, mehndi, halls…",

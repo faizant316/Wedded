@@ -403,6 +403,12 @@ export default function VendorProfileScreen() {
             ))}
           </View>
         )}
+
+        <Button
+          variant="text"
+          label={t('vendor.claim')}
+          onPress={() => router.push({ pathname: '/for-vendors', params: { claim: v.slug } })}
+        />
       </>
     );
   }

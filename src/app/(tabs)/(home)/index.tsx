@@ -132,6 +132,14 @@ export default function HomeScreen() {
             onPress={() => router.push('/founding')}
           />
         )}
+        {status === 'success' && sections.length > 0 && (
+          <Button
+            variant="text"
+            icon="storefront-outline"
+            label={t('home.forVendors')}
+            onPress={() => router.push('/for-vendors')}
+          />
+        )}
       </ScrollView>
     </Screen>
   );
