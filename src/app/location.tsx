@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, View, type TextInput } from 'react-native';
 
 import { AppText } from '@/components/app-text';
 import { Button } from '@/components/button';
@@ -12,6 +12,7 @@ import { Screen } from '@/components/screen';
 import { TextField } from '@/components/text-field';
 import { BorderWidth, Colors, Radius, Sizes, Spacing } from '@/constants/theme';
 import { findZip, matchCities, useAreaCodes, useCities, type City } from '@/data/places';
+import { hasLocationPermission, locateNearestCity } from '@/features/location/current-location';
 import { DISTANCE_CHOICES, useSearchLocation } from '@/features/location/search-location';
 import { localized } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
@@ -19,8 +20,9 @@ import { useLocale } from '@/i18n/locale-context';
 /**
  * "Where should we look?" (vision S22a), a modal: type a city or ZIP (with
  * suggestions from our NorCal list), or pick an area-code chip, then how far.
- * Saved on this phone. "Use my current location" comes later; the November
- * demo searches from a typed city or a chip (vision §13).
+ * Saved on this phone. "Use my current location" explains itself before the
+ * phone's permission prompt (S22b) and uses the nearest city, never the exact
+ * position.
  */
 export default function LocationScreen() {
   const { t, locale } = useLocale();
@@ -30,6 +32,9 @@ export default function LocationScreen() {
   const [text, setText] = useState('');
   const [message, setMessage] = useState<string>();
   const [checkingZip, setCheckingZip] = useState(false);
+  const [explainGps, setExplainGps] = useState(false);
+  const [locating, setLocating] = useState(false);
+  const cityInput = useRef<TextInput>(null);
 
   const typed = text.trim();
   const zip = /^\d{5}$/.test(typed) ? typed : null;
@@ -37,6 +42,30 @@ export default function LocationScreen() {
 
   function close() {
     if (router.canGoBack()) router.back();
+  }
+
+  /** S22b: explain first, then the phone's own prompt; never at launch. */
+  async function useCurrentLocation() {
+    setMessage(undefined);
+    if (await hasLocationPermission()) {
+      await locate();
+    } else {
+      setExplainGps(true);
+    }
+  }
+
+  async function locate() {
+    setExplainGps(false);
+    if (!cities.data) return;
+    setLocating(true);
+    const result = await locateNearestCity(cities.data);
+    setLocating(false);
+    if (result.kind === 'found') {
+      chooseCity(result.city);
+    } else {
+      setMessage(t(`location.gps.${result.kind}`));
+      if (result.kind === 'denied' || result.kind === 'unavailable') cityInput.current?.focus();
+    }
   }
 
   function chooseCity(city: City) {
@@ -93,6 +122,29 @@ export default function LocationScreen() {
         </AppText>
         <AppText color="text2">{t('location.subtitle')}</AppText>
 
+        <Button
+          variant="secondary"
+          icon="navigate-outline"
+          label={t('location.gps.use')}
+          loading={locating}
+          onPress={useCurrentLocation}
+        />
+        {explainGps && (
+          <Card style={styles.explain}>
+            <AppText variant="heading">{t('location.gps.explainTitle')}</AppText>
+            <AppText>{t('location.gps.explainBody')}</AppText>
+            <Button label={t('location.gps.allow')} onPress={locate} />
+            <Button
+              variant="text"
+              label={t('location.gps.typeInstead')}
+              onPress={() => {
+                setExplainGps(false);
+                cityInput.current?.focus();
+              }}
+            />
+          </Card>
+        )}
+
         {place && (
           <Card style={styles.current}>
             <Ionicons name="location" size={Sizes.icon} color={Colors.primary} />
@@ -104,6 +156,7 @@ export default function LocationScreen() {
         )}
 
         <TextField
+          ref={cityInput}
           label={t('location.cityOrZip')}
           hint={t('location.cityOrZipHint')}
           value={text}
@@ -222,6 +275,9 @@ const styles = StyleSheet.create({
   content: {
     gap: Spacing.lg,
     paddingVertical: Spacing.lg,
+  },
+  explain: {
+    gap: Spacing.md,
   },
   current: {
     flexDirection: 'row',
