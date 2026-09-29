@@ -247,6 +247,248 @@ export type Database = {
         };
         Relationships: [];
       };
+      vendor_categories: {
+        Row: {
+          category_slug: string;
+          created_at: string;
+          position: number;
+          updated_at: string;
+          vendor_id: string;
+        };
+        Insert: {
+          category_slug: string;
+          created_at?: string;
+          position: number;
+          updated_at?: string;
+          vendor_id: string;
+        };
+        Update: {
+          category_slug?: string;
+          created_at?: string;
+          position?: number;
+          updated_at?: string;
+          vendor_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'vendor_categories_category_slug_fkey';
+            columns: ['category_slug'];
+            isOneToOne: false;
+            referencedRelation: 'categories';
+            referencedColumns: ['slug'];
+          },
+          {
+            foreignKeyName: 'vendor_categories_vendor_id_fkey';
+            columns: ['vendor_id'];
+            isOneToOne: false;
+            referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      vendor_events: {
+        Row: {
+          created_at: string;
+          event_slug: string;
+          updated_at: string;
+          vendor_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          event_slug: string;
+          updated_at?: string;
+          vendor_id: string;
+        };
+        Update: {
+          created_at?: string;
+          event_slug?: string;
+          updated_at?: string;
+          vendor_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'vendor_events_event_slug_fkey';
+            columns: ['event_slug'];
+            isOneToOne: false;
+            referencedRelation: 'events';
+            referencedColumns: ['slug'];
+          },
+          {
+            foreignKeyName: 'vendor_events_vendor_id_fkey';
+            columns: ['vendor_id'];
+            isOneToOne: false;
+            referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      vendor_private: {
+        Row: {
+          checks_email: boolean | null;
+          created_at: string;
+          email: string | null;
+          exact_location: unknown;
+          notes: string | null;
+          owner_name: string | null;
+          street_address: string | null;
+          updated_at: string;
+          vendor_id: string;
+        };
+        Insert: {
+          checks_email?: boolean | null;
+          created_at?: string;
+          email?: string | null;
+          exact_location?: unknown;
+          notes?: string | null;
+          owner_name?: string | null;
+          street_address?: string | null;
+          updated_at?: string;
+          vendor_id: string;
+        };
+        Update: {
+          checks_email?: boolean | null;
+          created_at?: string;
+          email?: string | null;
+          exact_location?: unknown;
+          notes?: string | null;
+          owner_name?: string | null;
+          street_address?: string | null;
+          updated_at?: string;
+          vendor_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'vendor_private_vendor_id_fkey';
+            columns: ['vendor_id'];
+            isOneToOne: true;
+            referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      vendors: {
+        Row: {
+          address_line: string | null;
+          address_visibility: string;
+          bio: string | null;
+          bio_pa: string | null;
+          call_phone: string | null;
+          city: string;
+          created_at: string;
+          details: NonNullable<Json>;
+          founding_number: number | null;
+          id: string;
+          instagram_handle: string | null;
+          is_sample: boolean;
+          languages: string[];
+          last_verified_at: string | null;
+          location: unknown;
+          name: string;
+          name_pa: string | null;
+          office_hours: string | null;
+          preferred_contact: string | null;
+          price_display: string;
+          price_from: number | null;
+          price_note: string | null;
+          price_to: number | null;
+          price_unit: string | null;
+          service_radius_miles: number;
+          slug: string;
+          source: string;
+          status: string;
+          tagline: string | null;
+          tagline_pa: string | null;
+          team_size: number | null;
+          text_phone: string | null;
+          travel_note: string | null;
+          updated_at: string;
+          website_url: string | null;
+          whatsapp_phone: string | null;
+          will_travel: boolean;
+          years_in_business: number | null;
+        };
+        Insert: {
+          address_line?: string | null;
+          address_visibility?: string;
+          bio?: string | null;
+          bio_pa?: string | null;
+          call_phone?: string | null;
+          city: string;
+          created_at?: string;
+          details?: NonNullable<Json>;
+          founding_number?: number | null;
+          id?: string;
+          instagram_handle?: string | null;
+          is_sample?: boolean;
+          languages?: string[];
+          last_verified_at?: string | null;
+          location: unknown;
+          name: string;
+          name_pa?: string | null;
+          office_hours?: string | null;
+          preferred_contact?: string | null;
+          price_display?: string;
+          price_from?: number | null;
+          price_note?: string | null;
+          price_to?: number | null;
+          price_unit?: string | null;
+          service_radius_miles?: number;
+          slug: string;
+          source?: string;
+          status?: string;
+          tagline?: string | null;
+          tagline_pa?: string | null;
+          team_size?: number | null;
+          text_phone?: string | null;
+          travel_note?: string | null;
+          updated_at?: string;
+          website_url?: string | null;
+          whatsapp_phone?: string | null;
+          will_travel?: boolean;
+          years_in_business?: number | null;
+        };
+        Update: {
+          address_line?: string | null;
+          address_visibility?: string;
+          bio?: string | null;
+          bio_pa?: string | null;
+          call_phone?: string | null;
+          city?: string;
+          created_at?: string;
+          details?: NonNullable<Json>;
+          founding_number?: number | null;
+          id?: string;
+          instagram_handle?: string | null;
+          is_sample?: boolean;
+          languages?: string[];
+          last_verified_at?: string | null;
+          location?: unknown;
+          name?: string;
+          name_pa?: string | null;
+          office_hours?: string | null;
+          preferred_contact?: string | null;
+          price_display?: string;
+          price_from?: number | null;
+          price_note?: string | null;
+          price_to?: number | null;
+          price_unit?: string | null;
+          service_radius_miles?: number;
+          slug?: string;
+          source?: string;
+          status?: string;
+          tagline?: string | null;
+          tagline_pa?: string | null;
+          team_size?: number | null;
+          text_phone?: string | null;
+          travel_note?: string | null;
+          updated_at?: string;
+          website_url?: string | null;
+          whatsapp_phone?: string | null;
+          will_travel?: boolean;
+          years_in_business?: number | null;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;

@@ -107,7 +107,7 @@ Add ideas any time during Phases 1 to 4. No checking or buying until Phase 5.
 - [ ] Create tables: users, vendors, vendor_categories, vendor_media, cultures, events, event_categories, saved_vendors, inquiries
 - [x] Store cultures, events, and categories as data, not hardcoded (Kirat)
 - [x] Store event and category names so they can be translated (English and Punjabi) (Kirat)
-- [ ] Add vendor base location and service radius; hide street addresses for home-based vendors
+- [x] Add vendor base location and service radius; hide street addresses for home-based vendors (Kirat)
 - [ ] Build signup and login (email or phone)
 - [ ] Build the user profile: name, city, state, country, 18+ confirmation
 - [ ] Build in-app account deletion (required by Apple)
