@@ -69,6 +69,7 @@
     "photos:upload": "tsx scripts/upload-vendor-photos.ts",
     "photos:samples": "tsx scripts/upload-vendor-photos.ts --samples --local",
     "vendors:import": "tsx scripts/import-vendors.ts",
+    "i18n:review": "tsx scripts/punjabi-review.ts",
     "db:types": "supabase gen types typescript --local > src/types/database.ts && prettier --write src/types/database.ts",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json}\""

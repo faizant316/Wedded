@@ -64,3 +64,6 @@ example
 
 # Real vendor details for the import script (emails, owner notes: never commit them)
 /vendor-data/
+
+# The Punjabi review sheet (npm run i18n:review); regenerate it any time
+/punjabi-review.csv
