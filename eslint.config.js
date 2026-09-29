@@ -5,6 +5,7 @@ module.exports = [
   ...expo,
   prettier,
   {
-    ignores: ['dist/**', 'node_modules/**', '.expo/**'],
+    // Edge Functions are Deno code, checked with deno check and deno lint
+    ignores: ['dist/**', 'node_modules/**', '.expo/**', 'supabase/functions/**'],
   },
 ];

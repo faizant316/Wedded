@@ -23,6 +23,24 @@ export type Database = {
   };
   public: {
     Tables: {
+      app_config: {
+        Row: {
+          key: string;
+          updated_at: string;
+          value: NonNullable<Json>;
+        };
+        Insert: {
+          key: string;
+          updated_at?: string;
+          value: NonNullable<Json>;
+        };
+        Update: {
+          key?: string;
+          updated_at?: string;
+          value?: NonNullable<Json>;
+        };
+        Relationships: [];
+      };
       area_codes: {
         Row: {
           center_city_slug: string;
@@ -323,6 +341,86 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      inquiries: {
+        Row: {
+          channel: string;
+          created_at: string;
+          details: NonNullable<Json>;
+          event_date: string | null;
+          event_slugs: string[];
+          failure: string | null;
+          guest_band: string;
+          id: string;
+          language: string;
+          location: string;
+          message: string;
+          preferred_contact: string;
+          provider_message_id: string | null;
+          sender_email: string | null;
+          sender_name: string | null;
+          sender_phone: string | null;
+          sent_at: string | null;
+          start_time: string | null;
+          status: string;
+          user_id: string | null;
+          vendor_id: string;
+        };
+        Insert: {
+          channel: string;
+          created_at?: string;
+          details?: NonNullable<Json>;
+          event_date?: string | null;
+          event_slugs?: string[];
+          failure?: string | null;
+          guest_band: string;
+          id?: string;
+          language?: string;
+          location: string;
+          message: string;
+          preferred_contact: string;
+          provider_message_id?: string | null;
+          sender_email?: string | null;
+          sender_name?: string | null;
+          sender_phone?: string | null;
+          sent_at?: string | null;
+          start_time?: string | null;
+          status?: string;
+          user_id?: string | null;
+          vendor_id: string;
+        };
+        Update: {
+          channel?: string;
+          created_at?: string;
+          details?: NonNullable<Json>;
+          event_date?: string | null;
+          event_slugs?: string[];
+          failure?: string | null;
+          guest_band?: string;
+          id?: string;
+          language?: string;
+          location?: string;
+          message?: string;
+          preferred_contact?: string;
+          provider_message_id?: string | null;
+          sender_email?: string | null;
+          sender_name?: string | null;
+          sender_phone?: string | null;
+          sent_at?: string | null;
+          start_time?: string | null;
+          status?: string;
+          user_id?: string | null;
+          vendor_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'inquiries_vendor_id_fkey';
+            columns: ['vendor_id'];
+            isOneToOne: false;
+            referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       profiles: {
         Row: {
@@ -661,6 +759,26 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      create_inquiry: {
+        Args: {
+          p_details: Json;
+          p_event_date: string;
+          p_event_slugs: string[];
+          p_guest_band: string;
+          p_language: string;
+          p_location: string;
+          p_message: string;
+          p_preferred_contact: string;
+          p_send_again?: boolean;
+          p_sender_email: string;
+          p_sender_name: string;
+          p_sender_phone: string;
+          p_start_time: string;
+          p_user_id: string;
+          p_vendor_id: string;
+        };
+        Returns: Json;
+      };
       search_vendors: {
         Args: {
           category_slug?: string;
