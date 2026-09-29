@@ -347,7 +347,8 @@
       "plain": "Sat Sri Akal, we're planning {{events}} in {{place}}. Could you share your price? Thank you.",
       "and": "and",
       "wedding": "a wedding",
-      "ourCity": "our city"
+      "ourCity": "our city",
+      "tour": "Sat Sri Akal, we're planning {{events}} in {{place}} and would like to visit your hall. Could we come and see it at one of the times we picked? Thank you."
     },
     "errors": {
       "guests": "Pick about how many guests (or Not sure).",
@@ -370,6 +371,44 @@
       "savedTo": "Saved to {{event}} in your Saved list.",
       "savedNotSure": "Saved to your Saved list.",
       "viewSaved": "View saved"
+    },
+    "tourTitle": "Book a tour",
+    "questions": {
+      "yes": "Yes",
+      "no": "No",
+      "notSure": "Not sure",
+      "catering": "Food",
+      "cateringInHouse": "Your hall's food",
+      "cateringOwn": "Bringing our own caterer",
+      "whichCaterer": "Which caterer?",
+      "alcohol": "Will there be alcohol?",
+      "ghoriDhol": "Baraat with ghori and dhol?",
+      "sameDay": "Lunch and evening on the same day?",
+      "tourSlots": "When could you visit?",
+      "tourSlotsHint": "Pick up to 3 times. The hall confirms one.",
+      "addTime": "Add another time",
+      "parts": {
+        "morning": "Morning",
+        "afternoon": "Afternoon",
+        "evening": "Evening"
+      },
+      "food": "Food",
+      "foodVeg": "Veg only",
+      "foodVegNonVeg": "Veg and non-veg",
+      "foodJhatka": "Jhatka",
+      "foodHalal": "Halal",
+      "liveStations": "Live food counters",
+      "stations": {
+        "tandoor": "Tandoor",
+        "chaat": "Chaat",
+        "jalebi": "Jalebi",
+        "dosa": "Dosa",
+        "kulfi": "Kulfi",
+        "chai": "Chai"
+      },
+      "whichHall": "Which hall?",
+      "whichHallHint": "Many halls only allow caterers on their list.",
+      "tasting": "Would you like a tasting?"
     }
   },
   "deleteAccount": {
