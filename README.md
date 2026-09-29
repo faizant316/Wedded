@@ -25,6 +25,7 @@ npm install
 npx expo start        # then scan the QR code with Expo Go on your phone
 npm run lint          # ESLint
 npm run typecheck     # TypeScript
+npm test              # unit tests (Jest); npm run test:watch while working
 npm run format        # Prettier (format:check runs in CI)
 ```
 
