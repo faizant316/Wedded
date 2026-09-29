@@ -119,6 +119,16 @@
     "empty": "No founding vendors yet.",
     "rowSpoken": "Founding vendor number {{number}}, {{name}}, {{details}}"
   },
+  "tent": {
+    "title": "QR table tent",
+    "intro": "Print this for {{name}}'s front desk or counter. Fold it in half so it stands up; both sides show the QR code.",
+    "scan": "Scan to see our photos and prices, and ask about your date",
+    "findUs": "Find us on {{app}}",
+    "print": "Print or save as PDF",
+    "printFailed": "That didn't print. Check the printer, or allow pop-ups on the web, then try again.",
+    "placeholder": "This QR code points to a placeholder address because there's no website yet. Don't print it for a vendor until the website address is set.",
+    "qrLabel": "QR code for {{url}}"
+  },
   "forVendors": {
     "title": "List your business, free",
     "intro": "Free listings for our first 50 founding vendors. Families browsing find you for exactly what you do. Leave your details and we'll call or text you to set up your page.",
