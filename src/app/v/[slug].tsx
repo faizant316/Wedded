@@ -203,6 +203,8 @@ export default function VendorProfileScreen() {
     const tagline = vendorText(v.tagline.en, v.tagline.pa, locale);
     const bio = vendorText(v.bio.en, v.bio.pa, locale);
     const facts = factLabels(v.facts, t);
+    // Halls, gurdwaras and other venues take visits before booking (demo step 3).
+    const isVenue = v.categories.some((category) => category.groupSlug === 'venues');
     const allPhotos = photos.data ?? [];
     const cover = allPhotos.find((photo) => photo.isCover) ?? allPhotos[0];
     const languages = v.languages
@@ -340,6 +342,22 @@ export default function VendorProfileScreen() {
         )}
 
         {tagline && <AppText variant="bodyLg">{tagline}</AppText>}
+
+        {isVenue && (
+          <Button
+            variant="secondary"
+            icon="calendar-outline"
+            label={t('vendor.bookTour')}
+            onPress={() =>
+              router.push({
+                pathname: '/ask',
+                params: event
+                  ? { vendorId: v.id, event, kind: 'tour' }
+                  : { vendorId: v.id, kind: 'tour' },
+              })
+            }
+          />
+        )}
 
         <View style={styles.lines}>
           <View style={styles.line}>
