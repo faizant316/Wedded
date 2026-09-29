@@ -308,6 +308,16 @@
       "near": "Near {{place}} · {{miles}} mi",
       "anywhere": "Near {{place}} · any distance",
       "hint": "Choose where to search from"
+    },
+    "gps": {
+      "use": "Use my current location",
+      "explainTitle": "Find vendors close to home",
+      "explainBody": "We use your location only to sort vendors by distance. We never share it and never save it: we use the nearest city.",
+      "allow": "Allow location",
+      "typeInstead": "Type my city instead",
+      "denied": "No problem, type your city.",
+      "outside": "We're Northern California only for now. Try a city or ZIP code here.",
+      "unavailable": "We couldn't find your location. Type your city instead."
     }
   },
   "inquiry": {
