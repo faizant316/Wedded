@@ -54,7 +54,7 @@ If a local sign-in email arrives as a link instead of a 6-digit code, Docker is 
 
 ### Edge Functions (server code)
 
-`supabase/functions/` holds the server code, written for Deno. `npm run db:start` serves it locally at `http://127.0.0.1:54321/functions/v1/<name>`, and emails it sends land in Mailpit. To check a function, install Deno (`brew install deno`) and run `deno check index.ts && deno lint && deno fmt --check` in its folder. CI runs the same.
+`supabase/functions/` holds the server code, written for Deno. `npm run db:start` serves it locally at `http://127.0.0.1:54321/functions/v1/<name>`, and emails it sends land in Mailpit. To check a function, install Deno (`brew install deno`) and run `deno check index.ts && deno lint && deno fmt --check` in its folder. CI runs the same. After adding a new function (or if a local function answers 404 or 503), restart with `npm run db:stop && npm run db:start`.
 
 Settings for the hosted project (set once with `supabase secrets set NAME=value`):
 

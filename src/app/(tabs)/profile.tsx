@@ -111,6 +111,11 @@ function AccountSection() {
         onPress={() => router.push({ pathname: '/sign-in', params: { mode: 'edit' } })}
       />
       <Button variant="text" label={t('profile.account.signOut')} onPress={signOut} />
+      <Button
+        variant="text"
+        label={t('profile.account.deleteAccount')}
+        onPress={() => router.push('/delete-account')}
+      />
     </Card>
   );
 }

@@ -14,11 +14,12 @@ import { BorderWidth, Colors, Radius, Sizes, Spacing, type ColorToken } from '@/
 
 type IoniconName = ComponentProps<typeof Ionicons>['name'];
 
-export type ButtonVariant = 'primary' | 'secondary' | 'text';
+export type ButtonVariant = 'primary' | 'secondary' | 'text' | 'danger';
 
 export type ButtonProps = Omit<PressableProps, 'children' | 'style' | 'disabled'> & {
   label: string;
-  /** primary: the one main action on a screen. secondary: outlined. text: a link-style action. */
+  /** primary: the one main action on a screen. secondary: outlined. text: a link-style action.
+   * danger: red, for actions that can't be undone (delete account). */
   variant?: ButtonVariant;
   /** Optional icon before the label. */
   icon?: IoniconName;
@@ -32,6 +33,7 @@ const LABEL_COLOR: Record<ButtonVariant, ColorToken> = {
   primary: 'onPrimary',
   secondary: 'primary',
   text: 'primary',
+  danger: 'onPrimary',
 };
 
 /**
@@ -100,6 +102,9 @@ const styles = StyleSheet.create({
   text: {
     paddingHorizontal: Spacing.lg,
   },
+  danger: {
+    backgroundColor: Colors.error,
+  },
   disabled: {
     backgroundColor: Colors.skeleton,
     borderColor: Colors.skeleton,
@@ -119,5 +124,8 @@ const pressedStyles = StyleSheet.create({
   },
   text: {
     backgroundColor: Colors.primaryTint,
+  },
+  danger: {
+    backgroundColor: Colors.errorPressed,
   },
 });
