@@ -1,7 +1,8 @@
 /**
  * Inquiries (vision S11, S12): sending goes through the send-inquiry Edge
  * Function, which applies the rules (profile, limits, duplicates) and emails
- * the vendor. The app can read its own inquiries but never writes the table.
+ * the vendor. The app can read its own inquiries; the only thing it writes is
+ * the family's answer to "Did they get back to you?" (reply_answer).
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FunctionsFetchError, FunctionsHttpError } from '@supabase/supabase-js';
@@ -13,6 +14,9 @@ import { savedKeys } from './saved';
 
 export type GuestBand = 'under_50' | '50_100' | '100_250' | '250_500' | '500_plus' | 'not_sure';
 export type ReplyBy = 'call' | 'text' | 'whatsapp' | 'email';
+/** "Did they get back to you?": Yes, booked / Yes, still deciding / No reply yet. */
+export type ReplyAnswer = 'booked' | 'deciding' | 'no_reply';
+export const REPLY_ANSWERS: ReplyAnswer[] = ['booked', 'deciding', 'no_reply'];
 
 export type InquiryDraft = {
   vendorId: string;
@@ -86,6 +90,24 @@ export async function sendInquiry(draft: InquiryDraft): Promise<SendOutcome> {
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+/** The follow-up question waits 2 days after sending (vision §8: 48 to 72 h). */
+const FOLLOW_UP_AFTER_MS = 2 * DAY_MS;
+
+/**
+ * Whether My inquiries should ask "Did they get back to you?": the inquiry
+ * was sent at least 2 days ago and not answered yet.
+ */
+export function followUpDue(
+  inquiry: { status: string; sent_at: string | null; reply_answer: string | null },
+  now: number,
+): boolean {
+  return (
+    inquiry.status === 'sent' &&
+    inquiry.reply_answer === null &&
+    inquiry.sent_at !== null &&
+    now - new Date(inquiry.sent_at).getTime() >= FOLLOW_UP_AFTER_MS
+  );
+}
 
 export const inquiryKeys = {
   all: ['inquiries'] as const,
@@ -110,7 +132,7 @@ async function fetchMyInquiries() {
   const { data, error } = await supabase
     .from('inquiries')
     .select(
-      'id, vendor_id, event_slugs, event_date, guest_band, status, created_at, vendor:vendors(slug, name, name_pa)',
+      'id, vendor_id, event_slugs, event_date, guest_band, status, created_at, sent_at, reply_answer, vendor:vendors(slug, name, name_pa)',
     )
     .order('created_at', { ascending: false });
   if (error) throw error;
@@ -120,6 +142,7 @@ async function fetchMyInquiries() {
     /** "Ask again" shows once 24 hours have passed, or if it didn't send (S16c). */
     canAskAgain:
       inquiry.status === 'failed' || now - new Date(inquiry.created_at).getTime() > DAY_MS,
+    followUpDue: followUpDue(inquiry, now),
   }));
 }
 
@@ -131,5 +154,20 @@ export function useMyInquiries() {
     queryKey: inquiryKeys.mine(userId),
     queryFn: fetchMyInquiries,
     enabled: userId.length > 0,
+  });
+}
+
+/** Save the family's answer to "Did they get back to you?" on one of their inquiries. */
+export function useAnswerFollowUp() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ inquiryId, answer }: { inquiryId: string; answer: ReplyAnswer }) => {
+      const { error } = await supabase
+        .from('inquiries')
+        .update({ reply_answer: answer })
+        .eq('id', inquiryId);
+      if (error) throw error;
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: inquiryKeys.all }),
   });
 }
