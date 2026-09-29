@@ -106,13 +106,21 @@ export default function AskScreen() {
     };
 
   function close() {
+    // A page opened straight from a link on the web has nowhere to go back to
+    const leave = () => (router.canGoBack() ? router.back() : router.replace('/'));
     if (!touched) {
-      router.back();
+      leave();
+      return;
+    }
+    if (Platform.OS === 'web') {
+      // Alert does nothing in a web browser, so the web uses the browser's own
+      if (globalThis.confirm(`${t('inquiry.discardTitle')}\n\n${t('inquiry.discardBody')}`))
+        leave();
       return;
     }
     Alert.alert(t('inquiry.discardTitle'), t('inquiry.discardBody'), [
       { text: t('inquiry.keepEditing'), style: 'cancel' },
-      { text: t('inquiry.discard'), style: 'destructive', onPress: () => router.back() },
+      { text: t('inquiry.discard'), style: 'destructive', onPress: leave },
     ]);
   }
 
