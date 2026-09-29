@@ -247,6 +247,19 @@ otp_expiry = 3600
 # subject = "You have been invited"
 # content_path = "./supabase/templates/invite.html"
 
+# Sign-in is a 6-digit email code, not a link: links open in the browser and
+# lose the app session (vision section 8). Supabase sends email codes with the
+# magic_link template; confirmation is set too so new users get the same email.
+# Hosted projects don't read these files: paste the template into the dashboard
+# (Authentication > Email Templates) or run `supabase config push`.
+[auth.email.template.magic_link]
+subject = "Your sign-in code"
+content_path = "./supabase/templates/sign-in-code.html"
+
+[auth.email.template.confirmation]
+subject = "Your sign-in code"
+content_path = "./supabase/templates/sign-in-code.html"
+
 # Uncomment to customize notification email template
 # [auth.email.notification.password_changed]
 # enabled = true

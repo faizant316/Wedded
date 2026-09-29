@@ -4,6 +4,9 @@ Add newest decisions at the top. Keep each entry short: what we decided, why, an
 
 | Date | Decision | Why | Agreed by |
 | --- | --- | --- | --- |
+| 2026-09-29 | Sign-up asks only name, city, phone, email and 18+; sign-in is a 6-digit email code, no password, no subscription | Keep it as simple as possible for families; phone/SMS login needs the LLC (vision section 8) | Kirat |
+| 2026-09-29 | `profiles` doesn't store email; the sign-in email in `auth.users` is the one we use | Collect the minimum and keep one copy (CLAUDE.md privacy rule) | Kirat |
+| 2026-09-29 | 18+ is `profiles.adult_confirmed_at`, stamped by the database when the profile is created; the app can't write it | A record the user can't backdate, and never a birthdate (vision section 8) | Kirat |
 | 2026-09-29 | Vendor-written text uses separate English and Punjabi columns (`name`/`name_pa`, `bio`/`bio_pa`), not LocalizedText | Some vendors will write only in Punjabi; reference data (events, categories) keeps LocalizedText with English required | Kirat |
 | 2026-09-29 | Service radius is one of 10, 25, 50, 100 miles or 250 ("all of NorCal"), plus a `will_travel` flag for further with a fee | Matches the vision's radius choices (section 6) in miles, which is what families and vendors use | Kirat |
 | 2026-09-29 | Prices are whole US dollars with a unit (event, hour, person, plate, hand, turban, day) | Vendors quote round numbers; cents add nothing | Kirat |

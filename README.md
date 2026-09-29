@@ -48,7 +48,7 @@ npm run db:types      # regenerates src/types/database.ts after a schema change
 npm run db:stop
 ```
 
-Copy `.env.example` to `.env.local` and fill in the two values from `npm run db:status`. To test on a phone with Expo Go, use your Mac's Wi-Fi IP instead of `127.0.0.1` (`ipconfig getifaddr en0`). Supabase Studio, a web UI for the local database, is at http://127.0.0.1:54323.
+Copy `.env.example` to `.env.local` and fill in the two values from `npm run db:status`. To test on a phone with Expo Go, use your Mac's Wi-Fi IP instead of `127.0.0.1` (`ipconfig getifaddr en0`). Supabase Studio, a web UI for the local database, is at http://127.0.0.1:54323. Emails the local database sends (sign-in codes) land in Mailpit at http://127.0.0.1:54324, not in a real inbox.
 
 ## Layout
 
