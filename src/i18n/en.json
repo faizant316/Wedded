@@ -103,7 +103,8 @@
     "photos": "Photos",
     "photo": "Photo",
     "realWeddings": "Real weddings here",
-    "photoBy": "Photo by {{name}}"
+    "photoBy": "Photo by {{name}}",
+    "bookTour": "Book a tour"
   },
   "founding": {
     "title": "Founding vendors",
