@@ -309,3 +309,18 @@ select ('00000000-0000-4000-8000-0000000000' || lpad(m.n::text, 2, '0'))::uuid, 
 from more_samples m;
 
 drop table more_samples;
+
+-- Links between sample vendors ---------------------------------------------------
+-- Royal Orchard's approved caterers (demo step 3). Tandoor House is confirmed by
+-- the hall only, so it stays hidden until the caterer confirms too.
+
+insert into public.vendor_links (venue_vendor_id, vendor_id, kind, confirmed_by_venue, confirmed_by_vendor)
+select venue.id, vendor.id, link.kind, true, link.vendor_confirmed
+from (values
+  ('royal-orchard-banquet-hall', 'saffron-tandoor-catering', 'approved_at', true),
+  ('royal-orchard-banquet-hall', 'royal-feast-caterers', 'approved_at', true),
+  ('royal-orchard-banquet-hall', 'tandoor-house-catering', 'approved_at', false),
+  ('royal-orchard-banquet-hall', 'marigold-stage-decor', 'worked_with', true)
+) as link (venue_slug, vendor_slug, kind, vendor_confirmed)
+join public.vendors venue on venue.slug = link.venue_slug
+join public.vendors vendor on vendor.slug = link.vendor_slug;

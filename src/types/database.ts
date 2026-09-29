@@ -566,6 +566,57 @@ export type Database = {
           },
         ];
       };
+      vendor_links: {
+        Row: {
+          confirmed_by_both: boolean | null;
+          confirmed_by_vendor: boolean;
+          confirmed_by_venue: boolean;
+          created_at: string;
+          id: string;
+          kind: string;
+          updated_at: string;
+          vendor_id: string;
+          venue_vendor_id: string;
+        };
+        Insert: {
+          confirmed_by_both?: never;
+          confirmed_by_vendor?: boolean;
+          confirmed_by_venue?: boolean;
+          created_at?: string;
+          id?: string;
+          kind: string;
+          updated_at?: string;
+          vendor_id: string;
+          venue_vendor_id: string;
+        };
+        Update: {
+          confirmed_by_both?: never;
+          confirmed_by_vendor?: boolean;
+          confirmed_by_venue?: boolean;
+          created_at?: string;
+          id?: string;
+          kind?: string;
+          updated_at?: string;
+          vendor_id?: string;
+          venue_vendor_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'vendor_links_vendor_id_fkey';
+            columns: ['vendor_id'];
+            isOneToOne: false;
+            referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'vendor_links_venue_vendor_id_fkey';
+            columns: ['venue_vendor_id'];
+            isOneToOne: false;
+            referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       vendor_private: {
         Row: {
           checks_email: boolean | null;
