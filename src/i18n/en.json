@@ -169,5 +169,27 @@
     "title": "Save to which event?",
     "subtitle": "Pick the event you'd book them for. You can save them for more than one.",
     "alreadySaved": "Saved"
+  },
+  "location": {
+    "title": "Where should we look?",
+    "subtitle": "We sort vendors by distance from here. It stays on this phone.",
+    "cityOrZip": "City or ZIP code",
+    "cityOrZipHint": "For example Yuba City, Fremont or 95993",
+    "useZip": "Use ZIP {{zip}}",
+    "zipOutside": "We're Northern California only for now. Try a city or ZIP code here.",
+    "noMatch": "We don't have that city yet. Try a nearby city or your ZIP code.",
+    "current": "Now searching near {{place}}",
+    "clear": "Clear location",
+    "areas": "Or pick your area",
+    "distance": "How far?",
+    "miles": "{{count}} mi",
+    "anywhere": "Anywhere",
+    "done": "Done",
+    "chip": {
+      "unset": "Set your location to see distance",
+      "near": "Near {{place}} · {{miles}} mi",
+      "anywhere": "Near {{place}} · any distance",
+      "hint": "Choose where to search from"
+    }
   }
 }
