@@ -104,14 +104,14 @@ Add ideas any time during Phases 1 to 4. No checking or buying until Phase 5.
 ## Phase 3: Build the App
 
 ### Step 1: Data Model and Auth
-- [ ] Create tables: users, vendors, vendor_categories, vendor_media, cultures, events, event_categories, saved_vendors, inquiries
+- [x] Create tables: users, vendors, vendor_categories, vendor_media, cultures, events, event_categories, saved_vendors, inquiries (Kirat; users are `auth.users` plus `profiles`)
 - [x] Store cultures, events, and categories as data, not hardcoded (Kirat)
 - [x] Store event and category names so they can be translated (English and Punjabi) (Kirat)
 - [x] Add vendor base location and service radius; hide street addresses for home-based vendors (Kirat)
 - [x] Build signup and login (email or phone) (Kirat; email code now, phone after the LLC)
 - [ ] Build the user profile: name, city, state, country, 18+ confirmation
 - [x] Build in-app account deletion (required by Apple) (Kirat)
-- [ ] Write row level security rules in Supabase
+- [x] Write row level security rules in Supabase (Kirat; covered by the pgTAP tests in CI)
 
 ### Step 2: Navigation and Home
 - [ ] Bottom tabs: Home, Search, Saved, Profile
@@ -129,9 +129,9 @@ Add ideas any time during Phases 1 to 4. No checking or buying until Phase 5.
 - [ ] Action buttons: Call, Text, Open Instagram, Get Directions, Save, Send Inquiry
 
 ### Step 5: Inquiries and Saved Vendors
-- [ ] Inquiry form: event type, date, guest count, message
-- [ ] Send inquiries by email (all test inquiries go to our own inbox)
-- [ ] Saved vendors grouped by event
+- [x] Inquiry form: event type, date, guest count, message (Kirat)
+- [x] Send inquiries by email (all test inquiries go to our own inbox) (Kirat; set INQUIRY_TEST_INBOX)
+- [x] Saved vendors grouped by event (Kirat)
 
 ### Step 6: Polish
 - [ ] Match the Figma designs closely
