@@ -104,7 +104,9 @@
     "photo": "Photo",
     "realWeddings": "Real weddings here",
     "photoBy": "Photo by {{name}}",
-    "bookTour": "Book a tour"
+    "bookTour": "Book a tour",
+    "pageTitle": "{{name}}, {{category}} in {{city}}",
+    "openInApp": "Have the app? Open this page in it"
   },
   "gallery": {
     "close": "Close",

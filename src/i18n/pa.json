@@ -104,7 +104,9 @@
     "photo": "ਤਸਵੀਰ",
     "realWeddings": "ਇੱਥੇ ਹੋਏ ਅਸਲ ਵਿਆਹ",
     "photoBy": "{{name}} ਦੀ ਤਸਵੀਰ",
-    "bookTour": "ਥਾਂ ਦੇਖਣ ਲਈ ਸਮਾਂ ਲਓ"
+    "bookTour": "ਥਾਂ ਦੇਖਣ ਲਈ ਸਮਾਂ ਲਓ",
+    "pageTitle": "{{name}}, {{city}} ਵਿੱਚ {{category}}",
+    "openInApp": "ਐਪ ਹੈ? ਇਹ ਪੰਨਾ ਐਪ ਵਿੱਚ ਖੋਲ੍ਹੋ"
   },
   "gallery": {
     "close": "ਬੰਦ ਕਰੋ",
