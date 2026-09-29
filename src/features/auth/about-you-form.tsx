@@ -38,6 +38,12 @@ export type AboutYouFormProps = {
   /** A problem from the server, shown above the button. Say what to do next,
    * e.g. "We couldn't create your account. Check your internet and try again." */
   error?: string;
+  /** Show the email read-only: it's the one they signed in with. */
+  emailLocked?: boolean;
+  /** They already confirmed 18+ (editing an existing profile): hide the box. */
+  confirmedAdult?: boolean;
+  /** Button text; defaults to "Create account". */
+  submitLabel?: string;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -56,6 +62,9 @@ export function AboutYouForm({
   initialValues,
   submitting = false,
   error,
+  emailLocked = false,
+  confirmedAdult = false,
+  submitLabel,
   style,
 }: AboutYouFormProps) {
   const { t } = useLocale();
@@ -64,7 +73,7 @@ export function AboutYouForm({
     city: initialValues?.city ?? '',
     phone: initialValues?.phone ?? '',
     email: initialValues?.email ?? '',
-    isAdult: false,
+    isAdult: confirmedAdult,
   });
   const [attempted, setAttempted] = useState(false);
 
@@ -144,31 +153,39 @@ export function AboutYouForm({
         onChangeText={setField('phone')}
         error={errorFor('phone')}
         maxLength={20}
-        returnKeyType="next"
-        submitBehavior="submit"
-        onSubmitEditing={() => emailRef.current?.focus()}
+        returnKeyType={emailLocked ? 'done' : 'next'}
+        submitBehavior={emailLocked ? 'blurAndSubmit' : 'submit'}
+        onSubmitEditing={() => !emailLocked && emailRef.current?.focus()}
       />
       <TextField
         ref={emailRef}
         type="email"
         label={t('aboutYou.email')}
+        hint={emailLocked ? t('aboutYou.emailLockedHint') : undefined}
         value={draft.email}
         onChangeText={setField('email')}
+        editable={!emailLocked}
         error={errorFor('email')}
         maxLength={254}
         returnKeyType="done"
         submitBehavior="blurAndSubmit"
       />
-      <Checkbox
-        label={t('aboutYou.isAdult')}
-        checked={draft.isAdult}
-        onChange={(isAdult) => setDraft((current) => ({ ...current, isAdult }))}
-        error={errorFor('isAdult')}
-      />
+      {!confirmedAdult && (
+        <Checkbox
+          label={t('aboutYou.isAdult')}
+          checked={draft.isAdult}
+          onChange={(isAdult) => setDraft((current) => ({ ...current, isAdult }))}
+          error={errorFor('isAdult')}
+        />
+      )}
 
       {attempted && !values && <FieldError message={t('aboutYou.fixErrors')} />}
       {error && <FieldError message={error} />}
-      <Button label={t('aboutYou.submit')} loading={submitting} onPress={handleSubmit} />
+      <Button
+        label={submitLabel ?? t('aboutYou.submit')}
+        loading={submitting}
+        onPress={handleSubmit}
+      />
     </ScrollView>
   );
 }
