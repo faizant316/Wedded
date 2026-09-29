@@ -11,7 +11,6 @@
   "home": {
     "headline": "Every vendor for every event of your wedding",
     "subtitle": "Roka to reception. Northern California.",
-    "browseByEvent": "Browse by event",
     "phases": {
       "before": "Before the wedding",
       "weddingDay": "Wedding day",
@@ -19,7 +18,9 @@
     },
     "allCategories": "See all categories A to Z",
     "empty": "Events will show here soon.",
-    "foundingWall": "Meet our founding vendors"
+    "foundingWall": "Meet our founding vendors",
+    "browseByType": "Browse by vendor type",
+    "planByEvent": "Plan by event"
   },
   "event": {
     "needsTitle": "Vendors you'll need",
@@ -28,11 +29,14 @@
     "notFound": "We couldn't find that event."
   },
   "results": {
-    "forEvent": "For {{event}}",
     "empty": "No vendors are listed here yet.",
     "emptyNear": "No vendors here within {{miles}} mi of {{place}}.",
     "widen": "Widen to {{miles}} mi",
-    "showTravelers": "Show vendors who travel to you"
+    "showTravelers": "Show vendors who travel to you",
+    "savingTo": "Hearts save to {{event}}."
+  },
+  "group": {
+    "notFound": "We couldn't find that group."
   },
   "vendor": {
     "notFound": "This vendor isn't listed anymore.",
