@@ -1,14 +1,14 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
-import { AppText, useFontScale } from '@/components/app-text';
+import { AppText } from '@/components/app-text';
 import { BackButton } from '@/components/back-button';
 import { CategoryRow } from '@/components/category-row';
+import { IconLine } from '@/components/icon-line';
 import { groupIcon } from '@/components/group-icon';
 import { Screen } from '@/components/screen';
 import { StateView } from '@/components/state-view';
-import { Colors, Sizes, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import { useEvent, useEventNeeds } from '@/data/reference';
 import { bilingual, localized } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
@@ -24,7 +24,6 @@ export default function EventScreen() {
   const { slug = '' } = useLocalSearchParams<{ slug: string }>();
   const router = useRouter();
   const { locale, t } = useLocale();
-  const scale = useFontScale('body');
   const event = useEvent(slug);
   const needs = useEventNeeds(slug);
 
@@ -63,12 +62,9 @@ export default function EventScreen() {
         </View>
 
         {event.data.timing && (
-          <View style={styles.timing}>
-            <Ionicons name="time-outline" size={Sizes.icon * scale} color={Colors.text2} />
-            <AppText color="text2" style={styles.timingText}>
-              {localized(event.data.timing, locale)}
-            </AppText>
-          </View>
+          <IconLine icon="time-outline" color="text2">
+            {localized(event.data.timing, locale)}
+          </IconLine>
         )}
         {event.data.summary && (
           <AppText variant="bodyLg">{localized(event.data.summary, locale)}</AppText>
@@ -120,14 +116,6 @@ const styles = StyleSheet.create({
   content: {
     gap: Spacing.lg,
     paddingVertical: Spacing.md,
-  },
-  timing: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-  },
-  timingText: {
-    flex: 1,
   },
   needsTitle: {
     marginTop: Spacing.sm,

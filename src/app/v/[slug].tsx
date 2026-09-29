@@ -8,6 +8,7 @@ import { Alert, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-
 import { ActionButton } from '@/components/action-button';
 import { AppText, useFontScale } from '@/components/app-text';
 import { BackButton } from '@/components/back-button';
+import { IconLine } from '@/components/icon-line';
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
 import { groupIcon } from '@/components/group-icon';
@@ -115,6 +116,8 @@ export default function VendorProfileScreen() {
   const router = useRouter();
   const { locale, t } = useLocale();
   const scale = useFontScale('body');
+  // Side by side, a Punjabi "Save" breaks mid-word at very large text sizes.
+  const stackButtons = useFontScale('button') >= 1.5;
   const vendor = useVendor(slug);
   const links = useVendorLinks(vendor.data?.id ?? '');
   const photos = useVendorPhotos(vendor.data?.id ?? '');
@@ -315,28 +318,19 @@ export default function VendorProfileScreen() {
         )}
 
         <View style={styles.lines}>
-          <View style={styles.line}>
-            <Ionicons name="location-outline" size={Sizes.icon * scale} color={Colors.text2} />
-            <AppText style={styles.lineText}>
-              {v.addressLine ?? t('vendor.basedIn', { city: v.city })}
-            </AppText>
-          </View>
+          <IconLine icon="location-outline">
+            {v.addressLine ?? t('vendor.basedIn', { city: v.city })}
+          </IconLine>
           {!v.addressLine && (
-            <View style={styles.line}>
-              <Ionicons name="car-outline" size={Sizes.icon * scale} color={Colors.text2} />
-              <AppText style={styles.lineText}>
-                {v.serviceRadiusMiles >= ALL_NORCAL_MILES
-                  ? t('vendor.travelsNorcal')
-                  : t('vendor.travelsUpTo', { miles: v.serviceRadiusMiles })}
-                {v.willTravel && v.travelNote ? ` ${v.travelNote}` : ''}
-              </AppText>
-            </View>
+            <IconLine icon="car-outline">
+              {(v.serviceRadiusMiles >= ALL_NORCAL_MILES
+                ? t('vendor.travelsNorcal')
+                : t('vendor.travelsUpTo', { miles: v.serviceRadiusMiles })) +
+                (v.willTravel && v.travelNote ? ` ${v.travelNote}` : '')}
+            </IconLine>
           )}
           {languages.length > 0 && (
-            <View style={styles.line}>
-              <Ionicons name="language-outline" size={Sizes.icon * scale} color={Colors.text2} />
-              <AppText style={styles.lineText}>{t('vendor.speaks', { languages })}</AppText>
-            </View>
+            <IconLine icon="language-outline">{t('vendor.speaks', { languages })}</IconLine>
           )}
         </View>
 
@@ -487,13 +481,16 @@ export default function VendorProfileScreen() {
         {body}
       </ScrollView>
       {vendor.data && (
-        <View style={styles.bottomBar}>
+        <View style={[styles.bottomBar, stackButtons && styles.bottomBarStacked]}>
           <Button
             variant="secondary"
             icon={saved ? 'heart' : 'heart-outline'}
             label={saved ? t('vendor.saved') : t('vendor.save')}
+            accessibilityLabel={t(saved ? 'vendorCard.unsave' : 'vendorCard.save', {
+              name: localized(vendor.data.name, locale),
+            })}
             onPress={() => vendor.data && toggleSave(vendor.data.id, event)}
-            style={styles.save}
+            style={!stackButtons && styles.save}
           />
           <Button
             label={t('vendor.ask')}
@@ -504,7 +501,7 @@ export default function VendorProfileScreen() {
                 params: event ? { vendorId: vendor.data.id, event } : { vendorId: vendor.data.id },
               })
             }
-            style={styles.ask}
+            style={!stackButtons && styles.ask}
           />
         </View>
       )}
@@ -614,6 +611,9 @@ const styles = StyleSheet.create({
     borderTopWidth: BorderWidth.hairline,
     borderTopColor: Colors.border,
     backgroundColor: Colors.bg,
+  },
+  bottomBarStacked: {
+    flexDirection: 'column',
   },
   // Save 40 percent, Ask 60 percent (vision doc S9).
   save: {

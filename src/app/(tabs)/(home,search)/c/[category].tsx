@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
-import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { AccessibilityInfo, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/app-text';
 import { BackButton } from '@/components/back-button';
@@ -50,6 +50,15 @@ export default function ResultsScreen() {
     limit: 100,
   });
   const [refreshing, setRefreshing] = useState(false);
+
+  // Screen readers don't notice a list that fills in or changes (after
+  // "Widen to 50 mi", say), so read out how many vendors there are.
+  const resultCount = vendors.isSuccess ? vendors.data.length : null;
+  useEffect(() => {
+    if (resultCount !== null && resultCount > 0) {
+      AccessibilityInfo.announceForAccessibility(t('counts.vendors', { count: resultCount }));
+    }
+  }, [resultCount, t]);
 
   // With an event, the heart is for that event; without one, any save counts.
   const savedIds = new Set(
