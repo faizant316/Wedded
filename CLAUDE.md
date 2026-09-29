@@ -47,7 +47,7 @@ Pull requests merge themselves. When the checks pass, the `Merge when checks pas
 
 1. Start from a fresh `main`: `git switch main && git pull`
 2. Branch: `feature/<name>`, `fix/<name>`, `docs/<name>` or `chore/<name>`
-3. Before pushing, run what CI runs: `npm run lint -- --max-warnings 0`, `npm run format:check`, `npm run typecheck` (`npm run format` fixes formatting)
+3. Before pushing, run what CI runs: `npm run lint -- --max-warnings 0`, `npm run format:check`, `npm run typecheck` (`npm run format` fixes formatting). If you touched `supabase/`, also `npm run db:reset && npm run db:test && npm run db:types` and commit the regenerated types; CI rebuilds the database from the migrations, runs the tests and advisors, and refuses stale types
 4. Push and open the PR: `git push -u origin HEAD`, then `gh pr create`
 5. Watch it land: `gh pr checks --watch`. All green means it is merged. Then `git switch main && git pull`
 
