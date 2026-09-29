@@ -24,7 +24,17 @@
     "placeholder": "Search dhol, mehndi, halls…"
   },
   "saved": {
-    "empty": "Nothing saved yet. Tap the heart on any vendor to keep them here, grouped by event."
+    "empty": "Nothing saved yet. Tap the heart on any vendor to keep them here, grouped by event.",
+    "signInToSee": "Sign in to keep vendors here, grouped by event.",
+    "notSure": "Not sure yet",
+    "remove": "Remove",
+    "removeNamed": "Remove {{name}} from saved",
+    "noLongerListed": "This vendor is no longer listed.",
+    "saveFailed": "We couldn't save that. Check your internet and try again.",
+    "count": {
+      "one": "1 vendor saved",
+      "other": "{{count}} vendors saved"
+    }
   },
   "profile": {
     "language": "Language",
@@ -137,5 +147,10 @@
       "network": "We couldn't reach the internet. Check your connection and try again.",
       "generic": "Something went wrong. Please try again."
     }
+  },
+  "saveVendor": {
+    "title": "Save to which event?",
+    "subtitle": "Pick the event you'd book them for. You can save them for more than one.",
+    "alreadySaved": "Saved"
   }
 }
