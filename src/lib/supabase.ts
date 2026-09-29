@@ -25,9 +25,13 @@ if (!supabaseUrl || !supabasePublishableKey) {
   );
 }
 
+// The web build pre-renders pages in Node, where there is no localStorage;
+// phones (via the install import above) and browsers have one.
+const storage = typeof localStorage === 'undefined' ? undefined : localStorage;
+
 export const supabase = createClient<Database>(supabaseUrl, supabasePublishableKey, {
   auth: {
-    storage: localStorage,
+    storage,
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,

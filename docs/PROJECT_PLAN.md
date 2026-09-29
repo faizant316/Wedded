@@ -108,7 +108,7 @@ Add ideas any time during Phases 1 to 4. No checking or buying until Phase 5.
 - [x] Store cultures, events, and categories as data, not hardcoded (Kirat)
 - [x] Store event and category names so they can be translated (English and Punjabi) (Kirat)
 - [x] Add vendor base location and service radius; hide street addresses for home-based vendors (Kirat)
-- [ ] Build signup and login (email or phone)
+- [x] Build signup and login (email or phone) (Kirat; email code now, phone after the LLC)
 - [ ] Build the user profile: name, city, state, country, 18+ confirmation
 - [ ] Build in-app account deletion (required by Apple)
 - [ ] Write row level security rules in Supabase
