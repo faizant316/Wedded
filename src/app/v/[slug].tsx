@@ -94,7 +94,8 @@ function factLabels(facts: HallFacts, t: Translate): string[] {
 
 /** S9 Vendor profile. Deep link: /v/{slug}. Opens over the tabs. */
 export default function VendorProfileScreen() {
-  const { slug = '' } = useLocalSearchParams<{ slug: string }>();
+  // `event` is set when they came from an event, so Save and Ask use it.
+  const { slug = '', event } = useLocalSearchParams<{ slug: string; event?: string }>();
   const router = useRouter();
   const { locale, t } = useLocale();
   const scale = useFontScale('body');
@@ -363,7 +364,19 @@ export default function VendorProfileScreen() {
             variant="secondary"
             icon={saved ? 'heart' : 'heart-outline'}
             label={saved ? t('vendor.saved') : t('vendor.save')}
-            onPress={() => vendor.data && toggleSave(vendor.data.id)}
+            onPress={() => vendor.data && toggleSave(vendor.data.id, event)}
+            style={styles.save}
+          />
+          <Button
+            label={t('vendor.ask')}
+            onPress={() =>
+              vendor.data &&
+              router.push({
+                pathname: '/ask',
+                params: event ? { vendorId: vendor.data.id, event } : { vendorId: vendor.data.id },
+              })
+            }
+            style={styles.ask}
           />
         </View>
       )}
@@ -425,9 +438,18 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   bottomBar: {
+    flexDirection: 'row',
+    gap: Spacing.md,
     paddingVertical: Spacing.md,
     borderTopWidth: BorderWidth.hairline,
     borderTopColor: Colors.border,
     backgroundColor: Colors.bg,
+  },
+  // Save 40 percent, Ask 60 percent (vision doc S9).
+  save: {
+    flex: 2,
+  },
+  ask: {
+    flex: 3,
   },
 });
