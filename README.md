@@ -64,6 +64,10 @@ npm run vendors:import -- vendor-data/sunrise.json --local             # save
 
 Everything is checked before anything is saved, and each problem is explained. Running it again updates the vendor (a field left out keeps its value; `null` clears it). A real vendor taking a founding number a sample vendor has gets it, and the sample loses it. Without `--local`, set `SUPABASE_URL` and `SUPABASE_SECRET_KEY` for the hosted database. Add their photos next with `npm run photos:upload`.
 
+### Punjabi review sheet
+
+`npm run i18n:review -- --local` writes `punjabi-review.csv` (gitignored): every English text in the app (event names and timings, vendor types, groups, area-code chips, and the app's own words) next to its Punjabi, with the missing ones first in each section. Open it in Google Sheets or Excel, have the family fill in the **Correction** column, and give the file back to Claude Code to apply. Add `--out=<file>` to write it somewhere else.
+
 ### Vendor photos
 
 `npm run photos:samples` gives every sample vendor three labelled placeholder photos on your local database (run it after `npm run db:reset`, which clears them). Three of them are tagged at Royal Orchard for its "Real weddings here"; add `-- --venue=<slug>` to tag them at another hall instead (the real hall, for the demo). For the hosted database, run `npm run photos:upload -- --samples` with `SUPABASE_URL` and `SUPABASE_SECRET_KEY` set. To add real photos, put them in a folder with one subfolder per vendor slug:
