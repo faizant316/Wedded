@@ -8,23 +8,30 @@ import { useLocale } from '@/i18n/locale-context';
 
 /**
  * "‹ Back" with a visible word, not just an arrow, for people who don't know
- * the gesture. With nothing to go back to (a cold deep link) it goes Home.
+ * the gesture. With nothing to go back to (a cold deep link, or a web page
+ * opened from a QR code or a shared link) it says Home and goes there.
  */
 export function BackButton() {
   const router = useRouter();
   const { t } = useLocale();
   const scale = useFontScale('button');
+  const canGoBack = router.canGoBack();
+  const label = canGoBack ? t('common.back') : t('tabs.home');
 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={t('common.back')}
-      onPress={() => (router.canGoBack() ? router.back() : router.navigate('/'))}
+      accessibilityLabel={label}
+      onPress={() => (canGoBack ? router.back() : router.navigate('/'))}
       style={({ pressed }) => [styles.button, pressed && styles.pressed]}
     >
-      <Ionicons name="chevron-back" size={Sizes.icon * scale} color={Colors.primary} />
+      <Ionicons
+        name={canGoBack ? 'chevron-back' : 'home-outline'}
+        size={Sizes.icon * scale}
+        color={Colors.primary}
+      />
       <AppText variant="button" color="primary">
-        {t('common.back')}
+        {label}
       </AppText>
     </Pressable>
   );

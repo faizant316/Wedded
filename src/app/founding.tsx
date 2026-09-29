@@ -1,5 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
+import Head from 'expo-router/head';
 import { FlatList, StyleSheet, View } from 'react-native';
 
 import { AppText, useFontScale } from '@/components/app-text';
@@ -24,6 +25,10 @@ export default function FoundingWallScreen() {
 
   const header = (
     <View style={styles.header}>
+      <Head>
+        <title>{t('founding.title')}</title>
+        <meta name="description" content={t('founding.intro')} />
+      </Head>
       <BackButton />
       <AppText variant="title" accessibilityRole="header">
         {t('founding.title')}

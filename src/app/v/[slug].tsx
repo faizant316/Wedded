@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image';
 import * as Linking from 'expo-linking';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import Head from 'expo-router/head';
 import type { ComponentProps } from 'react';
 import { Alert, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
@@ -14,6 +15,7 @@ import { Card } from '@/components/card';
 import { groupIcon } from '@/components/group-icon';
 import { Screen } from '@/components/screen';
 import { StateView } from '@/components/state-view';
+import { appLink } from '@/constants/links';
 import { BorderWidth, Colors, Radius, Sizes, Spacing } from '@/constants/theme';
 import { useSavedEventsFor, useSaveVendor } from '@/data/saved';
 import { useVendorLinks, type LinkedVendor } from '@/data/vendor-links';
@@ -125,8 +127,11 @@ export default function VendorProfileScreen() {
   const { toggleSave } = useSaveVendor();
   const saved = useSavedEventsFor(vendor.data?.id ?? '').length > 0;
 
+  // Alert does nothing in a web browser, so the web uses the browser's own.
+  const notify = (message: string) =>
+    Platform.OS === 'web' ? globalThis.alert(message) : Alert.alert(message);
   const open = (url: string) => {
-    Linking.openURL(url).catch(() => Alert.alert(t('vendor.openFailed')));
+    Linking.openURL(url).catch(() => notify(t('vendor.openFailed')));
   };
 
   let body;
@@ -173,11 +178,15 @@ export default function VendorProfileScreen() {
         label: t('vendor.call'),
         spoken: t('vendor.callSpoken', { name, phone: formatPhone(phone) }),
         // A confirm sheet showing the number prevents pocket calls (vision S9).
+        // On the web the phone asks before a tel: link calls, and Alert does
+        // nothing there, so the link opens straight away.
         onPress: () =>
-          Alert.alert(t('vendor.callTitle', { name }), formatPhone(phone), [
-            { text: t('vendor.cancel'), style: 'cancel' },
-            { text: t('vendor.call'), onPress: () => open(`tel:${phone}`) },
-          ]),
+          Platform.OS === 'web'
+            ? open(`tel:${phone}`)
+            : Alert.alert(t('vendor.callTitle', { name }), formatPhone(phone), [
+                { text: t('vendor.cancel'), style: 'cancel' },
+                { text: t('vendor.call'), onPress: () => open(`tel:${phone}`) },
+              ]),
       });
     }
     if (v.textPhone) {
@@ -238,8 +247,23 @@ export default function VendorProfileScreen() {
     }
     if (v.websiteUrl) contacts.push({ label: t('vendor.website'), value: v.websiteUrl });
 
+    const category = v.categories[0] ? localized(v.categories[0].name, locale) : null;
+
     body = (
       <>
+        {/* The web page people land on from a QR code or a shared link. */}
+        <Head>
+          <title>{category ? t('vendor.pageTitle', { name, category, city: v.city }) : name}</title>
+          {tagline ? <meta name="description" content={tagline} /> : null}
+        </Head>
+        {Platform.OS === 'web' && (
+          <Button
+            variant="text"
+            icon="phone-portrait-outline"
+            label={t('vendor.openInApp')}
+            onPress={() => void Linking.openURL(appLink(`/v/${v.slug}`))}
+          />
+        )}
         {cover ? (
           <Pressable
             accessibilityRole="imagebutton"

@@ -28,6 +28,9 @@ export default function GalleryScreen() {
   const photos = useVendorPhotos(vendorId);
   const start = Math.max(0, Number(index) || 0);
   const [current, setCurrent] = useState(start);
+  // On the web a sideways list doesn't stretch its pages to its own height,
+  // so each page gets the measured height (0 until the first layout).
+  const [pageHeight, setPageHeight] = useState(0);
 
   const close = () => (router.canGoBack() ? router.back() : router.navigate('/'));
   const list = photos.data ?? [];
@@ -67,11 +70,12 @@ export default function GalleryScreen() {
           initialScrollIndex={Math.min(start, list.length - 1)}
           getItemLayout={(_, i) => ({ length: width, offset: width * i, index: i })}
           keyExtractor={(item) => item.id}
+          onLayout={(event) => setPageHeight(event.nativeEvent.layout.height)}
           onMomentumScrollEnd={(event) =>
             setCurrent(Math.round(event.nativeEvent.contentOffset.x / width))
           }
           renderItem={({ item, index: i }) => (
-            <View style={{ width }}>
+            <View style={{ width, height: pageHeight || undefined }}>
               <Image
                 source={{ uri: item.url.large }}
                 placeholder={item.blurhash ? { blurhash: item.blurhash } : undefined}
