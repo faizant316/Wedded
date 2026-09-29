@@ -85,6 +85,8 @@ export async function sendInquiry(draft: InquiryDraft): Promise<SendOutcome> {
   }
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 export const inquiryKeys = {
   all: ['inquiries'] as const,
   mine: (userId: string) => [...inquiryKeys.all, userId] as const,
@@ -112,7 +114,13 @@ async function fetchMyInquiries() {
     )
     .order('created_at', { ascending: false });
   if (error) throw error;
-  return data;
+  const now = Date.now();
+  return data.map((inquiry) => ({
+    ...inquiry,
+    /** "Ask again" shows once 24 hours have passed, or if it didn't send (S16c). */
+    canAskAgain:
+      inquiry.status === 'failed' || now - new Date(inquiry.created_at).getTime() > DAY_MS,
+  }));
 }
 
 /** The signed-in person's inquiries, newest first ("My inquiries", S16c). */

@@ -65,6 +65,7 @@ export default function RootLayout() {
               <Stack.Screen name="ask" options={{ presentation: 'modal' }} />
               <Stack.Screen name="ask-sent" options={{ presentation: 'modal' }} />
               <Stack.Screen name="delete-account" options={{ presentation: 'modal' }} />
+              <Stack.Screen name="my-inquiries" />
             </Stack>
           </SearchLocationProvider>
         </SessionProvider>

@@ -9,6 +9,7 @@ import { Card } from '@/components/card';
 import { Screen } from '@/components/screen';
 import { StateView } from '@/components/state-view';
 import { Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { useMyInquiries } from '@/data/inquiries';
 import { useSession } from '@/features/auth/session';
 import type { Locale } from '@/i18n';
 import { useLocale } from '@/i18n/locale-context';
@@ -69,6 +70,7 @@ export default function ProfileScreen() {
 function AccountSection() {
   const { t } = useLocale();
   const { status, profile, email, reloadProfile, signOut } = useSession();
+  const inquiries = useMyInquiries();
 
   if (status === 'loading') {
     return <StateView state="loading" style={styles.state} />;
@@ -105,6 +107,16 @@ function AccountSection() {
       <Detail icon="location-outline" text={profile.city} />
       <Detail icon="call-outline" text={formatPhone(profile.phone)} />
       {email && <Detail icon="mail-outline" text={email} />}
+      <Button
+        variant="secondary"
+        icon="chatbubbles-outline"
+        label={
+          inquiries.data
+            ? t('profile.account.myInquiriesCount', { count: inquiries.data.length })
+            : t('profile.account.myInquiries')
+        }
+        onPress={() => router.push('/my-inquiries')}
+      />
       <Button
         variant="secondary"
         label={t('profile.account.edit')}
