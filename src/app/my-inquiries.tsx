@@ -1,14 +1,21 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, type Href } from 'expo-router';
+import { useState } from 'react';
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/app-text';
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
+import { FieldError } from '@/components/field-error';
 import { Screen } from '@/components/screen';
 import { StateView } from '@/components/state-view';
 import { Colors, Radius, Sizes, Spacing, type ColorToken } from '@/constants/theme';
-import { useMyInquiries } from '@/data/inquiries';
+import {
+  REPLY_ANSWERS,
+  useAnswerFollowUp,
+  useMyInquiries,
+  type ReplyAnswer,
+} from '@/data/inquiries';
 import { useHomeEvents } from '@/data/reference';
 import { formatDate } from '@/features/inquiry/inquiry-helpers';
 import { localized } from '@/i18n/localized';
@@ -21,9 +28,78 @@ const STATUS_COLOR: Record<string, ColorToken> = {
   failed: 'error',
 };
 
+const ANSWER_ICON: Record<ReplyAnswer, keyof typeof Ionicons.glyphMap> = {
+  booked: 'checkmark-circle',
+  deciding: 'chatbubble-ellipses-outline',
+  no_reply: 'time-outline',
+};
+
 /**
- * My inquiries (vision S16c): newest first, with a status, and "Ask again"
- * once 24 hours have passed (or if it didn't send).
+ * "Did they get back to you?" (vision §8), two days after an inquiry was
+ * sent; once answered, the answer with Change. The answers seed the
+ * reliability data; vendors never see them.
+ */
+function FollowUp({
+  inquiryId,
+  vendorName,
+  answer,
+  due,
+}: {
+  inquiryId: string;
+  vendorName: string;
+  answer: ReplyAnswer | null;
+  due: boolean;
+}) {
+  const { t } = useLocale();
+  const answering = useAnswerFollowUp();
+  const [changing, setChanging] = useState(false);
+
+  if (answer && !changing) {
+    return (
+      <View style={styles.answered}>
+        <Ionicons
+          name={ANSWER_ICON[answer]}
+          size={Sizes.iconSmall}
+          color={answer === 'booked' ? Colors.success : Colors.text2}
+        />
+        <AppText style={styles.grow}>{t(`myInquiries.followUp.answered.${answer}`)}</AppText>
+        <Button
+          variant="text"
+          label={t('myInquiries.followUp.change')}
+          onPress={() => setChanging(true)}
+        />
+      </View>
+    );
+  }
+  if (!due && !changing) return null;
+
+  return (
+    <View style={styles.followUp}>
+      <AppText weight={700}>{t('myInquiries.followUp.question', { name: vendorName })}</AppText>
+      {REPLY_ANSWERS.map((choice) => (
+        <Button
+          key={choice}
+          variant={choice === answer ? 'primary' : 'secondary'}
+          icon={ANSWER_ICON[choice]}
+          label={t(`myInquiries.followUp.${choice}`)}
+          loading={answering.isPending && answering.variables?.answer === choice}
+          onPress={() =>
+            answering.mutate({ inquiryId, answer: choice }, { onSuccess: () => setChanging(false) })
+          }
+        />
+      ))}
+      {answering.isError && <FieldError message={t('myInquiries.followUp.failed')} />}
+      <AppText variant="label" color="text2">
+        {t('myInquiries.followUp.hint')}
+      </AppText>
+    </View>
+  );
+}
+
+/**
+ * My inquiries (vision S16c): newest first, with a status, "Ask again" once
+ * 24 hours have passed (or if it didn't send), and "Did they get back to
+ * you?" two days after sending.
  */
 export default function MyInquiriesScreen() {
   const { t, locale } = useLocale();
@@ -92,6 +168,14 @@ export default function MyInquiriesScreen() {
               <AppText color="text2">
                 {t('myInquiries.askedOn', { date: formatDate(item.created_at.slice(0, 10)) })}
               </AppText>
+              {item.vendor && (
+                <FollowUp
+                  inquiryId={item.id}
+                  vendorName={vendorName}
+                  answer={item.reply_answer as ReplyAnswer | null}
+                  due={item.followUpDue}
+                />
+              )}
               {item.vendor && (
                 <View style={styles.actions}>
                   <Button
@@ -182,5 +266,17 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+  },
+  followUp: {
+    gap: Spacing.sm,
+    marginTop: Spacing.sm,
+    padding: Spacing.md,
+    borderRadius: Radius.chip,
+    backgroundColor: Colors.bg,
+  },
+  answered: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
   },
 });

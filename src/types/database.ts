@@ -357,6 +357,8 @@ export type Database = {
           message: string;
           preferred_contact: string;
           provider_message_id: string | null;
+          reply_answer: string | null;
+          reply_answered_at: string | null;
           sender_email: string | null;
           sender_name: string | null;
           sender_phone: string | null;
@@ -380,6 +382,8 @@ export type Database = {
           message: string;
           preferred_contact: string;
           provider_message_id?: string | null;
+          reply_answer?: string | null;
+          reply_answered_at?: string | null;
           sender_email?: string | null;
           sender_name?: string | null;
           sender_phone?: string | null;
@@ -403,6 +407,8 @@ export type Database = {
           message?: string;
           preferred_contact?: string;
           provider_message_id?: string | null;
+          reply_answer?: string | null;
+          reply_answered_at?: string | null;
           sender_email?: string | null;
           sender_name?: string | null;
           sender_phone?: string | null;
