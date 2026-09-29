@@ -11,12 +11,14 @@ import {
   Nunito_800ExtraBold,
   useFonts,
 } from '@expo-google-fonts/nunito';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
 import { Colors } from '@/constants/theme';
+import { queryClient } from '@/data/query-client';
 import { SessionProvider } from '@/features/auth/session';
 import { LocaleProvider } from '@/i18n/locale-context';
 
@@ -47,14 +49,18 @@ export default function RootLayout() {
   }
 
   return (
-    <LocaleProvider>
-      <SessionProvider>
-        <StatusBar style="dark" />
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Colors.bg } }}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="sign-in" options={{ presentation: 'modal' }} />
-        </Stack>
-      </SessionProvider>
-    </LocaleProvider>
+    <QueryClientProvider client={queryClient}>
+      <LocaleProvider>
+        <SessionProvider>
+          <StatusBar style="dark" />
+          <Stack
+            screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Colors.bg } }}
+          >
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="sign-in" options={{ presentation: 'modal' }} />
+          </Stack>
+        </SessionProvider>
+      </LocaleProvider>
+    </QueryClientProvider>
   );
 }
