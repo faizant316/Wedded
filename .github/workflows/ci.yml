@@ -48,8 +48,10 @@ jobs:
         run: |
           supabase test db | tee test-output.txt
           grep -q '^Result: PASS' test-output.txt
+      # Our schemas only: extensions like PostGIS ship their own functions
+      # that the linter flags
       - name: Lint database functions
-        run: supabase db lint --local --fail-on warning
+        run: supabase db lint --local --schema public,private --fail-on warning
       - name: Security and performance advisors
         run: supabase db advisors --local --fail-on warn
       - name: Generated types match the schema
