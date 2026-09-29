@@ -109,24 +109,24 @@ Add ideas any time during Phases 1 to 4. No checking or buying until Phase 5.
 - [x] Store event and category names so they can be translated (English and Punjabi) (Kirat)
 - [x] Add vendor base location and service radius; hide street addresses for home-based vendors (Kirat)
 - [x] Build signup and login (email or phone) (Kirat; email code now, phone after the LLC)
-- [ ] Build the user profile: name, city, state, country, 18+ confirmation
+- [x] Build the user profile: name, city, state, country, 18+ confirmation (Kirat; name, city, phone and 18+, email from sign-in; state and country left out to keep signup short)
 - [x] Build in-app account deletion (required by Apple) (Kirat)
 - [x] Write row level security rules in Supabase (Kirat; covered by the pgTAP tests in CI)
 
 ### Step 2: Navigation and Home
-- [ ] Bottom tabs: Home, Search, Saved, Profile
-- [ ] Home organized by event (roka, mehndi, jaago, anand karaj, reception, and more)
-- [ ] Event page shows the vendor categories for that event
+- [x] Bottom tabs: Home, Search, Saved, Profile (Kirat)
+- [x] Home organized by event (roka, mehndi, jaago, anand karaj, reception, and more) (Kirat; vendor types first, then events)
+- [x] Event page shows the vendor categories for that event (Kirat)
 
 ### Step 3: Search and Results
-- [ ] Search by category and location
-- [ ] Use phone location or a typed city or zip
-- [ ] Sort results by distance
-- [ ] Results show vendor photo, name, category, and city
+- [x] Search by category and location (Kirat)
+- [x] Use phone location or a typed city or zip (Kirat; phone location snaps to the nearest city)
+- [x] Sort results by distance (Kirat)
+- [x] Results show vendor photo, name, category, and city (Kirat)
 
 ### Step 4: Vendor Profiles
-- [ ] Instagram-style layout: cover photo, photo and video grid, bio, address, phone, email, Instagram link, optional "starting at" price
-- [ ] Action buttons: Call, Text, Open Instagram, Get Directions, Save, Send Inquiry
+- [x] Instagram-style layout: cover photo, photo and video grid, bio, address, phone, email, Instagram link, optional "starting at" price (Kirat; photos now, video later; email stays private and families reach it through the inquiry form)
+- [x] Action buttons: Call, Text, Open Instagram, Get Directions, Save, Send Inquiry (Kirat; also WhatsApp and Book a tour)
 
 ### Step 5: Inquiries and Saved Vendors
 - [x] Inquiry form: event type, date, guest count, message (Kirat)
@@ -140,7 +140,7 @@ Add ideas any time during Phases 1 to 4. No checking or buying until Phase 5.
 ---
 
 ## Phase 4: Test with Sample Vendors
-- [ ] Create 20 to 30 fake sample vendors across all major categories (made-up names, our own or stock photos)
+- [x] Create 20 to 30 fake sample vendors across all major categories (made-up names, our own or stock photos) (Kirat; 25 in `supabase/seed.sql`, labelled placeholder photos from `npm run photos:samples`)
 - [ ] Test every flow on Kirat's phone: signup, browse by event, search, vendor profile, save, inquiry, account deletion
 - [ ] Test every flow on Fezy's phone
 - [ ] Log every bug on the task board

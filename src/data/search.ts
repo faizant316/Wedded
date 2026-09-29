@@ -5,7 +5,7 @@
  * covers the searcher. Without a point it still returns results, with no
  * distance.
  */
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
 import type { PriceUnit } from '@/components/vendor-card';
 import { asLocalizedText, type LocalizedText } from '@/i18n/localized';
@@ -116,10 +116,18 @@ export async function searchVendors(params: VendorSearch): Promise<VendorResult[
 }
 
 /** Search results for a results list; refetches when any parameter changes. */
-export function useVendorSearch(params: VendorSearch, options?: { enabled?: boolean }) {
+export function useVendorSearch(
+  params: VendorSearch,
+  options?: {
+    enabled?: boolean;
+    /** Keep showing the last results while new ones load (search as you type). */
+    keepPrevious?: boolean;
+  },
+) {
   return useQuery({
     queryKey: searchKeys.search(params),
     queryFn: () => searchVendors(params),
     enabled: options?.enabled ?? true,
+    placeholderData: options?.keepPrevious ? keepPreviousData : undefined,
   });
 }
