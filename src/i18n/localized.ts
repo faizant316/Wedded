@@ -7,6 +7,21 @@ import type { Locale } from './index';
  */
 export type LocalizedText = { en: string; pa?: string };
 
+/**
+ * A jsonb value from the database as LocalizedText, or null if it isn't one
+ * (a missing optional column, or a malformed row that shouldn't crash a screen).
+ */
+export function asLocalizedText(value: unknown): LocalizedText | null {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return null;
+  }
+  const { en, pa } = value as Record<string, unknown>;
+  if (typeof en !== 'string') {
+    return null;
+  }
+  return typeof pa === 'string' ? { en, pa } : { en };
+}
+
 /** The text in the given language, falling back to English when Punjabi is missing or blank. */
 export function localized(text: LocalizedText, locale: Locale): string {
   if (locale === 'pa' && text.pa?.trim()) {

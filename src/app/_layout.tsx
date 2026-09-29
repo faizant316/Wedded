@@ -11,12 +11,14 @@ import {
   Nunito_800ExtraBold,
   useFonts,
 } from '@expo-google-fonts/nunito';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
 import { Colors } from '@/constants/theme';
+import { queryClient } from '@/data/query-client';
 import { LocaleProvider } from '@/i18n/locale-context';
 
 SplashScreen.preventAutoHideAsync();
@@ -46,11 +48,13 @@ export default function RootLayout() {
   }
 
   return (
-    <LocaleProvider>
-      <StatusBar style="dark" />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Colors.bg } }}>
-        <Stack.Screen name="(tabs)" />
-      </Stack>
-    </LocaleProvider>
+    <QueryClientProvider client={queryClient}>
+      <LocaleProvider>
+        <StatusBar style="dark" />
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Colors.bg } }}>
+          <Stack.Screen name="(tabs)" />
+        </Stack>
+      </LocaleProvider>
+    </QueryClientProvider>
   );
 }
