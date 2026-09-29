@@ -12,10 +12,12 @@ import { BorderWidth, Colors, Radius, Sizes, Spacing } from '@/constants/theme';
 
 export type ChipProps = Omit<PressableProps, 'children' | 'style'> & {
   label: string;
-  selected: boolean;
+  /** Ignored for role 'button'. */
+  selected?: boolean;
   /** 'checkbox' when several chips in a row can be on (the default); 'radio'
-   * when picking one turns the others off. Screen readers announce the difference. */
-  role?: 'checkbox' | 'radio';
+   * when picking one turns the others off; 'button' when the chip goes
+   * somewhere instead of toggling. Screen readers announce the difference. */
+  role?: 'checkbox' | 'radio' | 'button';
   style?: StyleProp<ViewStyle>;
 };
 
@@ -24,12 +26,13 @@ export type ChipProps = Omit<PressableProps, 'children' | 'style'> & {
 const HIT_SLOP = (Sizes.tapTarget - Sizes.chip) / 2;
 
 /**
- * A selectable pill. Selected chips get a tick as well as a colour change, so
- * colour is never the only signal. Labels wrap rather than clip.
+ * A pill: selectable, or a plain button (role 'button'). Selected chips get a
+ * tick as well as a colour change, so colour is never the only signal. Labels
+ * wrap rather than clip.
  */
 export function Chip({
   label,
-  selected,
+  selected: selectedProp = false,
   role = 'checkbox',
   disabled,
   style,
@@ -37,15 +40,18 @@ export function Chip({
   ...rest
 }: ChipProps) {
   const scale = useFontScale('label');
+  const selected = role !== 'button' && selectedProp;
 
   return (
     <Pressable
       accessibilityRole={role}
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={
-        role === 'radio'
-          ? { selected, disabled: !!disabled }
-          : { checked: selected, disabled: !!disabled }
+        role === 'button'
+          ? { disabled: !!disabled }
+          : role === 'radio'
+            ? { selected, disabled: !!disabled }
+            : { checked: selected, disabled: !!disabled }
       }
       disabled={disabled}
       hitSlop={{ top: HIT_SLOP, bottom: HIT_SLOP }}

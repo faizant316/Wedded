@@ -36,6 +36,7 @@ export default function HomeScreen() {
   }
 
   const openSearch = () => router.navigate('/search');
+  const startTyping = () => router.navigate({ pathname: '/search', params: { focus: '1' } });
 
   return (
     <Screen>
@@ -57,7 +58,7 @@ export default function HomeScreen() {
           <LanguageToggle />
         </View>
 
-        <SearchButton onPress={openSearch} />
+        <SearchButton onPress={startTyping} />
 
         <AppText variant="title" accessibilityRole="header" style={styles.browse}>
           {t('home.browseByEvent')}
