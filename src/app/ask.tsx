@@ -29,6 +29,7 @@ import {
   type VenueAnswers,
 } from '@/features/inquiry/details';
 import {
+  eventChips,
   formatDate,
   fromDateString,
   GUEST_BANDS,
@@ -59,6 +60,10 @@ export default function AskScreen() {
   const sending = useSendInquiry();
 
   const [eventSlugs, setEventSlugs] = useState<string[]>(params.event ? [params.event] : []);
+  // Chips for the event they came from and the vendor's events show first;
+  // the rest wait behind "Other events". Fixed at open, so chips don't jump.
+  const [firstEvents] = useState<string[]>(params.event ? [params.event] : []);
+  const [showAllEvents, setShowAllEvents] = useState(false);
   const [date, setDate] = useState<string | null>(null);
   const [dateUnsure, setDateUnsure] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -77,6 +82,12 @@ export default function AskScreen() {
 
   const allEvents = events.data?.flatMap((section) => section.events) ?? [];
   const chosenEvents = allEvents.filter((event) => eventSlugs.includes(event.slug));
+  const eventChoices = eventChips(
+    allEvents,
+    firstEvents,
+    vendor.data?.eventSlugs ?? [],
+    showAllEvents,
+  );
   const suggested = suggestedMessage(t, locale, {
     events: chosenEvents.map((event) => event.name),
     date: dateUnsure ? null : date,
@@ -234,7 +245,7 @@ export default function AskScreen() {
 
         <Section title={t('inquiry.whichEvent')}>
           <View style={styles.chips}>
-            {allEvents.map((event) => (
+            {eventChoices.shown.map((event) => (
               <Chip
                 key={event.slug}
                 label={localized(event.name, locale)}
@@ -254,6 +265,14 @@ export default function AskScreen() {
               onPress={() => change(setEventSlugs)([])}
             />
           </View>
+          {eventChoices.hasMore && (
+            <Button
+              variant="text"
+              icon="chevron-down"
+              label={t('inquiry.otherEvents')}
+              onPress={() => setShowAllEvents(true)}
+            />
+          )}
         </Section>
 
         <Section title={t('inquiry.date')}>
