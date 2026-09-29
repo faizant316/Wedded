@@ -151,6 +151,7 @@ export default function ResultsScreen() {
             city={item.city}
             distanceMiles={item.distanceMiles}
             startingPrice={item.startingPrice}
+            photoUrl={item.photoUrl}
             foundingNumber={item.foundingNumber}
             travelsToYou={item.withinSearchRadius === false}
             saved={savedIds.has(item.id)}
