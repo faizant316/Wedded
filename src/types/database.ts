@@ -566,6 +566,65 @@ export type Database = {
           },
         ];
       };
+      vendor_leads: {
+        Row: {
+          business_name: string;
+          category: string | null;
+          city: string;
+          claimed_vendor_id: string | null;
+          contact_name: string;
+          created_at: string;
+          id: string;
+          instagram_handle: string | null;
+          kind: string;
+          language: string;
+          note: string | null;
+          phone: string;
+          status: string;
+          updated_at: string;
+        };
+        Insert: {
+          business_name: string;
+          category?: string | null;
+          city: string;
+          claimed_vendor_id?: string | null;
+          contact_name: string;
+          created_at?: string;
+          id?: string;
+          instagram_handle?: string | null;
+          kind?: string;
+          language?: string;
+          note?: string | null;
+          phone: string;
+          status?: string;
+          updated_at?: string;
+        };
+        Update: {
+          business_name?: string;
+          category?: string | null;
+          city?: string;
+          claimed_vendor_id?: string | null;
+          contact_name?: string;
+          created_at?: string;
+          id?: string;
+          instagram_handle?: string | null;
+          kind?: string;
+          language?: string;
+          note?: string | null;
+          phone?: string;
+          status?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'vendor_leads_claimed_vendor_id_fkey';
+            columns: ['claimed_vendor_id'];
+            isOneToOne: false;
+            referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       vendor_links: {
         Row: {
           confirmed_by_both: boolean | null;
