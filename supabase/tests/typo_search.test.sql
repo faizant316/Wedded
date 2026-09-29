@@ -5,7 +5,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(8);
+select plan(9);
 
 insert into public.vendors (id, slug, status, name, city, location) values
   ('40000000-0000-4000-8000-000000000001', 'qq-quorvex-sweets', 'published', 'Qq Quorvex Sweets',
@@ -66,6 +66,15 @@ select is(
   (select count(*)::int from public.search_vendors(query => 'q_')),
   0,
   'An _ in the query is matched literally'
+);
+
+reset role;
+set local role service_role;
+
+select is(
+  (select count(*)::int from public.search_vendors(query => 'quorvx')),
+  1,
+  'Server tools (the service role) can search too'
 );
 
 select * from finish();
