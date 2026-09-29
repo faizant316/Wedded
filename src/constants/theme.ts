@@ -43,6 +43,7 @@ export const Radius = {
   button: 14,
   chip: 22,
   sheet: 20,
+  checkbox: 6,
   circle: 999,
 } as const;
 
@@ -50,10 +51,21 @@ export const Radius = {
 export const Sizes = {
   tapTarget: 48,
   button: 56,
-  chip: 44,
+  input: 56, // text fields and the checkbox row
+  chip: 44, // visual height; a hit slop tops the tap target up to 48
+  checkbox: 28,
   tabBar: 64,
   tabIcon: 26,
+  icon: 24,
+  iconSmall: 20,
+  iconLarge: 48,
   pageGutter: 16,
+} as const;
+
+export const BorderWidth = {
+  hairline: 1, // cards and dividers
+  control: 1.5, // chip and pill outlines
+  strong: 2, // text fields, checkboxes, secondary buttons
 } as const;
 
 /**

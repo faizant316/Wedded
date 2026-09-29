@@ -28,5 +28,10 @@
   },
   "common": {
     "comingSoon": "Coming soon"
+  },
+  "states": {
+    "loading": "Loading…",
+    "error": "Something went wrong. Check your internet, then tap Try again.",
+    "tryAgain": "Try again"
   }
 }
