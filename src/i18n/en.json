@@ -20,6 +20,16 @@
     "allCategories": "See all categories A to Z",
     "empty": "Events will show here soon."
   },
+  "event": {
+    "needsTitle": "Vendors you'll need",
+    "essential": "Essential",
+    "niceToHave": "Nice to have",
+    "notFound": "We couldn't find that event."
+  },
+  "results": {
+    "forEvent": "For {{event}}",
+    "empty": "No vendors are listed here yet."
+  },
   "search": {
     "placeholder": "Search dhol, mehndi, halls…"
   },
@@ -53,7 +63,9 @@
     }
   },
   "common": {
-    "comingSoon": "Coming soon"
+    "comingSoon": "Coming soon",
+    "back": "Back",
+    "goHome": "Go to Home"
   },
   "states": {
     "loading": "Loading…",

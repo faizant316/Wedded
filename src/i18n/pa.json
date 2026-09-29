@@ -20,6 +20,16 @@
     "allCategories": "ਸਾਰੀਆਂ ਸ਼੍ਰੇਣੀਆਂ ਦੇਖੋ",
     "empty": "ਸਮਾਗਮ ਜਲਦੀ ਇੱਥੇ ਦਿਸਣਗੇ।"
   },
+  "event": {
+    "needsTitle": "ਤੁਹਾਨੂੰ ਲੋੜੀਂਦੇ ਵੈਂਡਰ",
+    "essential": "ਜ਼ਰੂਰੀ",
+    "niceToHave": "ਹੋਵੇ ਤਾਂ ਚੰਗਾ",
+    "notFound": "ਸਾਨੂੰ ਇਹ ਸਮਾਗਮ ਨਹੀਂ ਮਿਲਿਆ।"
+  },
+  "results": {
+    "forEvent": "{{event}} ਲਈ",
+    "empty": "ਹਾਲੇ ਇੱਥੇ ਕੋਈ ਵੈਂਡਰ ਨਹੀਂ।"
+  },
   "search": {
     "placeholder": "ਢੋਲ, ਮਹਿੰਦੀ, ਹਾਲ ਲੱਭੋ…"
   },
@@ -53,7 +63,9 @@
     }
   },
   "common": {
-    "comingSoon": "ਜਲਦੀ ਆ ਰਿਹਾ ਹੈ"
+    "comingSoon": "ਜਲਦੀ ਆ ਰਿਹਾ ਹੈ",
+    "back": "ਪਿੱਛੇ",
+    "goHome": "ਘਰ ਜਾਓ"
   },
   "states": {
     "loading": "ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ…",
