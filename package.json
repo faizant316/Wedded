@@ -67,7 +67,7 @@
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
     "photos:upload": "tsx scripts/upload-vendor-photos.ts",
-    "photos:samples": "tsx scripts/upload-vendor-photos.ts --samples",
+    "photos:samples": "tsx scripts/upload-vendor-photos.ts --samples --local",
     "vendors:import": "tsx scripts/import-vendors.ts",
     "db:types": "supabase gen types typescript --local > src/types/database.ts && prettier --write src/types/database.ts",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json}\"",

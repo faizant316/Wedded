@@ -4,7 +4,7 @@
  * same tool later ingests real founding vendors).
  *
  *   npm run photos:upload -- <folder> [--local]
- *   npm run photos:samples
+ *   npm run photos:samples                       (local; npm run photos:upload -- --samples for hosted)
  *
  * <folder> has one subfolder per vendor slug with .jpg, .jpeg, .png or .webp
  * files. Files are sorted by name; a file named cover.* (or the first file,
@@ -19,8 +19,9 @@
  *
  * --local uses the local Supabase (`supabase status`). Otherwise set
  * SUPABASE_URL and SUPABASE_SECRET_KEY (the service role key; never commit it).
- * --samples (local only) makes labelled placeholder photos for the sample
- * vendors, with some tagged at Royal Orchard for "Real weddings here".
+ * --samples makes labelled placeholder photos for the sample vendors, with
+ * some tagged at a venue for its "Real weddings here": Royal Orchard, or
+ * --venue=<slug> (e.g. the real hall for the demo).
  */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -213,7 +214,14 @@ async function placeholder(name: string, caption: string, variant: number): Prom
   return sharp(Buffer.from(svg)).jpeg({ quality: 85 }).toBuffer();
 }
 
-async function uploadSamples(supabase: SupabaseClient) {
+async function uploadSamples(supabase: SupabaseClient, venueSlug: string) {
+  const { data: venue } = await supabase
+    .from('vendors')
+    .select('name')
+    .eq('slug', venueSlug)
+    .maybeSingle();
+  if (!venue) fail(`No vendor with the slug "${venueSlug}" for --venue.`);
+
   const { data: vendors, error } = await supabase
     .from('vendors')
     .select('slug, name')
@@ -221,30 +229,22 @@ async function uploadSamples(supabase: SupabaseClient) {
     .order('slug');
   if (error) fail(`Could not read sample vendors: ${error.message}`);
 
-  // Photos other vendors took at Royal Orchard, for its "Real weddings here"
-  const atRoyalOrchard: Record<string, Tags> = {
-    'frames-by-jas': {
-      event: 'reception',
-      venue: 'royal-orchard-banquet-hall',
-      credit: 'frames-by-jas',
-    },
-    'marigold-stage-decor': {
-      event: 'reception',
-      venue: 'royal-orchard-banquet-hall',
-      credit: 'frames-by-jas',
-    },
-    'valley-beats-dj': { event: 'jaago', venue: 'royal-orchard-banquet-hall' },
+  // Photos other vendors took at the venue, for its "Real weddings here"
+  const atVenue: Record<string, Tags> = {
+    'frames-by-jas': { event: 'reception', venue: venueSlug, credit: 'frames-by-jas' },
+    'marigold-stage-decor': { event: 'reception', venue: venueSlug, credit: 'frames-by-jas' },
+    'valley-beats-dj': { event: 'jaago', venue: venueSlug },
   };
 
   for (const [index, vendor] of vendors.entries()) {
     const photos: Photo[] = [];
     for (let n = 1; n <= 3; n += 1) {
-      const venueTags = n === 2 ? atRoyalOrchard[vendor.slug as string] : undefined;
+      const venueTags = n === 2 ? atVenue[vendor.slug as string] : undefined;
       photos.push({
         fileName: `sample-${n}.jpg`,
         data: await placeholder(
           vendor.name as string,
-          venueTags ? 'At Royal Orchard' : `Photo ${n}`,
+          venueTags ? `At ${venue.name as string}` : `Photo ${n}`,
           index + n,
         ),
         tags: venueTags ?? {},
@@ -258,13 +258,16 @@ async function uploadSamples(supabase: SupabaseClient) {
 async function main() {
   const args = process.argv.slice(2);
   const samples = args.includes('--samples');
-  const local = samples || args.includes('--local');
+  const local = args.includes('--local');
+  const venueSlug =
+    args.find((arg) => arg.startsWith('--venue='))?.slice('--venue='.length) ??
+    'royal-orchard-banquet-hall';
   const folder = args.find((arg) => !arg.startsWith('--'));
   const supabase = connect(local);
 
   if (samples) {
     console.log('Uploading placeholder photos for the sample vendors…');
-    await uploadSamples(supabase);
+    await uploadSamples(supabase, venueSlug);
   } else {
     if (!folder) fail('Usage: npm run photos:upload -- <folder> [--local]');
     for (const [slug, photos] of readFolder(folder)) {

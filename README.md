@@ -66,7 +66,7 @@ Everything is checked before anything is saved, and each problem is explained. R
 
 ### Vendor photos
 
-`npm run photos:samples` gives every sample vendor three labelled placeholder photos on your local database (run it after `npm run db:reset`, which clears them). To add real photos, put them in a folder with one subfolder per vendor slug:
+`npm run photos:samples` gives every sample vendor three labelled placeholder photos on your local database (run it after `npm run db:reset`, which clears them). Three of them are tagged at Royal Orchard for its "Real weddings here"; add `-- --venue=<slug>` to tag them at another hall instead (the real hall, for the demo). For the hosted database, run `npm run photos:upload -- --samples` with `SUPABASE_URL` and `SUPABASE_SECRET_KEY` set. To add real photos, put them in a folder with one subfolder per vendor slug:
 
 ```
 photos/
