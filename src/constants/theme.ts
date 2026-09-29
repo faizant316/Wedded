@@ -26,6 +26,8 @@ export const Colors = {
   scrim: 'rgba(43, 26, 20, 0.55)',
   onPrimary: '#FFFFFF',
   viewer: '#000000', // full-screen photo viewer background (vision S10)
+  qrDark: '#000000', // QR codes: scanners need true black on white
+  qrLight: '#FFFFFF',
 } as const;
 
 export type ColorToken = keyof typeof Colors;
