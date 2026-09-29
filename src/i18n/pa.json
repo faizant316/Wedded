@@ -53,5 +53,45 @@
       "emailInvalid": "ਆਪਣੀ ਈਮੇਲ ਦੇਖੋ। ਇਹ name@example.com ਵਰਗੀ ਹੋਣੀ ਚਾਹੀਦੀ ਹੈ।",
       "adultRequired": "ਖਾਤਾ ਬਣਾਉਣ ਲਈ ਤੁਹਾਡੀ ਉਮਰ 18 ਸਾਲ ਜਾਂ ਵੱਧ ਹੋਣੀ ਚਾਹੀਦੀ ਹੈ।"
     }
+  },
+  "counts": {
+    "vendorTypes": {
+      "one": "1 ਕਿਸਮ ਦੇ ਵੈਂਡਰ",
+      "other": "{{count}} ਕਿਸਮਾਂ ਦੇ ਵੈਂਡਰ"
+    },
+    "vendors": {
+      "zero": "ਹਾਲੇ ਕੋਈ ਵੈਂਡਰ ਨਹੀਂ",
+      "one": "1 ਵੈਂਡਰ",
+      "other": "{{count}} ਵੈਂਡਰ"
+    },
+    "nearYou": {
+      "zero": "ਹਾਲੇ ਨੇੜੇ ਕੋਈ ਨਹੀਂ",
+      "one": "ਨੇੜੇ 1 ਵੈਂਡਰ",
+      "other": "ਨੇੜੇ {{count}} ਵੈਂਡਰ"
+    }
+  },
+  "vendorCard": {
+    "from": "ਸ਼ੁਰੂਆਤੀ ਕੀਮਤ {{price}}",
+    "fromPer": "ਸ਼ੁਰੂਆਤੀ ਕੀਮਤ {{price}} / {{unit}}",
+    "fromPerSpoken": "ਸ਼ੁਰੂਆਤੀ ਕੀਮਤ {{price}} ਪ੍ਰਤੀ {{unit}}",
+    "miles": {
+      "one": "1 ਮੀਲ",
+      "other": "{{count}} ਮੀਲ"
+    },
+    "milesSpoken": {
+      "one": "1 ਮੀਲ ਦੂਰ",
+      "other": "{{count}} ਮੀਲ ਦੂਰ"
+    },
+    "underOneMile": "1 ਮੀਲ ਤੋਂ ਘੱਟ",
+    "underOneMileSpoken": "1 ਮੀਲ ਤੋਂ ਘੱਟ ਦੂਰ",
+    "units": {
+      "event": "ਸਮਾਗਮ",
+      "hour": "ਘੰਟਾ",
+      "person": "ਵਿਅਕਤੀ",
+      "plate": "ਪਲੇਟ",
+      "hand": "ਹੱਥ",
+      "turban": "ਪੱਗ",
+      "day": "ਦਿਨ"
+    }
   }
 }

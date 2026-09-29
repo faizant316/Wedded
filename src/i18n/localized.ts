@@ -14,3 +14,26 @@ export function localized(text: LocalizedText, locale: Locale): string {
   }
   return text.en;
 }
+
+export type LocalizedLine = { text: string; lang: Locale };
+
+/**
+ * Both scripts for a two-line label: the app language on top, the other one
+ * underneath ("Jaago" over "ਜਾਗੋ", reversed in Punjabi mode). No second line
+ * when there's no Punjabi yet. Pass `lang` to AppText so each line gets its
+ * own font.
+ */
+export function bilingual(
+  text: LocalizedText,
+  locale: Locale,
+): { primary: LocalizedLine; secondary?: LocalizedLine } {
+  const pa = text.pa?.trim() ? text.pa : undefined;
+  if (!pa) {
+    return { primary: { text: text.en, lang: 'en' } };
+  }
+  const en: LocalizedLine = { text: text.en, lang: 'en' };
+  const gurmukhi: LocalizedLine = { text: pa, lang: 'pa' };
+  return locale === 'pa'
+    ? { primary: gurmukhi, secondary: en }
+    : { primary: en, secondary: gurmukhi };
+}
