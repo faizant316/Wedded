@@ -750,7 +750,8 @@
       "languages": "Speaks",
       "founding": "Founding vendor",
       "saved": "Saved by",
-      "replied": "Replies"
+      "replied": "Replies",
+      "menus": "Menus"
     }
   },
   "menus": {
@@ -769,7 +770,8 @@
       "eggless": "Eggless",
       "vegan": "Vegan",
       "gluten_free": "Gluten-free"
-    }
+    },
+    "notFound": "We couldn't find that menu."
   },
   "chat": {
     "title": "Messages",

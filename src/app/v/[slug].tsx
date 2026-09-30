@@ -31,6 +31,7 @@ import { groupIcon } from '@/components/group-icon';
 import { Icon, type IconName } from '@/components/icon';
 import { IconLine } from '@/components/icon-line';
 import { ListRow, ListSection, SectionTitle } from '@/components/list';
+import { MenuCard } from '@/components/menu-card';
 import { NavBar, useNavScroll, useNavTop } from '@/components/nav';
 import { StateView } from '@/components/state-view';
 import { StoryRing } from '@/components/story-ring';
@@ -42,6 +43,7 @@ import { useVendorLinks, type LinkedVendor } from '@/data/vendor-links';
 import { useRealWeddingsAt, useVendorPhotos, type VendorPhoto } from '@/data/vendor-media';
 import { useVendor } from '@/data/vendors';
 import { trackVendorActivity, useVendorPublicStats } from '@/data/vendor-stats';
+import { useVendorMenus } from '@/data/vendor-menus';
 import { ALL_NORCAL_MILES, factLabels, priceLine } from '@/features/vendors/profile-format';
 import { shareVendor } from '@/features/vendors/share';
 import { bilingual, localized, vendorText } from '@/i18n/localized';
@@ -206,6 +208,7 @@ export default function VendorProfileScreen() {
   const vendorId = vendor.data?.id ?? '';
   // "Saved by N families", "Replied to N of M": null until 5+ people are behind them.
   const stats = useVendorPublicStats(vendorId);
+  const menus = useVendorMenus(vendorId);
 
   // One anonymous view per visit (trackVendorActivity de-dupes per session).
   useEffect(() => {
@@ -554,6 +557,22 @@ export default function VendorProfileScreen() {
                 </AppText>
               )}
             </Card>
+          </View>
+        )}
+
+        {/* Caterers' and halls' menus (Town and Country asked for them, 2026-09-30). */}
+        {menus.data && menus.data.length > 0 && (
+          <View style={styles.block}>
+            <SectionTitle>{t('menus.title')}</SectionTitle>
+            {menus.data.map((menu) => (
+              <MenuCard
+                key={menu.id}
+                menu={menu}
+                onPress={() =>
+                  router.push({ pathname: '/menu', params: { vendorId: v.id, menuId: menu.id } })
+                }
+              />
+            ))}
           </View>
         )}
 

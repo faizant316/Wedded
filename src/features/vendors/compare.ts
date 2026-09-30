@@ -4,6 +4,7 @@
  * nobody has anything to say, so halls compare on seats and catering and DJs
  * don't get a wall of blanks.
  */
+import { cheapestMenu, type Menu } from '@/data/vendor-menus';
 import type { VendorProfile } from '@/data/vendors';
 
 import { ALL_NORCAL_MILES, formatTime, priceLine, usd, type Translate } from './profile-format';
@@ -22,12 +23,25 @@ export function compareRows(
   vendors: VendorProfile[],
   t: Translate,
   stats: (CompareStats | undefined)[] = [],
+  menus: (Menu[] | undefined)[] = [],
 ): CompareRow[] {
   const rows: CompareRow[] = [
     {
       key: 'price',
       label: t('compare.rows.price'),
       values: vendors.map((v) => (v.price ? priceLine(v.price, t) : null)),
+    },
+    {
+      key: 'menus',
+      label: t('compare.rows.menus'),
+      values: vendors.map((_, i) => {
+        const cheapest = cheapestMenu(menus[i] ?? []);
+        return cheapest
+          ? t('menus.fromPrice', {
+              amount: `${usd.format(cheapest.amount)} / ${t(`vendorCard.units.${cheapest.unit}`)}`,
+            })
+          : null;
+      }),
     },
     {
       key: 'seats',

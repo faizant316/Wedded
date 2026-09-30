@@ -9,6 +9,7 @@ import { NavScreen } from '@/components/nav';
 import { StateView } from '@/components/state-view';
 import { makeStyles, Radius, Spacing } from '@/constants/theme';
 import { fetchVendorPublicStats } from '@/data/vendor-stats';
+import { fetchVendorMenus } from '@/data/vendor-menus';
 import { useVendors, type VendorProfile } from '@/data/vendors';
 import { compareRows, MAX_COMPARE } from '@/features/vendors/compare';
 import { localized } from '@/i18n/localized';
@@ -39,6 +40,12 @@ export default function CompareScreen() {
       staleTime: 60 * 60 * 1000,
     })),
   });
+  const menus = useQueries({
+    queries: shown.map((vendor) => ({
+      queryKey: ['vendor-menus', vendor.id],
+      queryFn: () => fetchVendorMenus(vendor.id),
+    })),
+  });
   // Very large text: one vendor per line reads better than squeezed columns
   const stacked = useFontScale() > 1.3;
 
@@ -65,6 +72,7 @@ export default function CompareScreen() {
       shown,
       t,
       stats.map((s) => s.data),
+      menus.map((m) => m.data),
     );
     body = (
       <View style={styles.table}>
