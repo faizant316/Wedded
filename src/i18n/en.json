@@ -605,7 +605,9 @@
     "bookedShort": {
       "one": "{{count}} booked",
       "other": "{{count}} booked"
-    }
+    },
+    "guestsTitle": "About how many guests?",
+    "bookedWith": "Booked: {{name}}"
   },
   "filters": {
     "title": "Filters",
@@ -693,7 +695,11 @@
       "one": "Saved by {{count}} family",
       "other": "Saved by {{count}} families"
     },
-    "replied": "Replied to {{replied}} of {{answered}} families who asked"
+    "replied": "Replied to {{replied}} of {{answered}} families who asked",
+    "bookedBy": {
+      "one": "Booked by {{count}} family through Wedded App",
+      "other": "Booked by {{count}} families through Wedded App"
+    }
   },
   "familyShortlist": {
     "title": "Family shortlist",

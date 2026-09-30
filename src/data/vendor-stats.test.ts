@@ -26,17 +26,25 @@ describe('trackVendorActivity', () => {
 describe('fetchVendorPublicStats', () => {
   it('shows nothing below the minimum', async () => {
     mockRpc.mockResolvedValue({
-      data: [{ saved_by: null, replied: null, answered: null }],
+      data: [{ saved_by: null, replied: null, answered: null, booked_by: null }],
       error: null,
     });
-    await expect(fetchVendorPublicStats('v1')).resolves.toEqual({ savedBy: null, replied: null });
+    await expect(fetchVendorPublicStats('v1')).resolves.toEqual({
+      savedBy: null,
+      replied: null,
+      bookedBy: null,
+    });
   });
 
   it('passes the numbers through once there are enough', async () => {
-    mockRpc.mockResolvedValue({ data: [{ saved_by: 12, replied: 9, answered: 11 }], error: null });
+    mockRpc.mockResolvedValue({
+      data: [{ saved_by: 12, replied: 9, answered: 11, booked_by: 6 }],
+      error: null,
+    });
     await expect(fetchVendorPublicStats('v1')).resolves.toEqual({
       savedBy: 12,
       replied: { replied: 9, answered: 11 },
+      bookedBy: 6,
     });
   });
 });

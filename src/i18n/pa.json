@@ -605,7 +605,9 @@
     "bookedShort": {
       "one": "{{count}} ਬੁੱਕ",
       "other": "{{count}} ਬੁੱਕ"
-    }
+    },
+    "guestsTitle": "ਲਗਭਗ ਕਿੰਨੇ ਮਹਿਮਾਨ?",
+    "bookedWith": "ਬੁੱਕ: {{name}}"
   },
   "filters": {
     "title": "ਫਿਲਟਰ",
@@ -693,7 +695,11 @@
       "one": "{{count}} ਪਰਿਵਾਰ ਨੇ ਸੰਭਾਲਿਆ",
       "other": "{{count}} ਪਰਿਵਾਰਾਂ ਨੇ ਸੰਭਾਲਿਆ"
     },
-    "replied": "ਪੁੱਛਣ ਵਾਲੇ {{answered}} ਵਿੱਚੋਂ {{replied}} ਪਰਿਵਾਰਾਂ ਨੂੰ ਜਵਾਬ ਦਿੱਤਾ"
+    "replied": "ਪੁੱਛਣ ਵਾਲੇ {{answered}} ਵਿੱਚੋਂ {{replied}} ਪਰਿਵਾਰਾਂ ਨੂੰ ਜਵਾਬ ਦਿੱਤਾ",
+    "bookedBy": {
+      "one": "Wedded App ਰਾਹੀਂ {{count}} ਪਰਿਵਾਰ ਨੇ ਬੁੱਕ ਕੀਤਾ",
+      "other": "Wedded App ਰਾਹੀਂ {{count}} ਪਰਿਵਾਰਾਂ ਨੇ ਬੁੱਕ ਕੀਤਾ"
+    }
   },
   "familyShortlist": {
     "title": "ਪਰਿਵਾਰ ਦੀ ਚੋਣ",
