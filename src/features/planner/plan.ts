@@ -1,19 +1,23 @@
 /**
- * My Wedding (vision S15b/S15c, the planning board): the wedding date, which
- * events the family is having, and which vendor types are booked for each.
- * Works on the phone with no account. Once it's saved to the account (Plan
- * together, src/data/wedding.ts), this store holds a copy of the account's
- * plan (syncedWeddingId set), so Home and Profile show it without waiting.
+ * My Wedding (vision S15b/S15c, the planning board): the wedding date, the
+ * family's traditions, which events they're having, and which vendor types
+ * are booked for each. Works on the phone with no account. Once it's saved
+ * to the account (Plan together, src/data/wedding.ts), this store holds a
+ * copy of the account's plan (syncedWeddingId set), so Home and Profile show
+ * it without waiting.
  */
 import { useSyncExternalStore } from 'react';
 
 import { readSetting, StorageKeys, writeSetting } from '@/lib/storage';
 
-import type { WeddingPlan } from './plan-helpers';
+import { pickTradition, type WeddingPlan } from './plan-helpers';
 
 export type { WeddingPlan };
 
-const EMPTY: WeddingPlan = { weddingDate: null, events: [], booked: {} };
+const EMPTY: WeddingPlan = { weddingDate: null, traditions: [], events: [], booked: {} };
+
+const strings = (value: unknown): string[] =>
+  Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
 
 function load(): WeddingPlan {
   try {
@@ -22,9 +26,8 @@ function load(): WeddingPlan {
     const parsed = JSON.parse(raw) as Partial<WeddingPlan>;
     return {
       weddingDate: typeof parsed.weddingDate === 'string' ? parsed.weddingDate : null,
-      events: Array.isArray(parsed.events)
-        ? parsed.events.filter((e) => typeof e === 'string')
-        : [],
+      traditions: strings(parsed.traditions),
+      events: strings(parsed.events),
       booked: typeof parsed.booked === 'object' && parsed.booked ? parsed.booked : {},
       guests: typeof parsed.guests === 'object' && parsed.guests ? parsed.guests : {},
       syncedWeddingId: typeof parsed.syncedWeddingId === 'string' ? parsed.syncedWeddingId : null,
@@ -66,6 +69,19 @@ export function toggleEvent(slug: string) {
   }));
 }
 
+/** Adds events (a tradition's main ones, say) without removing any. */
+export function addEvents(slugs: string[]) {
+  update((p) => ({ ...p, events: [...new Set([...p.events, ...slugs])] }));
+}
+
+/** Picks or unpicks a tradition; `current` is what the screen shows (see pickTradition). */
+export function toggleTradition(slug: string, current: string[]) {
+  update((p) => {
+    const picked = pickTradition(p.traditions, current, slug);
+    return picked ? { ...p, traditions: picked } : p;
+  });
+}
+
 export function toggleBooked(eventSlug: string, categorySlug: string) {
   update((p) => {
     const list = p.booked[eventSlug] ?? [];
@@ -101,4 +117,14 @@ export function usePlan(): WeddingPlan {
   return useSyncExternalStore(subscribe, current, () => EMPTY);
 }
 
-export { bookedCount, daysUntil } from './plan-helpers';
+export {
+  activeTraditions,
+  bookedCount,
+  chosenEvents,
+  daysUntil,
+  essentialNeeds,
+  mergedEvents,
+  nextToBook,
+  pickTradition,
+  planProgress,
+} from './plan-helpers';

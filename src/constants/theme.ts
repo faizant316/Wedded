@@ -67,6 +67,13 @@ const light = {
   qrLight: '#FFFFFF',
   desk: '#E8E8ED', // around the phone frame in a computer's browser
   thumb: '#FFFFFF', // the selected half of a segmented control, and a switch's knob
+  // The wedding countdown card, like an Apple Invites card: a maroon-to-rose
+  // gradient under white text (white on the lighter end is 5.9:1).
+  heroFrom: '#8A1C30',
+  heroTo: '#B4335C',
+  onHero: '#FFFFFF',
+  onHero2: 'rgba(255, 255, 255, 0.86)', // secondary text on the card, 4.7:1 on heroTo
+  heroTrack: 'rgba(255, 255, 255, 0.28)', // the empty part of its progress bar
 };
 
 export type Palette = Record<keyof typeof light, string>;
@@ -118,6 +125,11 @@ const dark: Palette = {
   qrLight: '#FFFFFF',
   desk: '#101012',
   thumb: '#636366',
+  heroFrom: '#6E1526',
+  heroTo: '#B8354E', // white on it 5.7:1
+  onHero: '#FFFFFF',
+  onHero2: 'rgba(255, 255, 255, 0.86)',
+  heroTrack: 'rgba(255, 255, 255, 0.24)',
 };
 
 export type Scheme = 'light' | 'dark';

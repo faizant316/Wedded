@@ -107,6 +107,15 @@ const SF_SYMBOLS: Partial<Record<IconName, SFSymbol>> = {
   wifi: 'wifi',
   cellular: 'cellularbars',
   'battery-full': 'battery.100',
+  'gift-outline': 'gift',
+  'diamond-outline': 'diamond',
+  'sunny-outline': 'sun.max',
+  'flame-outline': 'flame',
+  'people-circle-outline': 'person.2.circle',
+  'infinite-outline': 'infinity',
+  'star-outline': 'star',
+  'arrow-forward': 'arrow.right',
+  'pencil-outline': 'pencil',
 };
 
 export type IconProps = {

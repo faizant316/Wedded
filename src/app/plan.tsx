@@ -1,350 +1,420 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 
 import { AppText } from '@/components/app-text';
 import { BilingualName } from '@/components/bilingual-name';
+import { Button } from '@/components/button';
+import { CheckCircle } from '@/components/check-circle';
 import { Chip } from '@/components/chip';
 import { DateField } from '@/components/date-field';
+import { eventIcon } from '@/components/event-icon';
 import { groupIcon } from '@/components/group-icon';
 import { Icon } from '@/components/icon';
 import { SectionTitle } from '@/components/list';
 import { NavScreen } from '@/components/nav';
+import { ProgressBar } from '@/components/progress-bar';
 import { StateView } from '@/components/state-view';
-import { makeStyles, Radius, Sizes, Spacing, useColors } from '@/constants/theme';
-import { useEventNeeds, useHomeEvents } from '@/data/reference';
-import { useWeddingPlan } from '@/data/wedding';
-import { formatDate, GUEST_BANDS } from '@/features/inquiry/inquiry-helpers';
-import { bookedCount, daysUntil } from '@/features/planner/plan';
+import { makeStyles, Radius, Sizes, Spacing, Springs, useColors } from '@/constants/theme';
+import type { EventNeed, EventNeedsSection, TraditionEvent } from '@/data/reference';
+import { GUEST_BANDS } from '@/features/inquiry/inquiry-helpers';
+import { CountdownCard } from '@/features/planner/countdown-card';
 import { FamilyShortlist } from '@/features/planner/family-shortlist';
+import { essentialNeeds } from '@/features/planner/plan';
 import { PlanTogether } from '@/features/planner/plan-together';
-import { bilingual, localized, type LocalizedText } from '@/i18n/localized';
+import { usePlanView } from '@/features/planner/use-plan-view';
+import { localized } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
 import { selectionHaptic, successHaptic } from '@/lib/haptics';
+import { Motion } from '@/lib/motion';
+
+type BookedVendors = Record<string, { slug: string; name: string }>;
 
 /**
- * My Wedding: the countdown to the Anand Karaj, the events the family is
- * having, and for each a checklist of the vendors it needs (essential first)
- * to tick off as they're booked, with a shortcut to find each one. Saved on
- * this phone, or to the account and shared with family (Plan together,
- * src/data/wedding.ts); viewers see the plan but can't change it.
+ * My Wedding: the countdown, then what to book for each of the family's
+ * events (essential first), ticked off as they book and with a shortcut to
+ * find each one. The events themselves are picked in the "Your events"
+ * sheet (/plan-events). Saved on this phone, or to the account and shared
+ * with family (Plan together, src/data/wedding.ts); viewers see the plan but
+ * can't change it.
  */
 export default function PlanScreen() {
   const Colors = useColors();
   const styles = useStyles();
   const { t, locale } = useLocale();
-  const {
-    plan,
-    wedding,
-    canEdit,
-    saveFailed,
-    setWeddingDate,
-    toggleEvent,
-    toggleBooked,
-    setEventGuests,
-  } = useWeddingPlan();
-  const events = useHomeEvents();
-  const allEvents = events.data?.flatMap((section) => section.events) ?? [];
-  const chosen = allEvents.filter((event) => plan.events.includes(event.slug));
-  const days = plan.weddingDate ? daysUntil(plan.weddingDate) : null;
-  const booked = bookedCount(plan);
+  const view = usePlanView();
+  const { plan, wedding, canEdit, saveFailed, active, chosen, needsByEvent, progress } = view;
+
+  // The first event with an essential left to book starts open.
+  const firstOpen =
+    chosen.find((event) => {
+      const booked = plan.booked[event.slug] ?? [];
+      return essentialNeeds(needsByEvent[event.slug]).some(
+        (need) => !booked.includes(need.categorySlug),
+      );
+    })?.slug ?? chosen[0]?.slug;
+  const [open, setOpen] = useState<string[] | null>(null);
+  const openSlugs = open ?? (firstOpen ? [firstOpen] : []);
+  const toggleOpen = (slug: string) =>
+    setOpen(openSlugs.includes(slug) ? openSlugs.filter((s) => s !== slug) : [...openSlugs, slug]);
+
+  const openPicker = () => router.push('/plan-events');
 
   return (
     <NavScreen title={t('planner.title')} subtitle={t('planner.subtitle')}>
       <View style={styles.hero}>
-        {days !== null && plan.weddingDate ? (
-          <>
-            <AppText variant="label" weight={600} color="text2">
-              {days >= 0 ? t('planner.countdownLabel') : t('planner.married')}
-            </AppText>
-            {days >= 0 && (
-              <View style={styles.countRow}>
-                <AppText variant="display" weight={800} color="primary" style={styles.count}>
-                  {String(days)}
-                </AppText>
-                <AppText variant="heading" color="text2">
-                  {t('planner.days', { count: days })}
-                </AppText>
-              </View>
-            )}
-            <AppText variant="bodyLg" weight={600}>
-              {formatDate(plan.weddingDate)}
-            </AppText>
-          </>
-        ) : (
-          <>
-            <Icon name="calendar-outline" size={36} color={Colors.primary} />
-            <AppText variant="heading" weight={700}>
-              {t('planner.whenTitle')}
-            </AppText>
-            <AppText color="text2">{t('planner.whenBody')}</AppText>
-          </>
-        )}
+        <CountdownCard plan={plan} progress={progress} eventsCount={chosen.length} />
         {canEdit && (
           <DateField
             value={plan.weddingDate}
             onChange={(date) => {
               successHaptic();
-              setWeddingDate(date);
+              view.setWeddingDate(date);
             }}
             placeholder={plan.weddingDate ? t('planner.changeDate') : t('planner.pickDate')}
           />
         )}
-        {chosen.length > 0 && (
-          <View style={styles.summary}>
-            <Stat value={booked} label={t('planner.bookedStat', { count: booked })} />
-            <Stat value={chosen.length} label={t('planner.eventsStat', { count: chosen.length })} />
-          </View>
-        )}
       </View>
 
-      <PlanTogether wedding={wedding} />
-      {wedding && <FamilyShortlist weddingId={wedding.id} />}
       {saveFailed && (
         <AppText color="error" style={styles.pad}>
           {t('planTogether.saveFailed')}
         </AppText>
       )}
+      {view.isPending && <StateView state="loading" />}
+      {view.isError && <StateView state="error" onRetry={() => void view.refetch()} />}
 
-      <View style={styles.block}>
-        <SectionTitle>{t('planner.eventsTitle')}</SectionTitle>
-        <AppText color="text2" style={styles.pad}>
-          {t('planner.eventsHint')}
-        </AppText>
-        {events.isPending && <StateView state="loading" />}
-        {events.isError && <StateView state="error" onRetry={() => void events.refetch()} />}
-        <View style={styles.chips}>
-          {allEvents.map((event) => (
-            <Chip
-              key={event.slug}
-              label={localized(event.name, locale)}
-              selected={plan.events.includes(event.slug)}
-              disabled={!canEdit}
-              onPress={() => toggleEvent(event.slug)}
-            />
-          ))}
-        </View>
-      </View>
+      {!view.isPending && !view.isError && chosen.length === 0 && canEdit && (
+        <Animated.View entering={Motion.rise} style={styles.start}>
+          <View style={styles.startIcon}>
+            <Icon name="sparkles-outline" size={28} color={Colors.primary} />
+          </View>
+          <AppText variant="heading" weight={700}>
+            {t('planner.startTitle')}
+          </AppText>
+          <AppText color="text2">{t('planner.startBody')}</AppText>
+          <Button label={t('planner.chooseEvents')} icon="add" onPress={openPicker} />
+        </Animated.View>
+      )}
 
       {chosen.length > 0 && (
         <View style={styles.block}>
-          <SectionTitle>{t('planner.checklistTitle')}</SectionTitle>
-          {chosen.map((event, i) => (
+          <View style={styles.heading}>
+            <View style={styles.titleRow}>
+              <SectionTitle>{t('planner.checklistTitle')}</SectionTitle>
+              {canEdit && (
+                <Pressable
+                  accessibilityRole="button"
+                  hitSlop={12}
+                  onPress={openPicker}
+                  style={({ pressed }) => pressed && styles.pressed}
+                >
+                  <AppText weight={600} color="primary">
+                    {t('planner.editEvents')}
+                  </AppText>
+                </Pressable>
+              )}
+            </View>
+            <AppText variant="label" weight={400} color="text2" style={styles.pad}>
+              {[
+                ...active.map((tradition) => localized(tradition.name, locale)),
+                t('planner.eventsCount', { count: chosen.length }),
+              ].join(' · ')}
+            </AppText>
+          </View>
+          {chosen.map((event) => (
             <EventPlan
               key={event.slug}
-              slug={event.slug}
-              name={event.name}
+              event={event}
+              sections={needsByEvent[event.slug] ?? []}
               booked={plan.booked[event.slug] ?? []}
-              startOpen={i === 0}
-              canEdit={canEdit}
-              onToggleBooked={(category) => toggleBooked(event.slug, category)}
-              guests={plan.guests?.[event.slug] ?? null}
               bookedVendors={wedding?.bookedVendors ?? {}}
-              onGuests={(band) => setEventGuests(event.slug, band)}
+              guests={plan.guests?.[event.slug] ?? null}
+              canEdit={canEdit}
+              open={openSlugs.includes(event.slug)}
+              onToggle={() => toggleOpen(event.slug)}
+              onToggleBooked={(category) => view.toggleBooked(event.slug, category)}
+              onGuests={(band) => view.setEventGuests(event.slug, band)}
             />
           ))}
         </View>
       )}
+
+      <PlanTogether wedding={wedding} />
+      {wedding && <FamilyShortlist weddingId={wedding.id} />}
     </NavScreen>
   );
 }
 
-function Stat({ value, label }: { value: number; label: string }) {
-  const styles = useStyles();
-  return (
-    <View style={styles.stat}>
-      <AppText variant="title" style={styles.tabular}>
-        {String(value)}
-      </AppText>
-      <AppText variant="label" weight={400} color="text2">
-        {label}
-      </AppText>
-    </View>
-  );
-}
-
-/** One event's checklist, folded away until opened. */
+/** One event's checklist; the header opens and closes it. */
 function EventPlan({
-  slug,
-  name,
+  event,
+  sections,
   booked,
-  startOpen,
-  canEdit,
-  onToggleBooked,
-  guests,
-  onGuests,
   bookedVendors,
+  guests,
+  canEdit,
+  open,
+  onToggle,
+  onToggleBooked,
+  onGuests,
 }: {
-  slug: string;
-  name: LocalizedText;
+  event: TraditionEvent;
+  sections: EventNeedsSection[];
   booked: string[];
-  startOpen: boolean;
-  canEdit: boolean;
-  onToggleBooked: (categorySlug: string) => void;
+  bookedVendors: BookedVendors;
   guests: string | null;
+  canEdit: boolean;
+  open: boolean;
+  onToggle: () => void;
+  onToggleBooked: (categorySlug: string) => void;
   onGuests: (band: string | null) => void;
-  bookedVendors: Record<string, { slug: string; name: string }>;
 }) {
   const Colors = useColors();
   const styles = useStyles();
   const { t, locale } = useLocale();
-  const needs = useEventNeeds(slug);
-  const [open, setOpen] = useState(startOpen);
-  const all = needs.data?.flatMap((section) => section.needs) ?? [];
-  const done = all.filter((need) => booked.includes(need.categorySlug)).length;
-  const share = all.length > 0 ? done / all.length : 0;
-  const { primary } = bilingual(name, locale);
+  const reduceMotion = useReducedMotion();
+  const [showNice, setShowNice] = useState(false);
+  const essential = essentialNeeds(sections);
+  const extras = sections.filter((s) => s.importance !== 'essential').flatMap((s) => s.needs);
+  const done = essential.filter((need) => booked.includes(need.categorySlug)).length;
+  const complete = essential.length > 0 && done === essential.length;
+  const name = localized(event.name, locale);
+
+  const turn = useSharedValue(open ? 1 : 0);
+  useEffect(() => {
+    turn.value = reduceMotion ? (open ? 1 : 0) : withSpring(open ? 1 : 0, Springs.snappy);
+  }, [open, reduceMotion, turn]);
+  const chevron = useAnimatedStyle(() => ({ transform: [{ rotate: `${turn.value * 180}deg` }] }));
+
+  const row = (need: EventNeed, isEssential: boolean) => (
+    <NeedRow
+      key={need.categorySlug}
+      need={need}
+      eventSlug={event.slug}
+      booked={booked.includes(need.categorySlug)}
+      bookedWith={bookedVendors[`${event.slug}/${need.categorySlug}`]?.name ?? null}
+      essential={isEssential}
+      canEdit={canEdit}
+      onToggle={() => onToggleBooked(need.categorySlug)}
+    />
+  );
 
   return (
-    <View style={styles.eventCard}>
+    <Animated.View layout={Motion.layout} style={styles.eventCard}>
       <Pressable
         accessibilityRole="button"
         accessibilityState={{ expanded: open }}
-        accessibilityLabel={`${primary.text}, ${t('planner.progress', { done, total: all.length })}`}
-        onPress={() => setOpen((shown) => !shown)}
-        style={({ pressed }) => [styles.eventHead, pressed && styles.pressed]}
+        accessibilityLabel={`${name}, ${t('planner.progress', { done, total: essential.length })}`}
+        onPress={() => {
+          selectionHaptic();
+          onToggle();
+        }}
+        style={({ pressed }) => [styles.eventHead, pressed && styles.headPressed]}
       >
+        <View style={[styles.eventIcon, complete && styles.eventIconDone]}>
+          <Icon
+            name={complete ? 'checkmark' : eventIcon(event.slug)}
+            size={22}
+            color={complete ? Colors.onPrimary : Colors.primary}
+            weight={complete ? 'bold' : 'regular'}
+          />
+        </View>
         <View style={styles.grow}>
-          <BilingualName name={name} variant="bodyLg" weight={600} />
-          <AppText variant="label" weight={400} color="text2">
-            {t('planner.progress', { done, total: all.length })}
-          </AppText>
-          <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: `${share * 100}%` }]} />
+          <BilingualName name={event.name} variant="bodyLg" weight={600} />
+          {event.timing && (
+            <AppText variant="caption" color="text2">
+              {localized(event.timing, locale)}
+            </AppText>
+          )}
+          <View style={styles.progressRow}>
+            <ProgressBar
+              value={essential.length > 0 ? done / essential.length : 0}
+              color={Colors.success}
+              trackColor={Colors.fill}
+              style={styles.grow}
+            />
+            <AppText variant="caption" weight={600} color={complete ? 'success' : 'text2'}>
+              {complete ? t('planner.allBooked') : `${done}/${essential.length}`}
+            </AppText>
           </View>
         </View>
-        <Icon
-          name={open ? 'chevron-up' : 'chevron-down'}
-          size={18}
-          color={Colors.chevron}
-          weight="semibold"
-        />
+        <Animated.View style={chevron}>
+          <Icon name="chevron-down" size={18} color={Colors.chevron} weight="semibold" />
+        </Animated.View>
       </Pressable>
+
       {open && (
-        <View style={styles.guests}>
-          <AppText variant="label" weight={600} color="text2">
-            {t('planner.guestsTitle')}
-          </AppText>
-          <View style={styles.guestChips} accessibilityRole="radiogroup">
-            {GUEST_BANDS.map((band) => (
-              <Chip
-                key={band}
-                role="radio"
-                label={t(`inquiry.guestBands.${band}`)}
-                selected={guests === band}
-                disabled={!canEdit}
-                onPress={() => onGuests(guests === band ? null : band)}
-              />
-            ))}
-          </View>
-        </View>
-      )}
-      {open &&
-        needs.data?.map((section) =>
-          section.needs.map((need) => {
-            const isBooked = booked.includes(need.categorySlug);
-            const needName = localized(need.name, locale);
-            return (
-              <View key={need.categorySlug} style={styles.need}>
-                <Pressable
-                  accessibilityRole="checkbox"
-                  accessibilityState={{ checked: isBooked, disabled: !canEdit }}
-                  accessibilityLabel={t('planner.markBooked', { name: needName })}
+        <Animated.View entering={Motion.enter} exiting={Motion.exit}>
+          <View style={styles.guests}>
+            <AppText variant="label" weight={600} color="text2">
+              {t('planner.guestsTitle')}
+            </AppText>
+            <View style={styles.guestChips} accessibilityRole="radiogroup">
+              {GUEST_BANDS.map((band) => (
+                <Chip
+                  key={band}
+                  role="radio"
+                  label={t(`inquiry.guestBands.${band}`)}
+                  selected={guests === band}
                   disabled={!canEdit}
-                  onPress={() => {
-                    if (isBooked) selectionHaptic();
-                    else successHaptic();
-                    onToggleBooked(need.categorySlug);
-                  }}
-                  hitSlop={8}
-                  style={[styles.check, isBooked && styles.checkOn]}
-                >
-                  {isBooked && (
-                    <Icon name="checkmark" size={16} color={Colors.onPrimary} weight="bold" />
-                  )}
-                </Pressable>
-                <Icon name={groupIcon(need.groupSlug)} size={20} color={Colors.primary} />
-                <View style={styles.grow}>
-                  <AppText style={isBooked ? styles.doneText : undefined}>{needName}</AppText>
-                  {isBooked && bookedVendors[`${slug}/${need.categorySlug}`] && (
-                    <AppText variant="caption" color="success" weight={600}>
-                      {t('planner.bookedWith', {
-                        name: bookedVendors[`${slug}/${need.categorySlug}`].name,
-                      })}
-                    </AppText>
-                  )}
-                  {section.importance === 'essential' && !isBooked && (
-                    <AppText variant="caption" color="kesari" weight={600}>
-                      {t('event.essential')}
-                    </AppText>
-                  )}
-                </View>
-                <Pressable
-                  accessibilityRole="link"
-                  accessibilityLabel={t('planner.find', { name: needName })}
-                  onPress={() =>
-                    router.push({
-                      pathname: '/c/[category]',
-                      params: { category: need.categorySlug, event: slug },
-                    })
-                  }
-                  style={({ pressed }) => [styles.find, pressed && styles.pressed]}
-                >
-                  <AppText variant="label" weight={600} color="primary">
-                    {t('planner.findShort')}
-                  </AppText>
-                </Pressable>
-              </View>
-            );
-          }),
+                  onPress={() => onGuests(guests === band ? null : band)}
+                />
+              ))}
+            </View>
+          </View>
+          {essential.map((need) => row(need, true))}
+          {extras.length > 0 && showNice && (
+            <Animated.View entering={Motion.enter} exiting={Motion.exit}>
+              <AppText variant="label" weight={600} color="text2" style={styles.subhead}>
+                {t('event.niceToHave')}
+              </AppText>
+              {extras.map((need) => row(need, false))}
+            </Animated.View>
+          )}
+          {extras.length > 0 && (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => setShowNice((shown) => !shown)}
+              style={({ pressed }) => [styles.more, pressed && styles.headPressed]}
+            >
+              <AppText weight={600} color="primary">
+                {showNice ? t('planner.showLess') : t('planner.showNice', { count: extras.length })}
+              </AppText>
+              <Icon
+                name={showNice ? 'chevron-up' : 'chevron-down'}
+                size={15}
+                color={Colors.primary}
+                weight="semibold"
+              />
+            </Pressable>
+          )}
+        </Animated.View>
+      )}
+    </Animated.View>
+  );
+}
+
+/** A vendor type to book: tick when booked, Find to look for one. */
+function NeedRow({
+  need,
+  eventSlug,
+  booked,
+  bookedWith,
+  essential,
+  canEdit,
+  onToggle,
+}: {
+  need: EventNeed;
+  eventSlug: string;
+  booked: boolean;
+  /** The vendor's name, when the booking names one. */
+  bookedWith: string | null;
+  essential: boolean;
+  canEdit: boolean;
+  onToggle: () => void;
+}) {
+  const Colors = useColors();
+  const styles = useStyles();
+  const { t, locale } = useLocale();
+  const name = localized(need.name, locale);
+
+  return (
+    <Animated.View layout={Motion.layout} style={styles.need}>
+      <CheckCircle
+        checked={booked}
+        disabled={!canEdit}
+        accessibilityLabel={t('planner.markBooked', { name })}
+        onPress={() => {
+          if (booked) selectionHaptic();
+          else successHaptic();
+          onToggle();
+        }}
+      />
+      <Icon
+        name={groupIcon(need.groupSlug)}
+        size={20}
+        color={booked ? Colors.textDisabled : Colors.primary}
+      />
+      <View style={styles.grow}>
+        <AppText color={booked ? 'text2' : 'text'} style={booked && styles.doneText}>
+          {name}
+        </AppText>
+        {booked && bookedWith && (
+          <AppText variant="caption" color="success" weight={600}>
+            {t('planner.bookedWith', { name: bookedWith })}
+          </AppText>
         )}
-    </View>
+        {essential && !booked && (
+          <AppText variant="caption" color="kesari" weight={600}>
+            {t('event.essential')}
+          </AppText>
+        )}
+      </View>
+      <Pressable
+        accessibilityRole="link"
+        accessibilityLabel={t('planner.find', { name })}
+        hitSlop={6}
+        onPress={() =>
+          router.push({
+            pathname: '/c/[category]',
+            params: { category: need.categorySlug, event: eventSlug },
+          })
+        }
+        style={({ pressed }) => [styles.find, pressed && styles.findPressed]}
+      >
+        <AppText variant="label" weight={600} color="primary">
+          {t('planner.findShort')}
+        </AppText>
+      </Pressable>
+    </Animated.View>
   );
 }
 
 const useStyles = makeStyles((Colors) => ({
   hero: {
-    gap: Spacing.sm,
+    gap: Spacing.md,
+  },
+  start: {
+    gap: Spacing.md,
     padding: Spacing.xl,
     borderRadius: Radius.card,
     borderCurve: 'continuous',
     backgroundColor: Colors.surface,
   },
-  countRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: Spacing.sm,
-  },
-  count: {
-    fontSize: 64,
-    lineHeight: 72,
-    fontVariant: ['tabular-nums'],
-  },
-  summary: {
-    flexDirection: 'row',
-    gap: Spacing.xxl,
-    marginTop: Spacing.sm,
-    paddingTop: Spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: Colors.separator,
-  },
-  stat: {
-    gap: 0,
-  },
-  tabular: {
-    fontVariant: ['tabular-nums'],
+  startIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    borderCurve: 'continuous',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.primaryTint,
   },
   block: {
-    gap: Spacing.lg,
+    gap: Spacing.md,
+  },
+  heading: {
+    gap: Spacing.xs,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.md,
+    paddingRight: Spacing.xs,
   },
   pad: {
     paddingHorizontal: Spacing.xs,
-    marginTop: -Spacing.sm,
   },
-  chips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.sm,
+  pressed: {
+    opacity: 0.5,
   },
   eventCard: {
     borderRadius: Radius.card,
@@ -358,24 +428,59 @@ const useStyles = makeStyles((Colors) => ({
     gap: Spacing.md,
     padding: Spacing.lg,
   },
-  pressed: {
-    opacity: 0.6,
+  headPressed: {
+    backgroundColor: Colors.rowPressed,
+  },
+  eventIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 13,
+    borderCurve: 'continuous',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.primaryTint,
+  },
+  eventIconDone: {
+    backgroundColor: Colors.success,
   },
   grow: {
     flex: 1,
     gap: 2,
   },
-  progressTrack: {
-    height: 6,
+  progressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
     marginTop: Spacing.sm,
-    borderRadius: 3,
-    overflow: 'hidden',
-    backgroundColor: Colors.fill,
   },
-  progressFill: {
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: Colors.success,
+  guests: {
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.md,
+    paddingBottom: Spacing.lg,
+    borderTopWidth: 1,
+    borderTopColor: Colors.separator,
+  },
+  guestChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+  },
+  subhead: {
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.md,
+    paddingBottom: Spacing.xs,
+    borderTopWidth: 1,
+    borderTopColor: Colors.separator,
+  },
+  more: {
+    minHeight: Sizes.tapTarget,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.xs,
+    borderTopWidth: 1,
+    borderTopColor: Colors.separator,
   },
   need: {
     minHeight: Sizes.row,
@@ -387,36 +492,17 @@ const useStyles = makeStyles((Colors) => ({
     borderTopWidth: 1,
     borderTopColor: Colors.separator,
   },
-  check: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: Colors.borderInput,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkOn: {
-    borderColor: Colors.primaryFill,
-    backgroundColor: Colors.primaryFill,
-  },
   doneText: {
-    color: Colors.text2,
     textDecorationLine: 'line-through',
   },
-  guests: {
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.md,
-  },
-  guestChips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.sm,
-  },
   find: {
-    minHeight: Sizes.tapTarget,
+    minHeight: 36,
     justifyContent: 'center',
-    paddingHorizontal: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: Radius.button,
+    backgroundColor: Colors.primaryTint,
+  },
+  findPressed: {
+    opacity: 0.6,
   },
 }));

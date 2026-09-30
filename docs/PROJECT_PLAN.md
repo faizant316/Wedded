@@ -243,7 +243,7 @@ Built in this order.
 6. [ ] AI wedding planner
 7. [ ] Expand to Southern California
 8. [ ] Expand to other states, Canada, and the UK
-9. [ ] Add other cultures with their own events and categories
+9. [ ] Add other cultures with their own events and categories (started 2026-09-30: Punjabi Hindu, Pakistani, Muslim and Arab event sets in My Wedding; new names await review by families from each community)
 
 ---
 

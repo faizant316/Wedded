@@ -28,11 +28,13 @@ const PHASE_HEADINGS: Partial<Record<string, string>> = {
 };
 
 /**
- * S4 Home. Vendor types come first (Venues, Food, Music...), because every
- * vendor has a type but not every vendor lists the events they serve. Events
- * follow as a planning checklist, in ceremony order, grouped by phase.
- * Laid out like an iOS app's first tab: a large title with the language
- * switch in the bar, then inset-grouped lists.
+ * S4 Home, laid out like a planning app rather than a feed: the family's
+ * wedding first (the countdown and the next things to book), then search,
+ * then vendor types (Venues, Food, Music...), because every vendor has a
+ * type but not every vendor lists the events they serve. Real weddings and
+ * founding vendors follow, then events as a checklist in ceremony order,
+ * grouped by phase. A large title with the language switch in the bar, then
+ * inset-grouped lists, like an iOS app's first tab.
  */
 export default function HomeScreen() {
   const Colors = useColors();
@@ -69,19 +71,12 @@ export default function HomeScreen() {
         />
       }
     >
+      <WeddingCard />
+
       <View style={styles.find}>
         <SearchButton onPress={startTyping} />
         <LocationChip />
       </View>
-
-      <WeddingCard />
-
-      {posts.length > 0 && (
-        <View style={styles.block}>
-          <SectionTitle>{t('home.watchStories')}</SectionTitle>
-          <StoriesRow posts={posts} />
-        </View>
-      )}
 
       <View style={styles.block}>
         <SectionTitle>{t('home.browseByType')}</SectionTitle>
@@ -110,6 +105,13 @@ export default function HomeScreen() {
         )}
       </View>
 
+      {posts.length > 0 && (
+        <View style={styles.block}>
+          <SectionTitle>{t('home.watchStories')}</SectionTitle>
+          <StoriesRow posts={posts} />
+        </View>
+      )}
+
       {founding.length > 0 && (
         <View style={styles.block}>
           <View style={styles.titleRow}>
@@ -137,10 +139,13 @@ export default function HomeScreen() {
           <StateView state="empty" icon="calendar-outline" message={t('home.empty')} />
         )}
         {sections?.map((section) => {
+          // Main events only; the rest are a tap away in My Wedding.
+          const main = section.events.filter((event) => event.isCore);
+          if (main.length === 0) return null;
           const heading = PHASE_HEADINGS[section.phase];
           return (
             <ListSection key={section.phase} header={heading ? t(heading) : undefined}>
-              {section.events.map((event) => (
+              {main.map((event) => (
                 <CategoryRow
                   key={event.slug}
                   name={event.name}

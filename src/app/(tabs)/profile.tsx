@@ -41,7 +41,7 @@ export default function ProfileScreen() {
       }
     >
       <Header />
-      <WeddingCard />
+      <WeddingCard compact />
       <SavedGrid />
       <ListSection inset>
         <ListRow
