@@ -139,11 +139,10 @@ select results_eq(
 reset role;
 
 -- The app-wide daily cap has been reached: new inquiries wait in the queue
-update public.app_config set value = to_jsonb((
-  select count(*) from public.inquiries
-  where status in ('sent', 'sending')
-    and (created_at at time zone 'America/Los_Angeles')::date = (now() at time zone 'America/Los_Angeles')::date
-)) where key = 'inquiry_daily_cap';
+-- (using the function's own count, so rows left in a local database can't skew it)
+update public.app_config
+set value = to_jsonb((value #>> '{}')::int - public.inquiry_emails_left_today())
+where key = 'inquiry_daily_cap';
 
 set local role service_role;
 select is(pg_temp.ask('d0000000-0000-4000-8000-00000000000d', 7) ->> 'status', 'queued',
