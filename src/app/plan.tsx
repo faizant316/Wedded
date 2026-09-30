@@ -16,6 +16,7 @@ import { useEventNeeds, useHomeEvents } from '@/data/reference';
 import { useWeddingPlan } from '@/data/wedding';
 import { formatDate } from '@/features/inquiry/inquiry-helpers';
 import { bookedCount, daysUntil } from '@/features/planner/plan';
+import { FamilyShortlist } from '@/features/planner/family-shortlist';
 import { PlanTogether } from '@/features/planner/plan-together';
 import { bilingual, localized, type LocalizedText } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
@@ -90,6 +91,7 @@ export default function PlanScreen() {
       </View>
 
       <PlanTogether wedding={wedding} />
+      {wedding && <FamilyShortlist weddingId={wedding.id} />}
       {saveFailed && (
         <AppText color="error" style={styles.pad}>
           {t('planTogether.saveFailed')}

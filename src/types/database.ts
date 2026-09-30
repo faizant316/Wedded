@@ -1108,6 +1108,45 @@ export type Database = {
           },
         ];
       };
+      wedding_reactions: {
+        Row: {
+          reaction: string;
+          updated_at: string;
+          user_id: string;
+          vendor_id: string;
+          wedding_id: string;
+        };
+        Insert: {
+          reaction: string;
+          updated_at?: string;
+          user_id?: string;
+          vendor_id: string;
+          wedding_id: string;
+        };
+        Update: {
+          reaction?: string;
+          updated_at?: string;
+          user_id?: string;
+          vendor_id?: string;
+          wedding_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'wedding_reactions_vendor_id_fkey';
+            columns: ['vendor_id'];
+            isOneToOne: false;
+            referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'wedding_reactions_wedding_id_fkey';
+            columns: ['wedding_id'];
+            isOneToOne: false;
+            referencedRelation: 'weddings';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       weddings: {
         Row: {
           created_at: string;
@@ -1197,6 +1236,10 @@ export type Database = {
       };
       create_wedding_invite: { Args: { p_role?: string; p_wedding_id: string }; Returns: string };
       inquiry_emails_left_today: { Args: Record<PropertyKey, never>; Returns: number };
+      react_to_vendor: {
+        Args: { p_reaction: string; p_vendor_id: string; p_wedding_id: string };
+        Returns: undefined;
+      };
       remove_wedding_member: {
         Args: { p_user_id: string; p_wedding_id: string };
         Returns: undefined;
@@ -1259,6 +1302,24 @@ export type Database = {
           name: string;
           role: string;
           user_id: string;
+        }[];
+      };
+      wedding_shortlist: {
+        Args: { p_wedding_id: string };
+        Returns: {
+          city: string;
+          event_slugs: string[];
+          loved_by: string[];
+          loves: number;
+          maybes: number;
+          my_reaction: string;
+          name: string;
+          name_pa: string;
+          nos: number;
+          published: boolean;
+          saved_by: string[];
+          slug: string;
+          vendor_id: string;
         }[];
       };
     };

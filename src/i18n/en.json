@@ -671,5 +671,17 @@
       "too_many": "You're already part of 10 wedding plans. Leave one to join this.",
       "failed": "Joining didn't work. Check your internet, then try again."
     }
+  },
+  "familyShortlist": {
+    "title": "Family shortlist",
+    "hint": "Every vendor anyone in the family saved. Tap how you feel about each one.",
+    "empty": "When anyone in the family saves a vendor, it shows up here for everyone.",
+    "savedBy": "Saved by {{names}}",
+    "lovedBy": "{{names}} love it",
+    "reactions": {
+      "love": "Love it",
+      "maybe": "Maybe",
+      "no": "Not for us"
+    }
   }
 }
