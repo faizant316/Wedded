@@ -17,12 +17,15 @@ import { Platform, Share } from 'react-native';
 import { SITE_URL_IS_PLACEHOLDER, siteLink } from '@/constants/links';
 import { useSession } from '@/features/auth/session';
 import {
+  addEvents as addLocalEvents,
   clearPlan,
+  pickTradition,
   replacePlan,
   setEventGuests as setLocalGuests,
   setWeddingDate as setLocalDate,
   toggleBooked as toggleLocalBooked,
   toggleEvent as toggleLocalEvent,
+  toggleTradition as toggleLocalTradition,
   usePlan,
   type WeddingPlan,
 } from '@/features/planner/plan';
@@ -37,6 +40,8 @@ export type AccountWedding = {
   weddingDate: string | null;
   role: WeddingRole;
   joinedAt: string;
+  /** Culture slugs the family picked; empty means the default culture. */
+  traditions: string[];
   events: string[];
   booked: Record<string, string[]>;
   guests: Record<string, string>;
@@ -64,6 +69,7 @@ type MembershipRow = {
     id: string;
     title: string | null;
     wedding_date: string | null;
+    traditions: string[] | null;
     wedding_events: {
       event_slug: string;
       guest_band: string | null;
@@ -97,6 +103,7 @@ export function toAccountWedding(row: MembershipRow): AccountWedding | null {
     weddingDate: row.wedding.wedding_date,
     role: row.role,
     joinedAt: row.joined_at,
+    traditions: row.wedding.traditions ?? [],
     events: row.wedding.wedding_events.map((e) => e.event_slug),
     booked,
     guests,
@@ -115,6 +122,7 @@ export function sortWeddings(weddings: AccountWedding[]): AccountWedding[] {
 export function toPlan(wedding: AccountWedding): WeddingPlan {
   return {
     weddingDate: wedding.weddingDate,
+    traditions: wedding.traditions,
     events: wedding.events,
     booked: wedding.booked,
     guests: wedding.guests,
@@ -126,7 +134,7 @@ async function fetchMyWeddings(userId: string): Promise<AccountWedding[]> {
   const { data, error } = await supabase
     .from('wedding_members')
     .select(
-      'role, joined_at, wedding:weddings(id, title, wedding_date, wedding_events(event_slug, guest_band, wedding_bookings(category_slug, vendor:vendors(slug, name))))',
+      'role, joined_at, wedding:weddings(id, title, wedding_date, traditions, wedding_events(event_slug, guest_band, wedding_bookings(category_slug, vendor:vendors(slug, name))))',
     )
     .eq('user_id', userId)
     .order('joined_at');
@@ -175,7 +183,9 @@ export function WeddingSync() {
 
 export type WeddingChange =
   | { kind: 'date'; date: string | null }
+  | { kind: 'traditions'; slugs: string[] }
   | { kind: 'event'; slug: string; on: boolean }
+  | { kind: 'addEvents'; slugs: string[] }
   | { kind: 'booked'; event: string; category: string; on: boolean }
   | { kind: 'guests'; event: string; band: string | null };
 
@@ -184,6 +194,13 @@ export function applyChange(wedding: AccountWedding, change: WeddingChange): Acc
   switch (change.kind) {
     case 'date':
       return { ...wedding, weddingDate: change.date };
+    case 'traditions':
+      return { ...wedding, traditions: change.slugs };
+    case 'addEvents':
+      return {
+        ...wedding,
+        events: [...wedding.events, ...change.slugs.filter((s) => !wedding.events.includes(s))],
+      };
     case 'event': {
       if (change.on) {
         return wedding.events.includes(change.slug)
@@ -227,6 +244,18 @@ async function saveChange(weddingId: string, change: WeddingChange): Promise<voi
         .from('weddings')
         .update({ wedding_date: change.date })
         .eq('id', weddingId));
+      break;
+    case 'traditions':
+      ({ error } = await supabase
+        .from('weddings')
+        .update({ traditions: change.slugs })
+        .eq('id', weddingId));
+      break;
+    case 'addEvents':
+      ({ error } = await supabase.from('wedding_events').upsert(
+        change.slugs.map((slug) => ({ wedding_id: weddingId, event_slug: slug })),
+        { onConflict: 'wedding_id,event_slug', ignoreDuplicates: true },
+      ));
       break;
     case 'event':
       ({ error } = change.on
@@ -314,7 +343,9 @@ export function useWeddingPlan() {
       canEdit: true,
       saveFailed: false,
       setWeddingDate: setLocalDate,
+      toggleTradition: toggleLocalTradition,
       toggleEvent: toggleLocalEvent,
+      addEvents: addLocalEvents,
       toggleBooked: toggleLocalBooked,
       setEventGuests: setLocalGuests,
     };
@@ -327,8 +358,17 @@ export function useWeddingPlan() {
     canEdit: wedding.role !== 'viewer',
     saveFailed: edit.isError,
     setWeddingDate: (date: string | null) => change({ kind: 'date', date }),
+    /** `current` is what the screen shows (see pickTradition). */
+    toggleTradition: (slug: string, current: string[]) => {
+      const slugs = pickTradition(wedding.traditions, current, slug);
+      if (slugs) change({ kind: 'traditions', slugs });
+    },
     toggleEvent: (slug: string) =>
       change({ kind: 'event', slug, on: !wedding.events.includes(slug) }),
+    addEvents: (slugs: string[]) => {
+      const fresh = slugs.filter((slug) => !wedding.events.includes(slug));
+      if (fresh.length > 0) change({ kind: 'addEvents', slugs: fresh });
+    },
     toggleBooked: (event: string, category: string) =>
       change({
         kind: 'booked',
@@ -359,7 +399,10 @@ export function useStartWedding() {
         p_booked: plan.booked,
       });
       if (error) throw error;
-      // Guest counts per event come across too (best effort)
+      // The traditions and guest counts per event come across too (best effort)
+      if (plan.traditions.length > 0) {
+        await supabase.from('weddings').update({ traditions: plan.traditions }).eq('id', data);
+      }
       await Promise.all(
         Object.entries(plan.guests ?? {})
           .filter(([event]) => plan.events.includes(event))

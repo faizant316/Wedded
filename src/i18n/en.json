@@ -565,43 +565,60 @@
   "planner": {
     "title": "My Wedding",
     "subtitle": "Your date, your events and who's booked",
-    "countdownLabel": "Counting down to the Anand Karaj",
     "married": "Congratulations on the wedding!",
     "days": {
       "one": "day to go",
       "other": "days to go"
     },
-    "daysToGo": {
-      "one": "{{count}} day to go",
-      "other": "{{count}} days to go"
-    },
     "whenTitle": "When is the wedding?",
-    "whenBody": "Set the Anand Karaj date to start the countdown.",
+    "whenBody": "Set the wedding date to start the countdown.",
     "pickDate": "Pick the date",
     "changeDate": "Change the date",
-    "bookedStat": {
-      "one": "booked",
-      "other": "booked"
-    },
-    "eventsStat": {
-      "one": "event",
-      "other": "events"
-    },
-    "eventsTitle": "Your events",
-    "eventsHint": "Tap the events you're having.",
     "checklistTitle": "What to book",
     "progress": "{{done}} of {{total}} booked",
     "markBooked": "{{name}} booked",
     "find": "Find a {{name}}",
     "findShort": "Find",
-    "cardTitle": "Plan your wedding",
-    "cardBody": "Set the date and tick off vendors as you book them",
-    "bookedShort": {
-      "one": "{{count}} booked",
-      "other": "{{count}} booked"
-    },
     "guestsTitle": "About how many guests?",
-    "bookedWith": "Booked: {{name}}"
+    "bookedWith": "Booked: {{name}}",
+    "yourWedding": "Your wedding",
+    "editEvents": "Edit events",
+    "eventsCount": {
+      "one": "{{count}} event",
+      "other": "{{count}} events"
+    },
+    "startTitle": "Which events are you having?",
+    "startBody": "Pick your traditions and events, and we'll list what to book for each one.",
+    "chooseEvents": "Choose your events",
+    "allBooked": "All booked",
+    "nextTitle": "Next to book",
+    "openPlan": "See everything to book",
+    "nothingNext": "Every essential is booked. Nice work!",
+    "pickEventsRow": "Pick your events to see what to book",
+    "startPlanning": "Start planning",
+    "showNice": {
+      "one": "Show {{count}} more, nice to have",
+      "other": "Show {{count}} more, nice to have"
+    },
+    "showLess": "Show less",
+    "picker": {
+      "title": "Your events",
+      "body": "Pick your traditions, then tap the events you're having.",
+      "traditions": "Traditions",
+      "traditionsHint": "Pick all that fit. Mixed weddings are welcome.",
+      "main": "Main events",
+      "addAll": "Add all",
+      "more": "More events",
+      "showMore": {
+        "one": "Show {{count}} more",
+        "other": "Show {{count}} more"
+      },
+      "done": "Done",
+      "picked": {
+        "one": "Done · {{count}} event",
+        "other": "Done · {{count}} events"
+      }
+    }
   },
   "filters": {
     "title": "Filters",

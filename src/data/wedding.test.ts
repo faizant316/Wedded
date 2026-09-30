@@ -17,6 +17,7 @@ const wedding: AccountWedding = {
   weddingDate: '2027-06-12',
   role: 'owner',
   joinedAt: '2026-09-30T08:00:00Z',
+  traditions: [],
   events: ['reception', 'jaago'],
   booked: { reception: ['banquet-hall'] },
   guests: { reception: '250_500' },
@@ -33,6 +34,7 @@ describe('toAccountWedding', () => {
           id: 'w1',
           title: 'Jaspreet & Amrit',
           wedding_date: '2027-06-12',
+          traditions: ['punjabi-sikh', 'pakistani'],
           wedding_events: [
             {
               event_slug: 'reception',
@@ -51,6 +53,7 @@ describe('toAccountWedding', () => {
       weddingDate: '2027-06-12',
       role: 'planner',
       joinedAt: '2026-09-30T08:00:00Z',
+      traditions: ['punjabi-sikh', 'pakistani'],
       events: ['reception', 'jaago'],
       booked: { reception: ['dj'] },
       guests: { reception: '250_500' },
@@ -92,6 +95,17 @@ describe('applyChange', () => {
   it('adds an event once', () => {
     const next = applyChange(wedding, { kind: 'event', slug: 'jaago', on: true });
     expect(next.events).toEqual(['reception', 'jaago']);
+  });
+
+  it('sets the traditions', () => {
+    expect(applyChange(wedding, { kind: 'traditions', slugs: ['arab'] }).traditions).toEqual([
+      'arab',
+    ]);
+  });
+
+  it('adds several events, skipping ones already there', () => {
+    const next = applyChange(wedding, { kind: 'addEvents', slugs: ['jaago', 'mehndi', 'walima'] });
+    expect(next.events).toEqual(['reception', 'jaago', 'mehndi', 'walima']);
   });
 
   it('ticks and unticks a booking', () => {

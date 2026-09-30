@@ -1,91 +1,181 @@
 import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { AppText } from '@/components/app-text';
+import { Button } from '@/components/button';
+import { CheckCircle } from '@/components/check-circle';
+import { groupIcon } from '@/components/group-icon';
 import { Icon } from '@/components/icon';
-import { makeStyles, Radius, Spacing, useColors } from '@/constants/theme';
-import { formatDate } from '@/features/inquiry/inquiry-helpers';
-import { bookedCount, daysUntil, usePlan } from '@/features/planner/plan';
+import { makeStyles, Radius, Sizes, Spacing, useColors } from '@/constants/theme';
+import { CountdownCard } from '@/features/planner/countdown-card';
+import { usePlanView } from '@/features/planner/use-plan-view';
+import { localized } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
+import { selectionHaptic, successHaptic } from '@/lib/haptics';
+import { Motion } from '@/lib/motion';
 
 /**
- * The wedding countdown, like a home-screen widget: "256 days to go" with
- * the date and how much is booked; or, before a date is set, a nudge to plan.
- * Opens My Wedding.
+ * The wedding on Home: the countdown card (opens My Wedding) and under it the
+ * next few essentials to book, each with a tick and Find, so what to book is
+ * one tap from the first screen. Before anything is planned it offers to
+ * start. `compact` is just the countdown (Profile).
  */
-export function WeddingCard() {
+export function WeddingCard({ compact = false }: { compact?: boolean }) {
   const Colors = useColors();
   const styles = useStyles();
-  const { t } = useLocale();
-  const plan = usePlan();
-  const days = plan.weddingDate ? daysUntil(plan.weddingDate) : null;
-  const booked = bookedCount(plan);
-  const counting = days !== null && days >= 0 && plan.weddingDate;
+  const { t, locale } = useLocale();
+  const { plan, chosen, progress, next, isPending, canEdit, toggleBooked } = usePlanView();
+  const openPlan = () => router.push('/plan');
+  const countdown = (
+    <CountdownCard
+      plan={plan}
+      progress={progress}
+      eventsCount={chosen.length}
+      onPress={openPlan}
+      accessibilityLabel={t('planner.title')}
+    />
+  );
+
+  if (compact) return countdown;
 
   return (
-    <Pressable
-      accessibilityRole="button"
-      onPress={() => router.push('/plan')}
-      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
-    >
-      <View style={styles.icon}>
-        <Icon name="calendar-outline" size={24} color={Colors.primary} />
-      </View>
-      <View style={styles.text}>
-        {counting ? (
-          <>
-            <AppText variant="heading" weight={700}>
-              {t('planner.daysToGo', { count: days })}
+    <Animated.View entering={Motion.rise} style={styles.wrap}>
+      {countdown}
+
+      {!isPending && chosen.length === 0 && canEdit && (
+        <View style={styles.panel}>
+          <AppText color="text2">{t('planner.pickEventsRow')}</AppText>
+          <Button
+            label={plan.weddingDate ? t('planner.chooseEvents') : t('planner.startPlanning')}
+            icon="sparkles-outline"
+            onPress={() => router.push(plan.weddingDate ? '/plan-events' : '/plan')}
+          />
+        </View>
+      )}
+
+      {chosen.length > 0 && (
+        <Animated.View layout={Motion.layout} style={[styles.panel, styles.list]}>
+          <AppText variant="label" weight={600} color="text2" style={styles.heading}>
+            {t('planner.nextTitle')}
+          </AppText>
+          {next.length === 0 && (
+            <Animated.View entering={Motion.enter} style={styles.row}>
+              <Icon name="checkmark-circle" size={Sizes.checkbox} color={Colors.success} />
+              <AppText style={styles.grow}>{t('planner.nothingNext')}</AppText>
+            </Animated.View>
+          )}
+          {next.map(({ eventSlug, eventName, need }) => {
+            const name = localized(need.name, locale);
+            return (
+              <Animated.View
+                key={`${eventSlug}:${need.categorySlug}`}
+                layout={Motion.layout}
+                entering={Motion.enter}
+                exiting={Motion.exit}
+                style={styles.row}
+              >
+                <CheckCircle
+                  checked={(plan.booked[eventSlug] ?? []).includes(need.categorySlug)}
+                  disabled={!canEdit}
+                  accessibilityLabel={t('planner.markBooked', { name })}
+                  onPress={() => {
+                    successHaptic();
+                    toggleBooked(eventSlug, need.categorySlug);
+                  }}
+                />
+                <Icon name={groupIcon(need.groupSlug)} size={20} color={Colors.primary} />
+                <View style={styles.grow}>
+                  <AppText weight={500}>{name}</AppText>
+                  <AppText variant="caption" color="text2">
+                    {localized(eventName, locale)}
+                  </AppText>
+                </View>
+                <Pressable
+                  accessibilityRole="link"
+                  accessibilityLabel={t('planner.find', { name })}
+                  hitSlop={6}
+                  onPress={() => {
+                    selectionHaptic();
+                    router.push({
+                      pathname: '/c/[category]',
+                      params: { category: need.categorySlug, event: eventSlug },
+                    });
+                  }}
+                  style={({ pressed }) => [styles.find, pressed && styles.pressed]}
+                >
+                  <AppText variant="label" weight={600} color="primary">
+                    {t('planner.findShort')}
+                  </AppText>
+                </Pressable>
+              </Animated.View>
+            );
+          })}
+          <Pressable
+            accessibilityRole="link"
+            onPress={openPlan}
+            style={({ pressed }) => [styles.row, styles.seeAll, pressed && styles.rowPressed]}
+          >
+            <AppText weight={600} color="primary" style={styles.grow}>
+              {t('planner.openPlan')}
             </AppText>
-            <AppText variant="label" weight={400} color="text2">
-              {[
-                formatDate(plan.weddingDate as string),
-                plan.events.length > 0 ? t('planner.bookedShort', { count: booked }) : null,
-              ]
-                .filter(Boolean)
-                .join(' · ')}
-            </AppText>
-          </>
-        ) : (
-          <>
-            <AppText variant="heading" weight={700}>
-              {t('planner.cardTitle')}
-            </AppText>
-            <AppText variant="label" weight={400} color="text2">
-              {t('planner.cardBody')}
-            </AppText>
-          </>
-        )}
-      </View>
-      <Icon name="chevron-forward" size={17} color={Colors.chevron} weight="semibold" />
-    </Pressable>
+            <Icon name="chevron-forward" size={17} color={Colors.chevron} weight="semibold" />
+          </Pressable>
+        </Animated.View>
+      )}
+    </Animated.View>
   );
 }
 
 const useStyles = makeStyles((Colors) => ({
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  wrap: {
+    gap: Spacing.sm,
+  },
+  panel: {
     gap: Spacing.md,
     padding: Spacing.lg,
     borderRadius: Radius.card,
     borderCurve: 'continuous',
     backgroundColor: Colors.surface,
   },
-  pressed: {
-    opacity: 0.7,
+  list: {
+    gap: 0,
+    paddingVertical: Spacing.xs,
+    paddingHorizontal: 0,
+    overflow: 'hidden',
   },
-  icon: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    borderCurve: 'continuous',
+  heading: {
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.md,
+    paddingBottom: Spacing.xs,
+  },
+  row: {
+    minHeight: Sizes.row,
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm,
+  },
+  seeAll: {
+    borderTopWidth: 1,
+    borderTopColor: Colors.separator,
+    marginTop: Spacing.xs,
+  },
+  rowPressed: {
+    backgroundColor: Colors.rowPressed,
+  },
+  grow: {
+    flex: 1,
+  },
+  find: {
+    minHeight: 36,
     justifyContent: 'center',
+    paddingHorizontal: Spacing.lg,
+    borderRadius: Radius.button,
     backgroundColor: Colors.primaryTint,
   },
-  text: {
-    flex: 1,
-    gap: 2,
+  pressed: {
+    opacity: 0.6,
   },
 }));

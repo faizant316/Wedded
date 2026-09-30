@@ -565,43 +565,60 @@
   "planner": {
     "title": "ਮੇਰਾ ਵਿਆਹ",
     "subtitle": "ਤੁਹਾਡੀ ਤਾਰੀਖ਼, ਤੁਹਾਡੇ ਸਮਾਗਮ ਅਤੇ ਕੌਣ ਬੁੱਕ ਹੈ",
-    "countdownLabel": "ਅਨੰਦ ਕਾਰਜ ਵਿੱਚ ਬਾਕੀ",
     "married": "ਵਿਆਹ ਦੀਆਂ ਬਹੁਤ ਵਧਾਈਆਂ!",
     "days": {
       "one": "ਦਿਨ ਬਾਕੀ",
       "other": "ਦਿਨ ਬਾਕੀ"
     },
-    "daysToGo": {
-      "one": "{{count}} ਦਿਨ ਬਾਕੀ",
-      "other": "{{count}} ਦਿਨ ਬਾਕੀ"
-    },
     "whenTitle": "ਵਿਆਹ ਕਦੋਂ ਹੈ?",
-    "whenBody": "ਗਿਣਤੀ ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਅਨੰਦ ਕਾਰਜ ਦੀ ਤਾਰੀਖ਼ ਚੁਣੋ।",
+    "whenBody": "ਗਿਣਤੀ ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਵਿਆਹ ਦੀ ਤਾਰੀਖ਼ ਚੁਣੋ।",
     "pickDate": "ਤਾਰੀਖ਼ ਚੁਣੋ",
     "changeDate": "ਤਾਰੀਖ਼ ਬਦਲੋ",
-    "bookedStat": {
-      "one": "ਬੁੱਕ",
-      "other": "ਬੁੱਕ"
-    },
-    "eventsStat": {
-      "one": "ਸਮਾਗਮ",
-      "other": "ਸਮਾਗਮ"
-    },
-    "eventsTitle": "ਤੁਹਾਡੇ ਸਮਾਗਮ",
-    "eventsHint": "ਜੋ ਸਮਾਗਮ ਤੁਸੀਂ ਕਰ ਰਹੇ ਹੋ, ਉਹਨਾਂ ਨੂੰ ਛੂਹੋ।",
     "checklistTitle": "ਕੀ ਬੁੱਕ ਕਰਨਾ ਹੈ",
     "progress": "{{total}} ਵਿੱਚੋਂ {{done}} ਬੁੱਕ",
     "markBooked": "{{name}} ਬੁੱਕ",
     "find": "{{name}} ਲੱਭੋ",
     "findShort": "ਲੱਭੋ",
-    "cardTitle": "ਆਪਣੇ ਵਿਆਹ ਦੀ ਤਿਆਰੀ ਕਰੋ",
-    "cardBody": "ਤਾਰੀਖ਼ ਚੁਣੋ ਅਤੇ ਬੁੱਕ ਹੁੰਦੇ ਵੈਂਡਰਾਂ 'ਤੇ ਨਿਸ਼ਾਨ ਲਾਓ",
-    "bookedShort": {
-      "one": "{{count}} ਬੁੱਕ",
-      "other": "{{count}} ਬੁੱਕ"
-    },
     "guestsTitle": "ਲਗਭਗ ਕਿੰਨੇ ਮਹਿਮਾਨ?",
-    "bookedWith": "ਬੁੱਕ: {{name}}"
+    "bookedWith": "ਬੁੱਕ: {{name}}",
+    "yourWedding": "ਤੁਹਾਡਾ ਵਿਆਹ",
+    "editEvents": "ਸਮਾਗਮ ਬਦਲੋ",
+    "eventsCount": {
+      "one": "{{count}} ਸਮਾਗਮ",
+      "other": "{{count}} ਸਮਾਗਮ"
+    },
+    "startTitle": "ਤੁਸੀਂ ਕਿਹੜੇ ਸਮਾਗਮ ਕਰ ਰਹੇ ਹੋ?",
+    "startBody": "ਆਪਣੇ ਰੀਤੀ-ਰਿਵਾਜ ਅਤੇ ਸਮਾਗਮ ਚੁਣੋ, ਅਸੀਂ ਹਰ ਇੱਕ ਲਈ ਦੱਸਾਂਗੇ ਕਿ ਕੀ ਬੁੱਕ ਕਰਨਾ ਹੈ।",
+    "chooseEvents": "ਆਪਣੇ ਸਮਾਗਮ ਚੁਣੋ",
+    "allBooked": "ਸਭ ਬੁੱਕ ਹੈ",
+    "nextTitle": "ਅੱਗੇ ਕੀ ਬੁੱਕ ਕਰਨਾ ਹੈ",
+    "openPlan": "ਬੁੱਕ ਕਰਨ ਵਾਲਾ ਸਭ ਕੁਝ ਦੇਖੋ",
+    "nothingNext": "ਸਾਰੀਆਂ ਜ਼ਰੂਰੀ ਚੀਜ਼ਾਂ ਬੁੱਕ ਹਨ। ਸ਼ਾਬਾਸ਼!",
+    "pickEventsRow": "ਕੀ ਬੁੱਕ ਕਰਨਾ ਹੈ ਦੇਖਣ ਲਈ ਆਪਣੇ ਸਮਾਗਮ ਚੁਣੋ",
+    "startPlanning": "ਤਿਆਰੀ ਸ਼ੁਰੂ ਕਰੋ",
+    "showNice": {
+      "one": "{{count}} ਹੋਰ ਦਿਖਾਓ, ਹੋਵੇ ਤਾਂ ਚੰਗਾ",
+      "other": "{{count}} ਹੋਰ ਦਿਖਾਓ, ਹੋਵੇ ਤਾਂ ਚੰਗਾ"
+    },
+    "showLess": "ਘੱਟ ਦਿਖਾਓ",
+    "picker": {
+      "title": "ਤੁਹਾਡੇ ਸਮਾਗਮ",
+      "body": "ਆਪਣੇ ਰੀਤੀ-ਰਿਵਾਜ ਚੁਣੋ, ਫਿਰ ਉਹ ਸਮਾਗਮ ਛੂਹੋ ਜੋ ਤੁਸੀਂ ਕਰ ਰਹੇ ਹੋ।",
+      "traditions": "ਰੀਤੀ-ਰਿਵਾਜ",
+      "traditionsHint": "ਜਿੰਨੇ ਢੁਕਦੇ ਹਨ, ਸਾਰੇ ਚੁਣੋ। ਮਿਲੇ-ਜੁਲੇ ਵਿਆਹ ਵੀ ਠੀਕ ਹਨ।",
+      "main": "ਮੁੱਖ ਸਮਾਗਮ",
+      "addAll": "ਸਾਰੇ ਜੋੜੋ",
+      "more": "ਹੋਰ ਸਮਾਗਮ",
+      "showMore": {
+        "one": "{{count}} ਹੋਰ ਦਿਖਾਓ",
+        "other": "{{count}} ਹੋਰ ਦਿਖਾਓ"
+      },
+      "done": "ਹੋ ਗਿਆ",
+      "picked": {
+        "one": "ਹੋ ਗਿਆ · {{count}} ਸਮਾਗਮ",
+        "other": "ਹੋ ਗਿਆ · {{count}} ਸਮਾਗਮ"
+      }
+    }
   },
   "filters": {
     "title": "ਫਿਲਟਰ",
