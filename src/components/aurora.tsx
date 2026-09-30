@@ -63,9 +63,9 @@ export function Aurora({ style }: { style?: StyleProp<ViewStyle> }) {
 
   return (
     <View pointerEvents="none" style={[styles.wrap, style]}>
-      <Animated.View style={[styles.blob, styles.left, glow(Colors.auroraMaroon), maroon]} />
-      <Animated.View style={[styles.blob, styles.right, glow(Colors.auroraMarigold), marigold]} />
-      <Animated.View style={[styles.blob, styles.middle, glow(Colors.auroraPink), pink]} />
+      <Animated.View style={[styles.blob, styles.left, glow(Colors.auroraA), maroon]} />
+      <Animated.View style={[styles.blob, styles.right, glow(Colors.auroraB), marigold]} />
+      <Animated.View style={[styles.blob, styles.middle, glow(Colors.auroraC), pink]} />
       <View style={[StyleSheet.absoluteFill, gradient(Colors.auroraFade)]} />
     </View>
   );

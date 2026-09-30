@@ -4,6 +4,8 @@ export const StorageKeys = {
   searchLocation: 'settings.searchLocation',
   /** Settings > Appearance: system, light or dark. */
   appearance: 'settings.appearance',
+  /** Settings > Appearance > Colour: which palette (a preview for the founders). */
+  palette: 'settings.palette',
   /** Settings > Text size: default, large or xlarge. */
   textSize: 'settings.textSize',
   /** Settings > Haptics: "off" turns them off. */
