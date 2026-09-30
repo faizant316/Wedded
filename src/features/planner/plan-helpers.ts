@@ -7,6 +7,8 @@ export type WeddingPlan = {
   events: string[];
   /** Per event, the category slugs they've booked. */
   booked: Record<string, string[]>;
+  /** Per event, about how many guests (the inquiry form's bands), so inquiries fill it in. */
+  guests?: Record<string, string>;
   /**
    * Set when this is a copy of a plan saved to the account (Plan together):
    * the wedding it mirrors. Cleared on sign-out, so the next person on this

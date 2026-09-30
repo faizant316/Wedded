@@ -168,6 +168,10 @@ export function useAnswerFollowUp() {
         .eq('id', inquiryId);
       if (error) throw error;
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: inquiryKeys.all }),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: inquiryKeys.all });
+      // "Yes, we booked them" also books the vendor in a shared plan
+      void queryClient.invalidateQueries({ queryKey: ['weddings'] });
+    },
   });
 }
