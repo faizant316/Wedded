@@ -1,7 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { AccessibilityInfo, RefreshControl, View } from 'react-native';
-import Animated from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown, LinearTransition } from 'react-native-reanimated';
 
 import { AppText } from '@/components/app-text';
 import { Button } from '@/components/button';
@@ -161,25 +161,39 @@ export default function ResultsScreen() {
         keyExtractor={(vendor) => vendor.id}
         onScroll={scroll.onScroll}
         scrollEventThrottle={16}
-        renderItem={({ item }) => (
-          <VendorCard
-            name={item.name}
-            category={item.category ?? categoryName ?? { en: categorySlug }}
-            city={item.city}
-            distanceMiles={item.distanceMiles}
-            startingPrice={item.startingPrice}
-            photoUrl={item.photoUrl}
-            foundingNumber={item.foundingNumber}
-            travelsToYou={item.withinSearchRadius === false}
-            saved={savedIds.has(item.id)}
-            onToggleSave={() => toggleSave(item.id, eventSlug)}
-            onPress={() =>
-              router.push({
-                pathname: '/v/[slug]',
-                params: eventSlug ? { slug: item.slug, event: eventSlug } : { slug: item.slug },
-              })
+        // Cards glide into place when the list changes (a filter, "Widen to 50
+        // mi"), and the first few arrive one after another. Reanimated skips
+        // both when the phone's Reduce Motion is on.
+        itemLayoutAnimation={LinearTransition.springify().damping(24)}
+        renderItem={({ item, index }) => (
+          <Animated.View
+            entering={
+              index < 6
+                ? FadeInDown.delay(index * 50)
+                    .springify()
+                    .damping(20)
+                : FadeIn
             }
-          />
+          >
+            <VendorCard
+              name={item.name}
+              category={item.category ?? categoryName ?? { en: categorySlug }}
+              city={item.city}
+              distanceMiles={item.distanceMiles}
+              startingPrice={item.startingPrice}
+              photoUrl={item.photoUrl}
+              foundingNumber={item.foundingNumber}
+              travelsToYou={item.withinSearchRadius === false}
+              saved={savedIds.has(item.id)}
+              onToggleSave={() => toggleSave(item.id, eventSlug)}
+              onPress={() =>
+                router.push({
+                  pathname: '/v/[slug]',
+                  params: eventSlug ? { slug: item.slug, event: eventSlug } : { slug: item.slug },
+                })
+              }
+            />
+          </Animated.View>
         )}
         ListHeaderComponent={header}
         ListEmptyComponent={empty}

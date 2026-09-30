@@ -530,8 +530,9 @@ export function gradient(value: string): ViewStyle {
 }
 
 /**
- * Springs for Reanimated's withSpring, after SwiftUI's presets. Nothing
- * bounces except the Save heart (vision §4: short motion, no bounces).
+ * Springs for Reanimated's withSpring, after SwiftUI's presets. Motion stays
+ * short (vision §4); the only visible bounce is the Save heart, with a hint of
+ * give when a press is released or a highlight slides.
  */
 export const Springs = {
   /** Presses and toggles: quick, settles without overshoot. */
@@ -540,4 +541,9 @@ export const Springs = {
   smooth: { mass: 1, stiffness: 260, damping: 34 },
   /** The heart popping once when saved. */
   pop: { mass: 1, stiffness: 420, damping: 16 },
+  /** Letting go of a card or button: settles with the slightest overshoot, so
+   * presses feel fluid rather than mechanical (2026-09-30). */
+  release: { mass: 1, stiffness: 380, damping: 24 },
+  /** The tab bar and segmented highlights stretching as they slide. */
+  stretch: { mass: 1, stiffness: 300, damping: 20 },
 } as const;

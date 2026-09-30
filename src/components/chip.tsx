@@ -1,5 +1,4 @@
 import {
-  Pressable,
   type GestureResponderEvent,
   type PressableProps,
   type StyleProp,
@@ -7,7 +6,9 @@ import {
 } from 'react-native';
 
 import { AppText, useFontScale } from '@/components/app-text';
+import { Glass, hasNativeGlass } from '@/components/glass';
 import { Icon } from '@/components/icon';
+import { PressableScale } from '@/components/pressable-scale';
 import { makeStyles, Radius, Sizes, Spacing, useColors } from '@/constants/theme';
 import { selectionHaptic } from '@/lib/haptics';
 
@@ -47,32 +48,23 @@ export function Chip({
   const scale = useFontScale('label');
   const selected = role !== 'button' && selectedProp;
 
-  return (
-    <Pressable
-      accessibilityRole={role}
-      accessibilityLabel={accessibilityLabel ?? label}
-      accessibilityState={
-        role === 'button'
-          ? { disabled: !!disabled }
-          : role === 'radio'
-            ? { selected, disabled: !!disabled }
-            : { checked: selected, disabled: !!disabled }
-      }
-      disabled={disabled}
-      hitSlop={{ top: HIT_SLOP, bottom: HIT_SLOP }}
-      {...rest}
-      onPress={(event: GestureResponderEvent) => {
-        if (role !== 'button') selectionHaptic();
-        onPress?.(event);
-      }}
-      style={({ pressed }) => [
-        styles.chip,
-        selected && styles.selected,
-        pressed && (selected ? styles.selectedPressed : styles.pressed),
-        disabled && styles.disabled,
-        style,
-      ]}
-    >
+  const a11y = {
+    accessibilityRole: role,
+    accessibilityLabel: accessibilityLabel ?? label,
+    accessibilityState:
+      role === 'button'
+        ? { disabled: !!disabled }
+        : role === 'radio'
+          ? { selected, disabled: !!disabled }
+          : { checked: selected, disabled: !!disabled },
+  } as const;
+  const press = (event: GestureResponderEvent) => {
+    if (role !== 'button') selectionHaptic();
+    onPress?.(event);
+  };
+
+  const content = (
+    <>
       {selected && (
         <Icon
           name="checkmark"
@@ -89,33 +81,71 @@ export function Chip({
       >
         {label}
       </AppText>
-    </Pressable>
+    </>
+  );
+
+  // On iOS 26 a picked chip is tinted Liquid Glass that glows under the finger.
+  if (hasNativeGlass && selected && !disabled) {
+    return (
+      <PressableScale
+        {...a11y}
+        disabled={disabled}
+        hitSlop={{ top: HIT_SLOP, bottom: HIT_SLOP }}
+        pressedScale={0.94}
+        {...rest}
+        onPress={press}
+        style={[styles.wrap, style]}
+      >
+        <Glass interactive tinted style={styles.shape}>
+          {content}
+        </Glass>
+      </PressableScale>
+    );
+  }
+
+  return (
+    <PressableScale
+      {...a11y}
+      disabled={disabled}
+      hitSlop={{ top: HIT_SLOP, bottom: HIT_SLOP }}
+      pressedScale={0.94}
+      {...rest}
+      onPress={press}
+      style={[
+        styles.wrap,
+        styles.shape,
+        styles.chip,
+        selected && styles.selected,
+        disabled && styles.disabled,
+        style,
+      ]}
+    >
+      {content}
+    </PressableScale>
   );
 }
 
 const useStyles = makeStyles((Colors) => ({
-  chip: {
+  wrap: {
+    alignSelf: 'flex-start',
+    maxWidth: '100%',
+  },
+  shape: {
     minHeight: Sizes.chip,
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'flex-start',
-    maxWidth: '100%',
     gap: Spacing.xs,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.xs,
     borderRadius: Radius.chip,
+  },
+  chip: {
     backgroundColor: Colors.surface,
     boxShadow: `inset 0 0 0 1px ${Colors.border}`,
   },
   selected: {
     backgroundColor: Colors.primaryFill,
     boxShadow: 'none',
-  },
-  pressed: {
-    backgroundColor: Colors.rowPressed,
-  },
-  selectedPressed: {
-    backgroundColor: Colors.primaryFillPressed,
   },
   disabled: {
     backgroundColor: Colors.fill,

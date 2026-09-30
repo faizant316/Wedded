@@ -1,6 +1,7 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import { StyleSheet, View, type TextInput } from 'react-native';
+import Animated, { FadeInDown, FadeOut, LinearTransition } from 'react-native-reanimated';
 
 import { useFontScale } from '@/components/app-text';
 import { CategoryRow } from '@/components/category-row';
@@ -126,22 +127,30 @@ export default function SearchScreen() {
             <View style={styles.block}>
               <SectionTitle>{t('search.vendors')}</SectionTitle>
               <View style={styles.list}>
-                {foundVendors.map((vendor) => (
-                  <VendorCard
+                {foundVendors.map((vendor, i) => (
+                  <Animated.View
                     key={vendor.id}
-                    name={vendor.name}
-                    category={vendor.category ?? { en: '' }}
-                    city={vendor.city}
-                    distanceMiles={vendor.distanceMiles}
-                    startingPrice={vendor.startingPrice}
-                    photoUrl={vendor.photoUrl}
-                    foundingNumber={vendor.foundingNumber}
-                    saved={savedIds.has(vendor.id)}
-                    onToggleSave={() => toggleSave(vendor.id)}
-                    onPress={() =>
-                      router.push({ pathname: '/v/[slug]', params: { slug: vendor.slug } })
-                    }
-                  />
+                    entering={FadeInDown.delay(i * 40)
+                      .springify()
+                      .damping(20)}
+                    exiting={FadeOut.duration(150)}
+                    layout={LinearTransition.springify().damping(24)}
+                  >
+                    <VendorCard
+                      name={vendor.name}
+                      category={vendor.category ?? { en: '' }}
+                      city={vendor.city}
+                      distanceMiles={vendor.distanceMiles}
+                      startingPrice={vendor.startingPrice}
+                      photoUrl={vendor.photoUrl}
+                      foundingNumber={vendor.foundingNumber}
+                      saved={savedIds.has(vendor.id)}
+                      onToggleSave={() => toggleSave(vendor.id)}
+                      onPress={() =>
+                        router.push({ pathname: '/v/[slug]', params: { slug: vendor.slug } })
+                      }
+                    />
+                  </Animated.View>
                 ))}
               </View>
             </View>

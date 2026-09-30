@@ -4,10 +4,13 @@ import Animated, {
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
+  withSequence,
   withSpring,
+  withTiming,
 } from 'react-native-reanimated';
 
 import { AppText } from '@/components/app-text';
+import { Glass, hasNativeGlass } from '@/components/glass';
 import { makeStyles, Sizes, Springs } from '@/constants/theme';
 import type { Locale } from '@/i18n';
 import { selectionHaptic } from '@/lib/haptics';
@@ -25,8 +28,8 @@ export type SegmentedProps<T extends string> = {
 const PAD = 3;
 
 /**
- * The iOS 26 segmented control: a grey capsule with a raised thumb that
- * springs to the picked option. Labels wrap rather than clip.
+ * The iOS 26 segmented control: a grey capsule with a thumb (glass on iOS 26)
+ * that springs to the picked option, stretching as it slides. Labels wrap rather than clip.
  */
 export function Segmented<T extends string>({
   options,
@@ -43,13 +46,25 @@ export function Segmented<T extends string>({
   );
   const itemWidth = width > 0 ? (width - PAD * 2) / options.length : 0;
   const x = useSharedValue(0);
+  // Stretches as it slides and settles back, like a drop of liquid.
+  const stretch = useSharedValue(1);
 
   useEffect(() => {
     const target = index * itemWidth;
-    x.value = reduceMotion || itemWidth === 0 ? target : withSpring(target, Springs.snappy);
-  }, [index, itemWidth, reduceMotion, x]);
+    if (reduceMotion || itemWidth === 0) {
+      x.value = target;
+      return;
+    }
+    x.value = withSpring(target, Springs.snappy);
+    stretch.value = withSequence(
+      withTiming(1.18, { duration: 110 }),
+      withSpring(1, Springs.stretch),
+    );
+  }, [index, itemWidth, reduceMotion, x, stretch]);
 
-  const thumb = useAnimatedStyle(() => ({ transform: [{ translateX: x.value }] }));
+  const thumb = useAnimatedStyle(() => ({
+    transform: [{ translateX: x.value }, { scaleX: stretch.value }],
+  }));
 
   return (
     <View
@@ -58,7 +73,16 @@ export function Segmented<T extends string>({
       accessibilityLabel={accessibilityLabel}
       onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
     >
-      {itemWidth > 0 && <Animated.View style={[styles.thumb, { width: itemWidth }, thumb]} />}
+      {itemWidth > 0 && (
+        <Animated.View style={[styles.thumb, { width: itemWidth }, thumb]}>
+          {/* iOS 26 draws the thumb in glass; elsewhere a raised white capsule. */}
+          {hasNativeGlass ? (
+            <Glass interactive style={styles.fill} />
+          ) : (
+            <View style={[styles.fill, styles.solid]} />
+          )}
+        </Animated.View>
+      )}
       {options.map((option) => {
         const selected = option.value === value;
         return (
@@ -101,10 +125,15 @@ const useStyles = makeStyles((Colors) => ({
     top: PAD,
     bottom: PAD,
     left: PAD,
+    pointerEvents: 'none',
+  },
+  fill: {
+    flex: 1,
     borderRadius: 999,
+  },
+  solid: {
     backgroundColor: Colors.thumb,
     boxShadow: '0 3px 8px rgba(0, 0, 0, 0.12), 0 1px 1px rgba(0, 0, 0, 0.06)',
-    pointerEvents: 'none',
   },
   option: {
     flex: 1,
