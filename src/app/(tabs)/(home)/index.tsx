@@ -1,14 +1,12 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { RefreshControl, StyleSheet, View } from 'react-native';
 
-import { AppText } from '@/components/app-text';
-import { Button } from '@/components/button';
 import { CategoryRow } from '@/components/category-row';
-import { EventTile } from '@/components/event-tile';
 import { groupIcon } from '@/components/group-icon';
 import { LanguageToggle } from '@/components/language-toggle';
-import { Screen } from '@/components/screen';
+import { ListRow, ListSection, SectionTitle } from '@/components/list';
+import { NavScreen } from '@/components/nav';
 import { SearchButton } from '@/components/search-button';
 import { StateView } from '@/components/state-view';
 import { Colors, Spacing } from '@/constants/theme';
@@ -28,6 +26,8 @@ const PHASE_HEADINGS: Partial<Record<string, string>> = {
  * S4 Home. Vendor types come first (Venues, Food, Music...), because every
  * vendor has a type but not every vendor lists the events they serve. Events
  * follow as a planning checklist, in ceremony order, grouped by phase.
+ * Laid out like an iOS app's first tab: a large title with the language
+ * switch in the bar, then inset-grouped lists.
  */
 export default function HomeScreen() {
   const { t } = useLocale();
@@ -47,35 +47,30 @@ export default function HomeScreen() {
   const startTyping = () => router.navigate({ pathname: '/search', params: { focus: '1' } });
 
   return (
-    <Screen>
-      <ScrollView
-        contentContainerStyle={styles.content}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={Colors.primary}
-            colors={[Colors.primary]}
-          />
-        }
-      >
-        <View style={styles.header}>
-          <AppText variant="heading" color="primary" weight={800} style={styles.wordmark}>
-            {t('app.name')}
-          </AppText>
-          <LanguageToggle />
-        </View>
-
-        <LocationChip />
+    <NavScreen
+      title={t('app.name')}
+      back={false}
+      trailing={<LanguageToggle />}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor={Colors.chevron}
+          colors={[Colors.primary]}
+        />
+      }
+    >
+      <View style={styles.find}>
         <SearchButton onPress={startTyping} />
+        <LocationChip />
+      </View>
 
-        <AppText variant="title" accessibilityRole="header" style={styles.browse}>
-          {t('home.browseByType')}
-        </AppText>
+      <View style={styles.block}>
+        <SectionTitle>{t('home.browseByType')}</SectionTitle>
         {groups.isPending && <StateView state="loading" />}
         {groups.isError && <StateView state="error" onRetry={() => void groups.refetch()} />}
         {groups.data && (
-          <View style={styles.section}>
+          <ListSection inset>
             {groups.data.map((group) => (
               <CategoryRow
                 key={group.slug}
@@ -86,83 +81,71 @@ export default function HomeScreen() {
                 }
               />
             ))}
-            <Button variant="text" label={t('home.allCategories')} onPress={openSearch} />
-          </View>
+            <ListRow
+              title={t('home.allCategories')}
+              icon="grid-outline"
+              tone="primary"
+              chevron
+              onPress={openSearch}
+            />
+          </ListSection>
         )}
+      </View>
 
-        <AppText variant="title" accessibilityRole="header" style={styles.browse}>
-          {t('home.planByEvent')}
-        </AppText>
-
+      <View style={styles.block}>
+        <SectionTitle>{t('home.planByEvent')}</SectionTitle>
         {status === 'pending' && <StateView state="loading" />}
         {status === 'error' && <StateView state="error" onRetry={() => void refetch()} />}
         {status === 'success' && sections.length === 0 && (
           <StateView state="empty" icon="calendar-outline" message={t('home.empty')} />
         )}
-
         {sections?.map((section) => {
           const heading = PHASE_HEADINGS[section.phase];
           return (
-            <View key={section.phase} style={styles.section}>
-              {heading && (
-                <AppText variant="heading" accessibilityRole="header">
-                  {t(heading)}
-                </AppText>
-              )}
+            <ListSection key={section.phase} header={heading ? t(heading) : undefined}>
               {section.events.map((event) => (
-                <EventTile
+                <CategoryRow
                   key={event.slug}
                   name={event.name}
-                  vendorTypeCount={event.vendorTypeCount}
-                  vendorCount={event.vendorCount}
+                  icon={null}
+                  detail={[
+                    t('counts.vendorTypes', { count: event.vendorTypeCount }),
+                    t('counts.vendors', { count: event.vendorCount }),
+                  ].join(' · ')}
                   onPress={() =>
                     router.push({ pathname: '/e/[slug]', params: { slug: event.slug } })
                   }
                 />
               ))}
-            </View>
+            </ListSection>
           );
         })}
+      </View>
 
-        {status === 'success' && sections.length > 0 && (
-          <Button
-            variant="text"
+      {status === 'success' && sections.length > 0 && (
+        <ListSection inset>
+          <ListRow
+            title={t('home.foundingWall')}
             icon="ribbon-outline"
-            label={t('home.foundingWall')}
+            iconColor="kesari"
             onPress={() => router.push('/founding')}
           />
-        )}
-        {status === 'success' && sections.length > 0 && (
-          <Button
-            variant="text"
+          <ListRow
+            title={t('home.forVendors')}
             icon="storefront-outline"
-            label={t('home.forVendors')}
             onPress={() => router.push('/for-vendors')}
           />
-        )}
-      </ScrollView>
-    </Screen>
+        </ListSection>
+      )}
+    </NavScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  content: {
+  find: {
+    gap: Spacing.md,
+  },
+  block: {
     gap: Spacing.lg,
-    paddingVertical: Spacing.lg,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: Spacing.md,
-  },
-  wordmark: {
-    flexShrink: 1,
-  },
-  browse: {
-    marginTop: Spacing.sm,
-  },
-  section: {
-    gap: Spacing.md,
   },
 });

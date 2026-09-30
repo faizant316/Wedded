@@ -1,15 +1,12 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import type { ComponentProps } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 
 import { AppText, useFontScale } from '@/components/app-text';
+import { Icon, type IconName } from '@/components/icon';
 import { Colors, Radius, Sizes, Spacing } from '@/constants/theme';
 
-type IoniconName = ComponentProps<typeof Ionicons>['name'];
-
 export type ActionButtonProps = {
-  icon: IoniconName;
-  /** The word under the circle, e.g. "Call". */
+  icon: IconName;
+  /** The word under the icon, e.g. "Call". */
   label: string;
   /** A full sentence for screen readers, e.g. "Call Sukhi Dhol Crew, (530) 555-0101". */
   accessibilityLabel: string;
@@ -17,49 +14,45 @@ export type ActionButtonProps = {
 };
 
 /**
- * One of the profile's contact actions (vision doc S9): an icon in a circle
- * with its label underneath, so nobody has to guess what an icon means.
+ * One of the profile's contact actions (vision doc S9), shaped like the
+ * buttons on an Apple Maps place card: a white tile with the icon in the app
+ * colour and its label underneath, so nobody has to guess what an icon means.
+ * Several share a row equally.
  */
 export function ActionButton({ icon, label, accessibilityLabel, onPress }: ActionButtonProps) {
-  const scale = useFontScale('label');
+  const scale = Math.min(useFontScale('label'), 1.4);
 
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       onPress={onPress}
-      style={styles.button}
+      style={({ pressed }) => [styles.tile, pressed && styles.pressed]}
     >
-      {({ pressed }) => (
-        <>
-          <View style={[styles.circle, pressed && styles.pressed]}>
-            <Ionicons name={icon} size={Sizes.icon * scale} color={Colors.primary} />
-          </View>
-          <AppText variant="label" style={styles.label}>
-            {label}
-          </AppText>
-        </>
-      )}
+      <Icon name={icon} size={Sizes.icon * scale} color={Colors.primary} weight="medium" />
+      <AppText variant="caption" weight={600} color="primary" style={styles.label}>
+        {label}
+      </AppText>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  button: {
-    minWidth: Sizes.iconCircle + Spacing.lg,
-    alignItems: 'center',
-    gap: Spacing.xs,
-  },
-  circle: {
-    width: Sizes.iconCircle,
-    height: Sizes.iconCircle,
+  tile: {
+    flexGrow: 1,
+    flexBasis: 72,
+    minHeight: 64,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: Radius.circle,
-    backgroundColor: Colors.primaryTint,
+    gap: Spacing.xs,
+    paddingHorizontal: Spacing.xs,
+    paddingVertical: Spacing.md,
+    borderRadius: Radius.photo,
+    borderCurve: 'continuous',
+    backgroundColor: Colors.surface,
   },
   pressed: {
-    backgroundColor: Colors.skeleton,
+    backgroundColor: Colors.rowPressed,
   },
   label: {
     textAlign: 'center',

@@ -1,16 +1,17 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View, type TextInput } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, View, type TextInput } from 'react-native';
 
 import { AppText } from '@/components/app-text';
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
 import { Chip } from '@/components/chip';
 import { FieldError } from '@/components/field-error';
+import { ListRow, ListSection } from '@/components/list';
 import { Screen } from '@/components/screen';
+import { SheetHeader } from '@/components/sheet-header';
 import { TextField } from '@/components/text-field';
-import { BorderWidth, Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { Colors, Spacing } from '@/constants/theme';
 import { findZip, matchCities, useAreaCodes, useCities, type City } from '@/data/places';
 import { hasLocationPermission, locateNearestCity } from '@/features/location/current-location';
 import { DISTANCE_CHOICES, useSearchLocation } from '@/features/location/search-location';
@@ -102,33 +103,42 @@ export default function LocationScreen() {
 
   return (
     <Screen edges={['top', 'bottom']}>
-      <View style={styles.topBar}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t('signIn.close')}
-          onPress={close}
-          style={({ pressed }) => [styles.close, pressed && styles.pressed]}
-        >
-          <Ionicons name="close" size={Sizes.icon + 4} color={Colors.text} />
-        </Pressable>
-      </View>
+      <SheetHeader onClose={close} />
       <ScrollView
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
         automaticallyAdjustKeyboardInsets
       >
-        <AppText variant="title" accessibilityRole="header">
-          {t('location.title')}
-        </AppText>
-        <AppText color="text2">{t('location.subtitle')}</AppText>
+        <View style={styles.intro}>
+          <AppText variant="title" accessibilityRole="header">
+            {t('location.title')}
+          </AppText>
+          <AppText color="text2">{t('location.subtitle')}</AppText>
+        </View>
 
-        <Button
-          variant="secondary"
-          icon="navigate-outline"
-          label={t('location.gps.use')}
-          loading={locating}
-          onPress={useCurrentLocation}
-        />
+        <ListSection inset>
+          <ListRow
+            icon="navigate-outline"
+            title={t('location.gps.use')}
+            tone="primary"
+            onPress={locating ? undefined : useCurrentLocation}
+            trailing={locating ? <ActivityIndicator color={Colors.chevron} /> : undefined}
+          />
+          {place ? (
+            <ListRow
+              icon="location"
+              title={t('location.current', { place: place.label })}
+              trailing={
+                <Button
+                  variant="text"
+                  label={t('location.clear')}
+                  onPress={clearPlace}
+                  style={styles.clear}
+                />
+              }
+            />
+          ) : null}
+        </ListSection>
         {explainGps && (
           <Card style={styles.explain}>
             <AppText variant="heading">{t('location.gps.explainTitle')}</AppText>
@@ -142,16 +152,6 @@ export default function LocationScreen() {
                 cityInput.current?.focus();
               }}
             />
-          </Card>
-        )}
-
-        {place && (
-          <Card style={styles.current}>
-            <Ionicons name="location" size={Sizes.icon} color={Colors.primary} />
-            <AppText weight={700} style={styles.grow}>
-              {t('location.current', { place: place.label })}
-            </AppText>
-            <Button variant="text" label={t('location.clear')} onPress={clearPlace} />
           </Card>
         )}
 
@@ -180,28 +180,26 @@ export default function LocationScreen() {
           />
         )}
         {suggestions.length > 0 && (
-          <View style={styles.suggestions} accessibilityRole="list">
+          <ListSection inset>
             {suggestions.map((city) => (
-              <Pressable
+              <ListRow
                 key={city.slug}
-                accessibilityRole="button"
+                icon="location-outline"
+                iconColor="text2"
+                title={city.name}
+                titleVariant="bodyLg"
+                value={city.areaCode}
+                chevron={false}
                 onPress={() => chooseCity(city)}
-                style={({ pressed }) => [styles.suggestion, pressed && styles.pressed]}
-              >
-                <Ionicons name="location-outline" size={Sizes.iconSmall} color={Colors.text2} />
-                <AppText variant="bodyLg" style={styles.grow}>
-                  {city.name}
-                </AppText>
-                <AppText color="text2">{city.areaCode}</AppText>
-              </Pressable>
+              />
             ))}
-          </View>
+          </ListSection>
         )}
         {typed.length > 1 && !zip && cities.data && suggestions.length === 0 && (
           <AppText color="text2">{t('location.noMatch')}</AppText>
         )}
 
-        <AppText variant="heading" accessibilityRole="header">
+        <AppText variant="heading" accessibilityRole="header" style={styles.groupTitle}>
           {t('location.areas')}
         </AppText>
         <View style={styles.chips} accessibilityRole="radiogroup">
@@ -225,7 +223,7 @@ export default function LocationScreen() {
           })}
         </View>
 
-        <AppText variant="heading" accessibilityRole="header">
+        <AppText variant="heading" accessibilityRole="header" style={styles.groupTitle}>
           {t('location.distance')}
         </AppText>
         <View style={styles.chips} accessibilityRole="radiogroup">
@@ -250,58 +248,35 @@ export default function LocationScreen() {
           )}
         </View>
 
-        <Button label={t('location.done')} onPress={close} />
+        <Button label={t('location.done')} onPress={close} style={styles.done} />
       </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  topBar: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingTop: Spacing.sm,
-  },
-  close: {
-    width: Sizes.tapTarget,
-    height: Sizes.tapTarget,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: Sizes.tapTarget / 2,
-  },
-  pressed: {
-    backgroundColor: Colors.primaryTint,
-  },
   content: {
     gap: Spacing.lg,
-    paddingVertical: Spacing.lg,
+    paddingTop: Spacing.sm,
+    paddingBottom: Spacing.xl,
+  },
+  intro: {
+    gap: Spacing.xs,
+    paddingHorizontal: Spacing.xs,
   },
   explain: {
     gap: Spacing.md,
   },
-  current: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
+  clear: {
+    minHeight: 44,
+    paddingHorizontal: Spacing.sm,
   },
-  grow: {
-    flex: 1,
+  groupTitle: {
+    marginTop: Spacing.sm,
+    paddingHorizontal: Spacing.xs,
   },
-  suggestions: {
-    borderRadius: Radius.card,
-    borderWidth: BorderWidth.hairline,
-    borderColor: Colors.border,
-    backgroundColor: Colors.surface,
-    overflow: 'hidden',
-  },
-  suggestion: {
-    minHeight: Sizes.tapTarget + 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-    paddingHorizontal: Spacing.lg,
-    borderBottomWidth: BorderWidth.hairline,
-    borderBottomColor: Colors.border,
+  done: {
+    marginTop: Spacing.sm,
   },
   chips: {
     flexDirection: 'row',

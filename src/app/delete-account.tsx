@@ -1,14 +1,15 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/app-text';
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
 import { FieldError } from '@/components/field-error';
+import { Icon } from '@/components/icon';
 import { Screen } from '@/components/screen';
+import { SheetHeader } from '@/components/sheet-header';
 import { TextField } from '@/components/text-field';
 import { Colors, Sizes, Spacing } from '@/constants/theme';
 import { toLatinDigits } from '@/features/auth/about-you-validation';
@@ -83,16 +84,7 @@ export default function DeleteAccountScreen() {
 
   return (
     <Screen edges={['top', 'bottom']}>
-      <View style={styles.topBar}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t('signIn.close')}
-          onPress={close}
-          style={({ pressed }) => [styles.close, pressed && styles.pressed]}
-        >
-          <Ionicons name="close" size={Sizes.icon + 4} color={Colors.text} />
-        </Pressable>
-      </View>
+      <SheetHeader onClose={close} />
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <AppText variant="title" accessibilityRole="header">
           {t('deleteAccount.title')}
@@ -104,11 +96,7 @@ export default function DeleteAccountScreen() {
               <AppText weight={700}>{t('deleteAccount.removes')}</AppText>
               {['profile', 'saved', 'inquiries'].map((item) => (
                 <View key={item} style={styles.row}>
-                  <Ionicons
-                    name="close-circle-outline"
-                    size={Sizes.iconSmall}
-                    color={Colors.error}
-                  />
+                  <Icon name="close-circle-outline" size={Sizes.iconSmall} color={Colors.error} />
                   <AppText style={styles.grow}>{t(`deleteAccount.items.${item}`)}</AppText>
                 </View>
               ))}
@@ -170,24 +158,10 @@ export default function DeleteAccountScreen() {
 }
 
 const styles = StyleSheet.create({
-  topBar: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingTop: Spacing.sm,
-  },
-  close: {
-    width: Sizes.tapTarget,
-    height: Sizes.tapTarget,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: Sizes.tapTarget / 2,
-  },
-  pressed: {
-    backgroundColor: Colors.primaryTint,
-  },
   content: {
     gap: Spacing.xl,
-    paddingVertical: Spacing.lg,
+    paddingTop: Spacing.sm,
+    paddingBottom: Spacing.xl,
   },
   list: {
     gap: Spacing.md,

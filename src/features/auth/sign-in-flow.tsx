@@ -1,16 +1,17 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import type { AuthError } from '@supabase/supabase-js';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, ScrollView, StyleSheet } from 'react-native';
 
 import { AppText } from '@/components/app-text';
 import { Button } from '@/components/button';
 import { Screen } from '@/components/screen';
+import { SheetHeader } from '@/components/sheet-header';
 import { StateView } from '@/components/state-view';
 import { TextField } from '@/components/text-field';
-import { Colors, Sizes, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import { useLocale } from '@/i18n/locale-context';
+import { successHaptic } from '@/lib/haptics';
 import { formatPhone } from '@/lib/phone';
 import { supabase } from '@/lib/supabase';
 
@@ -100,16 +101,7 @@ export function SignInFlow({ mode }: { mode: SignInMode }) {
 
   return (
     <Screen edges={['top', 'bottom']}>
-      <View style={styles.topBar}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t('signIn.close')}
-          onPress={close}
-          style={({ pressed }) => [styles.close, pressed && styles.closePressed]}
-        >
-          <Ionicons name="close" size={Sizes.icon + 4} color={Colors.text} />
-        </Pressable>
-      </View>
+      <SheetHeader onClose={close} />
       {content}
     </Screen>
   );
@@ -295,6 +287,8 @@ function AboutYouStep({ onDone }: { onDone: () => void }) {
       setError(t('aboutYou.saveFailed'));
       return;
     }
+    // A new account (not an edit) gets the success tap (vision §4).
+    if (!profile) successHaptic();
     profileSaved(data);
     onDone();
   }
@@ -318,23 +312,9 @@ function AboutYouStep({ onDone }: { onDone: () => void }) {
 }
 
 const styles = StyleSheet.create({
-  topBar: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingTop: Spacing.sm,
-  },
-  close: {
-    width: Sizes.tapTarget,
-    height: Sizes.tapTarget,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: Sizes.tapTarget / 2,
-  },
-  closePressed: {
-    backgroundColor: Colors.primaryTint,
-  },
   content: {
     gap: Spacing.xl,
-    paddingVertical: Spacing.lg,
+    paddingTop: Spacing.sm,
+    paddingBottom: Spacing.xl,
   },
 });

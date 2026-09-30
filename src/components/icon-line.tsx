@@ -1,11 +1,8 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import type { ComponentProps } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { AppText, useFontScale, useTypeStyle, type AppTextProps } from '@/components/app-text';
+import { Icon, type IconName } from '@/components/icon';
 import { Colors, Sizes, Spacing } from '@/constants/theme';
-
-type IoniconName = ComponentProps<typeof Ionicons>['name'];
 
 /**
  * An icon and a line of text, like "Based in Yuba City" with a pin. The icon
@@ -16,7 +13,7 @@ export function IconLine({
   children,
   color = 'text',
 }: {
-  icon: IoniconName;
+  icon: IconName;
   children: string;
   color?: AppTextProps['color'];
 }) {
@@ -25,8 +22,8 @@ export function IconLine({
 
   return (
     <View style={styles.row}>
-      <View style={[styles.icon, { height: lineHeight * scale }]}>
-        <Ionicons name={icon} size={Sizes.icon * scale} color={Colors.text2} />
+      <View style={[styles.icon, { height: lineHeight * scale, width: Sizes.icon * scale }]}>
+        <Icon name={icon} size={Sizes.iconSmall * scale} color={Colors.text2} />
       </View>
       <AppText color={color} style={styles.text}>
         {children}
@@ -41,6 +38,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   icon: {
+    alignItems: 'center',
     justifyContent: 'center',
   },
   text: {

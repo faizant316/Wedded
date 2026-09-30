@@ -1,14 +1,16 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   Pressable,
   StyleSheet,
+  type GestureResponderEvent,
   type PressableProps,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
 
 import { AppText, useFontScale } from '@/components/app-text';
-import { BorderWidth, Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { Icon } from '@/components/icon';
+import { Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { selectionHaptic } from '@/lib/haptics';
 
 export type ChipProps = Omit<PressableProps, 'children' | 'style'> & {
   label: string;
@@ -21,14 +23,15 @@ export type ChipProps = Omit<PressableProps, 'children' | 'style'> & {
   style?: StyleProp<ViewStyle>;
 };
 
-// The pill is 44 tall to match the design; the slop makes the tap target 48.
+// The capsule is 40 tall; the slop makes the tap target 48.
 // Put chips in a wrapping row with at least `Spacing.sm` between rows.
 const HIT_SLOP = (Sizes.tapTarget - Sizes.chip) / 2;
 
 /**
- * A pill: selectable, or a plain button (role 'button'). Selected chips get a
- * tick as well as a colour change, so colour is never the only signal. Labels
- * wrap rather than clip.
+ * A capsule: selectable, or a plain button (role 'button'). Grey fill like
+ * iOS filter buttons; selected chips fill with the app colour and get a tick,
+ * so colour is never the only signal. Picking one gives a light haptic tick.
+ * Labels wrap rather than clip.
  */
 export function Chip({
   label,
@@ -37,6 +40,7 @@ export function Chip({
   disabled,
   style,
   accessibilityLabel,
+  onPress,
   ...rest
 }: ChipProps) {
   const scale = useFontScale('label');
@@ -56,20 +60,30 @@ export function Chip({
       disabled={disabled}
       hitSlop={{ top: HIT_SLOP, bottom: HIT_SLOP }}
       {...rest}
+      onPress={(event: GestureResponderEvent) => {
+        if (role !== 'button') selectionHaptic();
+        onPress?.(event);
+      }}
       style={({ pressed }) => [
         styles.chip,
         selected && styles.selected,
-        pressed && styles.pressed,
+        pressed && (selected ? styles.selectedPressed : styles.pressed),
         disabled && styles.disabled,
         style,
       ]}
     >
       {selected && (
-        <Ionicons name="checkmark" size={Sizes.iconSmall * scale} color={Colors.primary} />
+        <Icon
+          name="checkmark"
+          size={Sizes.iconSmall * scale * 0.85}
+          color={Colors.onPrimary}
+          weight="bold"
+        />
       )}
       <AppText
         variant="label"
-        color={disabled ? 'text2' : selected ? 'primary' : 'text'}
+        weight={selected ? 600 : 500}
+        color={disabled ? 'textDisabled' : selected ? 'onPrimary' : 'text'}
         style={styles.label}
       >
         {label}
@@ -89,20 +103,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.xs,
     borderRadius: Radius.chip,
-    borderWidth: BorderWidth.control,
-    borderColor: Colors.borderInput,
     backgroundColor: Colors.surface,
+    boxShadow: `inset 0 0 0 1px ${Colors.border}`,
   },
   selected: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primaryTint,
+    backgroundColor: Colors.primary,
+    boxShadow: 'none',
   },
   pressed: {
-    backgroundColor: Colors.primaryTint,
+    backgroundColor: Colors.rowPressed,
+  },
+  selectedPressed: {
+    backgroundColor: Colors.primaryPressed,
   },
   disabled: {
-    borderColor: Colors.border,
-    backgroundColor: Colors.skeleton,
+    backgroundColor: Colors.fill,
+    boxShadow: 'none',
   },
   label: {
     flexShrink: 1,

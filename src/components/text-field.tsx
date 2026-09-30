@@ -58,8 +58,10 @@ const TYPE_PROPS: Record<TextFieldType, TextInputProps> = {
 };
 
 /**
- * A labelled text box, 56 tall. The label stays visible above the box, and the
- * box grows with large system text. Pass `ref` to move focus between fields.
+ * A labelled text box, 52 tall: white with a thin grey outline on the grey
+ * page, the outline turning the app colour while you type. The label stays
+ * visible above the box, and the box grows with large system text. Pass
+ * `ref` to move focus between fields.
  */
 export function TextField({
   label,
@@ -75,16 +77,19 @@ export function TextField({
   ...rest
 }: TextFieldProps) {
   const [focused, setFocused] = useState(false);
-  const font = useTypeStyle({ variant: 'bodyLg', text: value ?? '' });
+  const { script, lineHeight, maxFontSizeMultiplier, ...font } = useTypeStyle({
+    variant: 'bodyLg',
+    text: value ?? '',
+  });
 
   return (
     <View style={[styles.container, style]}>
       {/* The input carries the label for screen readers, so this copy is hidden from them. */}
-      <AppText weight={700} aria-hidden>
+      <AppText variant="label" weight={600} style={styles.label} aria-hidden>
         {label}
       </AppText>
       {hint && (
-        <AppText color="text2" aria-hidden>
+        <AppText color="text2" style={styles.label} aria-hidden>
           {hint}
         </AppText>
       )}
@@ -92,8 +97,11 @@ export function TextField({
         ref={ref}
         accessibilityLabel={label}
         accessibilityHint={error ?? hint}
+        accessibilityLanguage={script}
         placeholderTextColor={Colors.text2}
-        maxFontSizeMultiplier={font.maxFontSizeMultiplier}
+        maxFontSizeMultiplier={maxFontSizeMultiplier}
+        selectionColor={Colors.primary}
+        cursorColor={Colors.primary}
         {...TYPE_PROPS[type]}
         {...rest}
         value={value}
@@ -108,13 +116,10 @@ export function TextField({
         }}
         style={[
           styles.input,
-          {
-            fontFamily: font.fontFamily,
-            fontSize: font.fontSize,
-            // A line height on a single-line iOS input misplaces the text, so
-            // only multiline boxes get one.
-            lineHeight: multiline ? font.lineHeight : undefined,
-          },
+          font,
+          // A line height on a single-line iOS input misplaces the text, so
+          // only multiline boxes get one.
+          multiline && { lineHeight },
           multiline && styles.multiline,
           focused && styles.focused,
           !!error && styles.invalid,
@@ -129,23 +134,36 @@ const styles = StyleSheet.create({
   container: {
     gap: Spacing.sm,
   },
+  label: {
+    paddingHorizontal: Spacing.xs,
+  },
   input: {
     minHeight: Sizes.input,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
-    borderRadius: Radius.button,
-    borderWidth: BorderWidth.strong,
+    borderRadius: Radius.field,
+    borderCurve: 'continuous',
+    borderWidth: BorderWidth.hairline,
     borderColor: Colors.borderInput,
     backgroundColor: Colors.surface,
     color: Colors.text,
+    outlineWidth: 0,
   },
   multiline: {
+    minHeight: Sizes.input * 2,
     textAlignVertical: 'top',
   },
   focused: {
+    borderWidth: BorderWidth.strong,
     borderColor: Colors.primary,
+    // Keep the text still when the outline thickens.
+    paddingHorizontal: Spacing.lg - 1,
+    paddingVertical: Spacing.md - 1,
   },
   invalid: {
+    borderWidth: BorderWidth.strong,
     borderColor: Colors.error,
+    paddingHorizontal: Spacing.lg - 1,
+    paddingVertical: Spacing.md - 1,
   },
 });

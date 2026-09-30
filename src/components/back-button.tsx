@@ -1,20 +1,22 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet } from 'react-native';
 
 import { AppText, useFontScale } from '@/components/app-text';
-import { Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { Glass } from '@/components/glass';
+import { Icon } from '@/components/icon';
+import { Colors, Sizes, Spacing } from '@/constants/theme';
 import { useLocale } from '@/i18n/locale-context';
 
 /**
- * "‹ Back" with a visible word, not just an arrow, for people who don't know
- * the gesture. With nothing to go back to (a cold deep link, or a web page
- * opened from a QR code or a shared link) it says Home and goes there.
+ * "‹ Back" in a glass capsule, the iOS 26 back button, but keeping the word
+ * for people who don't know the gesture. With nothing to go back to (a cold
+ * deep link, or a web page opened from a QR code or a shared link) it says
+ * Home and goes there.
  */
 export function BackButton() {
   const router = useRouter();
   const { t } = useLocale();
-  const scale = useFontScale('button');
+  const scale = Math.min(useFontScale('button'), 1.3);
   const canGoBack = router.canGoBack();
   const label = canGoBack ? t('common.back') : t('tabs.home');
 
@@ -23,31 +25,36 @@ export function BackButton() {
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={() => (canGoBack ? router.back() : router.navigate('/'))}
-      style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+      hitSlop={4}
     >
-      <Ionicons
-        name={canGoBack ? 'chevron-back' : 'home-outline'}
-        size={Sizes.icon * scale}
-        color={Colors.primary}
-      />
-      <AppText variant="button" color="primary">
-        {label}
-      </AppText>
+      {({ pressed }) => (
+        <Glass interactive style={[styles.capsule, pressed && styles.pressed]}>
+          <Icon
+            name={canGoBack ? 'chevron-back' : 'home-outline'}
+            size={20 * scale}
+            color={Colors.primary}
+            weight="semibold"
+          />
+          <AppText variant="button" color="primary" maxFontSizeMultiplier={1.3}>
+            {label}
+          </AppText>
+        </Glass>
+      )}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  button: {
-    minHeight: Sizes.tapTarget,
+  capsule: {
+    minHeight: 44,
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'flex-start',
-    gap: Spacing.xs,
-    paddingRight: Spacing.md,
-    borderRadius: Radius.button,
+    gap: 2,
+    paddingLeft: Spacing.sm + 2,
+    paddingRight: Spacing.lg,
+    borderRadius: Sizes.glassButton / 2,
   },
   pressed: {
-    backgroundColor: Colors.primaryTint,
+    transform: [{ scale: 0.96 }],
   },
 });

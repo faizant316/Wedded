@@ -1,13 +1,10 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, View } from 'react-native';
 
-import { AppText } from '@/components/app-text';
-import { BackButton } from '@/components/back-button';
 import { CategoryRow } from '@/components/category-row';
 import { groupIcon } from '@/components/group-icon';
-import { Screen } from '@/components/screen';
+import { ListSection } from '@/components/list';
+import { NavScreen } from '@/components/nav';
 import { StateView } from '@/components/state-view';
-import { Spacing } from '@/constants/theme';
 import { useCategoryGroups } from '@/data/reference';
 import { bilingual } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
@@ -22,6 +19,7 @@ export default function GroupScreen() {
   const { locale, t } = useLocale();
   const groups = useCategoryGroups();
   const group = groups.data?.find((g) => g.slug === groupSlug);
+  const title = group ? bilingual(group.name, locale) : null;
 
   let body;
   if (groups.isPending) {
@@ -38,51 +36,30 @@ export default function GroupScreen() {
       />
     );
   } else {
-    const { primary, secondary } = bilingual(group.name, locale);
     body = (
-      <>
-        <View>
-          <AppText variant="display" lang={primary.lang} accessibilityRole="header">
-            {primary.text}
-          </AppText>
-          {secondary && (
-            <AppText variant="bodyLg" color="text2" lang={secondary.lang}>
-              {secondary.text}
-            </AppText>
-          )}
-        </View>
-        <View style={styles.list}>
-          {group.categories.map((category) => (
-            <CategoryRow
-              key={category.slug}
-              name={category.name}
-              icon={groupIcon(group.slug)}
-              onPress={() =>
-                router.push({ pathname: '/c/[category]', params: { category: category.slug } })
-              }
-            />
-          ))}
-        </View>
-      </>
+      <ListSection inset>
+        {group.categories.map((category) => (
+          <CategoryRow
+            key={category.slug}
+            name={category.name}
+            icon={groupIcon(group.slug)}
+            onPress={() =>
+              router.push({ pathname: '/c/[category]', params: { category: category.slug } })
+            }
+          />
+        ))}
+      </ListSection>
     );
   }
 
   return (
-    <Screen>
-      <ScrollView contentContainerStyle={styles.content}>
-        <BackButton />
-        {body}
-      </ScrollView>
-    </Screen>
+    <NavScreen
+      title={title?.primary.text}
+      titleLang={title?.primary.lang}
+      subtitle={title?.secondary?.text}
+      subtitleLang={title?.secondary?.lang}
+    >
+      {body}
+    </NavScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  content: {
-    gap: Spacing.lg,
-    paddingVertical: Spacing.md,
-  },
-  list: {
-    gap: Spacing.sm,
-  },
-});

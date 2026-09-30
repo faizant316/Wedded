@@ -1,12 +1,10 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { AppText } from '@/components/app-text';
-import { BackButton } from '@/components/back-button';
 import { Button } from '@/components/button';
 import { FieldError } from '@/components/field-error';
-import { Screen } from '@/components/screen';
+import { NavScreen } from '@/components/nav';
 import { StateView } from '@/components/state-view';
 import { TextField } from '@/components/text-field';
 import { Spacing } from '@/constants/theme';
@@ -76,34 +74,24 @@ export default function ForVendorsScreen() {
 
   if (submit.isSuccess) {
     return (
-      <Screen edges={['top', 'bottom']}>
+      <NavScreen>
         <StateView
           state="empty"
           icon="checkmark-circle-outline"
           message={t('forVendors.thanks')}
           action={{ label: t('common.goHome'), onPress: () => router.navigate('/') }}
         />
-      </Screen>
+      </NavScreen>
     );
   }
 
   return (
-    <Screen edges={['top', 'bottom']}>
-      <ScrollView
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
-        automaticallyAdjustKeyboardInsets
-      >
-        <BackButton />
-        <View style={styles.intro}>
-          <AppText variant="title" accessibilityRole="header">
-            {isClaim ? t('forVendors.claimTitle') : t('forVendors.title')}
-          </AppText>
-          <AppText variant="bodyLg">
-            {isClaim ? t('forVendors.claimIntro') : t('forVendors.intro')}
-          </AppText>
-        </View>
-
+    <NavScreen
+      title={isClaim ? t('forVendors.claimTitle') : t('forVendors.title')}
+      subtitle={isClaim ? t('forVendors.claimIntro') : t('forVendors.intro')}
+      automaticallyAdjustKeyboardInsets
+    >
+      <View style={styles.form}>
         <TextField
           label={t('forVendors.businessName')}
           value={businessName}
@@ -160,17 +148,13 @@ export default function ForVendorsScreen() {
         )}
         {submit.isError && <FieldError message={t('forVendors.sendFailed')} />}
         <Button label={t('forVendors.send')} loading={submit.isPending} onPress={send} />
-      </ScrollView>
-    </Screen>
+      </View>
+    </NavScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  content: {
+  form: {
     gap: Spacing.xl,
-    paddingVertical: Spacing.md,
-  },
-  intro: {
-    gap: Spacing.sm,
   },
 });

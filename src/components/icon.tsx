@@ -1,0 +1,105 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { SymbolView, type SymbolWeight } from 'expo-symbols';
+import type { ComponentProps } from 'react';
+import { Platform, type StyleProp, type TextStyle } from 'react-native';
+
+export type IconName = ComponentProps<typeof Ionicons>['name'];
+// Every valid SF Symbol name, so a typo fails the typecheck instead of
+// drawing nothing on iPhone.
+type SFSymbol = Extract<ComponentProps<typeof SymbolView>['name'], string>;
+
+// Screens name icons by their Ionicons name, which Android and the web draw.
+// iPhones draw the matching SF Symbol instead, so icons sit on the same
+// weight and baseline as the San Francisco text next to them. Anything not
+// listed here stays an Ionicon on iPhone too.
+const SF_SYMBOLS: Partial<Record<IconName, SFSymbol>> = {
+  home: 'house.fill',
+  'home-outline': 'house',
+  search: 'magnifyingglass',
+  'search-outline': 'magnifyingglass',
+  heart: 'heart.fill',
+  'heart-outline': 'heart',
+  'heart-dislike-outline': 'heart.slash',
+  'person-circle': 'person.crop.circle.fill',
+  'person-circle-outline': 'person.crop.circle',
+  person: 'person.fill',
+  'chevron-forward': 'chevron.right',
+  'chevron-back': 'chevron.left',
+  'chevron-down': 'chevron.down',
+  close: 'xmark',
+  'close-circle': 'xmark.circle.fill',
+  'close-circle-outline': 'xmark.circle',
+  checkmark: 'checkmark',
+  'checkmark-sharp': 'checkmark',
+  'checkmark-circle': 'checkmark.circle.fill',
+  'checkmark-circle-outline': 'checkmark.circle',
+  location: 'location.fill',
+  'location-outline': 'mappin.and.ellipse',
+  'navigate-outline': 'arrow.triangle.turn.up.right.diamond.fill',
+  'business-outline': 'building.2',
+  'restaurant-outline': 'fork.knife',
+  'musical-notes-outline': 'music.note.list',
+  'flower-outline': 'camera.macro',
+  'camera-outline': 'camera',
+  'color-palette-outline': 'paintpalette',
+  'brush-outline': 'paintbrush',
+  'shirt-outline': 'tshirt',
+  'car-outline': 'car',
+  'mail-outline': 'envelope',
+  mail: 'envelope.fill',
+  'people-outline': 'person.2',
+  'storefront-outline': 'storefront',
+  call: 'phone.fill',
+  'call-outline': 'phone',
+  'chatbubble-outline': 'message',
+  'chatbubble-ellipses-outline': 'bubble.left',
+  'chatbubbles-outline': 'bubble.left.and.bubble.right',
+  'calendar-outline': 'calendar',
+  'time-outline': 'clock',
+  'language-outline': 'character.bubble',
+  'ribbon-outline': 'rosette',
+  'image-outline': 'photo',
+  'grid-outline': 'square.grid.2x2',
+  refresh: 'arrow.clockwise',
+  'refresh-outline': 'arrow.clockwise',
+  'cloud-offline-outline': 'icloud.slash',
+  'alert-circle': 'exclamationmark.circle.fill',
+  'trash-outline': 'trash',
+  'send-outline': 'paperplane',
+  'print-outline': 'printer',
+  'phone-portrait-outline': 'iphone',
+  'add-circle-outline': 'plus.circle',
+  'globe-outline': 'globe',
+  'share-outline': 'square.and.arrow.up',
+  wifi: 'wifi',
+  cellular: 'cellularbars',
+  'battery-full': 'battery.100',
+};
+
+export type IconProps = {
+  name: IconName;
+  size: number;
+  color: string;
+  /** SF Symbol weight on iPhone; match the text beside the icon. */
+  weight?: SymbolWeight;
+  style?: StyleProp<TextStyle>;
+};
+
+/** An icon that is an SF Symbol on iPhone and an Ionicon everywhere else. */
+export function Icon({ name, size, color, weight = 'regular', style }: IconProps) {
+  const symbol = Platform.OS === 'ios' ? SF_SYMBOLS[name] : undefined;
+  const ionicon = <Ionicons name={name} size={size} color={color} style={style} />;
+  if (!symbol) return ionicon;
+
+  return (
+    <SymbolView
+      name={symbol}
+      size={size}
+      tintColor={color}
+      weight={weight}
+      resizeMode="scaleAspectFit"
+      fallback={ionicon}
+      style={[{ width: size, height: size }, style as object]}
+    />
+  );
+}

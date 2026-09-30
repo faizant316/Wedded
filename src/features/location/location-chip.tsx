@@ -1,16 +1,17 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 
 import { AppText, useFontScale } from '@/components/app-text';
-import { BorderWidth, Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { Icon } from '@/components/icon';
+import { Colors, Radius, Sizes, Spacing } from '@/constants/theme';
 import { useLocale } from '@/i18n/locale-context';
 
 import { useSearchLocation } from './search-location';
 
 /**
  * The full-width location chip for Home and results (vision S4 item 2):
- * "Near Yuba City · 25 mi ▾", or "Set your location to see distance ▾" with a
- * marigold border when nothing is set. Opens the location sheet.
+ * "Near Yuba City · 25 mi ⌄" on a white capsule, or "Set your location to see
+ * distance ⌄" tinted in the app colour when nothing is set. Opens the
+ * location sheet.
  */
 export function LocationChip({ style }: { style?: StyleProp<ViewStyle> }) {
   const { t } = useLocale();
@@ -31,15 +32,19 @@ export function LocationChip({ style }: { style?: StyleProp<ViewStyle> }) {
       style={({ pressed }) => [
         styles.chip,
         !place && styles.unset,
-        pressed && styles.pressed,
+        pressed && (place ? styles.pressed : styles.unsetPressed),
         style,
       ]}
     >
-      <Ionicons name="location-outline" size={Sizes.iconSmall * scale} color={Colors.primary} />
-      <AppText weight={700} style={styles.label}>
+      <Icon
+        name={place ? 'location' : 'location-outline'}
+        size={Sizes.iconSmall * scale}
+        color={Colors.primary}
+      />
+      <AppText weight={600} color={place ? 'text' : 'primary'} style={styles.label}>
         {label}
       </AppText>
-      <Ionicons name="chevron-down" size={Sizes.iconSmall * scale} color={Colors.text2} />
+      <Icon name="chevron-down" size={15 * scale} color={Colors.chevron} weight="semibold" />
     </Pressable>
   );
 }
@@ -53,15 +58,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.sm,
     borderRadius: Radius.chip,
-    borderWidth: BorderWidth.strong,
-    borderColor: Colors.borderInput,
     backgroundColor: Colors.surface,
   },
   unset: {
-    borderColor: Colors.accent,
+    backgroundColor: Colors.primaryTint,
   },
   pressed: {
-    backgroundColor: Colors.primaryTint,
+    backgroundColor: Colors.rowPressed,
+  },
+  unsetPressed: {
+    backgroundColor: Colors.fillPressed,
   },
   label: {
     flex: 1,

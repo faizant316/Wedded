@@ -1,10 +1,10 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { AppText, useFontScale } from '@/components/app-text';
 import { BilingualName } from '@/components/bilingual-name';
 import { Card } from '@/components/card';
+import { Icon } from '@/components/icon';
 import { Colors, Sizes, Spacing } from '@/constants/theme';
 import { bilingual, type LocalizedText } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
@@ -62,16 +62,17 @@ export function EventTile({
       <View style={styles.text}>
         <BilingualName name={name} />
         {counts.length > 0 && (
-          <AppText variant="label" color="text2">
+          <AppText variant="label" weight={400} color="text2">
             {counts.join(' · ')}
           </AppText>
         )}
       </View>
       {onPress && (
-        <Ionicons
+        <Icon
           name="chevron-forward"
-          size={Sizes.icon * scale}
-          color={Colors.text2}
+          size={17 * scale}
+          color={Colors.chevron}
+          weight="semibold"
           style={styles.chevron}
         />
       )}

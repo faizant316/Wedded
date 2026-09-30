@@ -1,9 +1,9 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { useState, type Ref } from 'react';
+import { type Ref } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { useFontScale, useTypeStyle } from '@/components/app-text';
-import { BorderWidth, Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { Icon } from '@/components/icon';
+import { Colors, Radius, Sizes, Spacing } from '@/constants/theme';
 import { useLocale } from '@/i18n/locale-context';
 
 export type SearchFieldProps = {
@@ -12,16 +12,15 @@ export type SearchFieldProps = {
   ref?: Ref<TextInput>;
 };
 
-/** The Search tab's text box: 56 tall, with a clear button once there's text. */
+/** The Search tab's text box: the iOS search field, with a clear button once there's text. */
 export function SearchField({ value, onChangeText, ref }: SearchFieldProps) {
   const { t } = useLocale();
-  const scale = useFontScale('bodyLg');
-  const font = useTypeStyle({ variant: 'bodyLg', text: value });
-  const [focused, setFocused] = useState(false);
+  const scale = useFontScale('body');
+  const { script, lineHeight, maxFontSizeMultiplier, ...font } = useTypeStyle({ text: value });
 
   return (
-    <View style={[styles.field, focused && styles.focused]}>
-      <Ionicons name="search-outline" size={Sizes.icon * scale} color={Colors.text2} />
+    <View style={styles.field}>
+      <Icon name="search" size={Sizes.iconSmall * scale} color={Colors.text2} weight="medium" />
       <TextInput
         ref={ref}
         value={value}
@@ -29,13 +28,14 @@ export function SearchField({ value, onChangeText, ref }: SearchFieldProps) {
         placeholder={t('search.placeholder')}
         placeholderTextColor={Colors.text2}
         accessibilityLabel={t('search.label')}
+        accessibilityLanguage={script}
         returnKeyType="search"
         autoCorrect={false}
         autoCapitalize="none"
-        maxFontSizeMultiplier={font.maxFontSizeMultiplier}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        style={[styles.input, { fontFamily: font.fontFamily, fontSize: font.fontSize }]}
+        maxFontSizeMultiplier={maxFontSizeMultiplier}
+        selectionColor={Colors.primary}
+        cursorColor={Colors.primary}
+        style={[styles.input, font]}
       />
       {value.length > 0 && (
         <Pressable
@@ -44,7 +44,7 @@ export function SearchField({ value, onChangeText, ref }: SearchFieldProps) {
           onPress={() => onChangeText('')}
           style={styles.clear}
         >
-          <Ionicons name="close-circle" size={Sizes.icon * scale} color={Colors.text2} />
+          <Icon name="close-circle" size={Sizes.iconSmall * scale} color={Colors.chevron} />
         </Pressable>
       )}
     </View>
@@ -53,23 +53,21 @@ export function SearchField({ value, onChangeText, ref }: SearchFieldProps) {
 
 const styles = StyleSheet.create({
   field: {
-    minHeight: Sizes.input,
+    minHeight: Sizes.search,
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
-    paddingLeft: Spacing.lg,
+    paddingLeft: Spacing.md + 2,
     borderRadius: Radius.button,
-    borderWidth: BorderWidth.strong,
-    borderColor: Colors.borderInput,
-    backgroundColor: Colors.surface,
-  },
-  focused: {
-    borderColor: Colors.primary,
+    backgroundColor: Colors.fill,
   },
   input: {
     flex: 1,
-    paddingVertical: Spacing.md,
+    minHeight: Sizes.search,
+    paddingVertical: Spacing.sm,
     color: Colors.text,
+    // The browser's own focus ring would draw a box inside the capsule.
+    outlineWidth: 0,
   },
   clear: {
     width: Sizes.tapTarget,

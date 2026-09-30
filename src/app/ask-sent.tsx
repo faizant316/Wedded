@@ -1,16 +1,24 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Linking, ScrollView, StyleSheet, View } from 'react-native';
+import { useEffect } from 'react';
+import { Linking, ScrollView, StyleSheet } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 
 import { AppText } from '@/components/app-text';
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
+import { Icon } from '@/components/icon';
 import { Screen } from '@/components/screen';
-import { Colors, Spacing } from '@/constants/theme';
+import { Colors, Spacing, Springs } from '@/constants/theme';
 import { useHomeEvents } from '@/data/reference';
 import { useInquiryVendor } from '@/features/inquiry/inquiry-helpers';
 import { localized } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
+import { successHaptic } from '@/lib/haptics';
 
 /**
  * "Sent" (vision S12): what happens next, and the honest faster route (call or
@@ -30,12 +38,21 @@ export default function AskSentScreen() {
   const callNumber = vendor.data?.callPhone ?? vendor.data?.whatsappPhone ?? null;
   const textNumber = vendor.data?.textPhone ?? vendor.data?.callPhone ?? null;
 
+  // The check springs in once, with the success tap you feel (vision §4).
+  const reduceMotion = useReducedMotion();
+  const grow = useSharedValue(reduceMotion ? 1 : 0.4);
+  useEffect(() => {
+    successHaptic();
+    grow.value = withSpring(1, Springs.pop);
+  }, [grow]);
+  const checkStyle = useAnimatedStyle(() => ({ transform: [{ scale: grow.value }] }));
+
   return (
     <Screen edges={['top', 'bottom']}>
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.check}>
-          <Ionicons name="checkmark-circle" size={72} color={Colors.success} />
-        </View>
+        <Animated.View style={[styles.check, checkStyle]}>
+          <Icon name="checkmark-circle" size={80} color={Colors.success} />
+        </Animated.View>
         <AppText variant="title" accessibilityRole="header" style={styles.center}>
           {params.queued
             ? t('inquiry.sent.queuedTitle', { vendor: name })

@@ -1,11 +1,12 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { FlatList, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { FlatList, Platform, Pressable, StyleSheet, View, type ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppText, useFontScale } from '@/components/app-text';
+import { Icon } from '@/components/icon';
 import { StateView } from '@/components/state-view';
 import { Colors, Radius, Sizes, Spacing } from '@/constants/theme';
 import { useVendorPhotos } from '@/data/vendor-media';
@@ -23,14 +24,15 @@ export default function GalleryScreen() {
   }>();
   const router = useRouter();
   const { t } = useLocale();
-  const { width } = useWindowDimensions();
-  const scale = useFontScale('body');
+  const scale = Math.min(useFontScale('body'), 1.4);
   const photos = useVendorPhotos(vendorId);
   const start = Math.max(0, Number(index) || 0);
   const [current, setCurrent] = useState(start);
-  // On the web a sideways list doesn't stretch its pages to its own height,
-  // so each page gets the measured height (0 until the first layout).
-  const [pageHeight, setPageHeight] = useState(0);
+  // Pages are the size of the viewer itself, measured once it lays out: on
+  // the web a sideways list doesn't stretch its pages, and the window can be
+  // wider than the app (the desktop preview frame).
+  const [page, setPage] = useState({ width: 0, height: 0 });
+  const width = page.width;
 
   const close = () => (router.canGoBack() ? router.back() : router.navigate('/'));
   const list = photos.data ?? [];
@@ -38,6 +40,7 @@ export default function GalleryScreen() {
 
   return (
     <SafeAreaView edges={['top', 'bottom']} style={styles.screen}>
+      <StatusBar style="light" />
       <View style={styles.top}>
         <Pressable
           accessibilityRole="button"
@@ -45,52 +48,64 @@ export default function GalleryScreen() {
           onPress={close}
           style={({ pressed }) => [styles.close, pressed && styles.closePressed]}
         >
-          <Ionicons name="close" size={Sizes.icon * scale} color={Colors.onPrimary} />
+          <Icon
+            name="close"
+            size={Sizes.iconSmall * scale}
+            color={Colors.onPrimary}
+            weight="bold"
+          />
           <AppText variant="button" color="onPrimary">
             {t('gallery.close')}
           </AppText>
         </Pressable>
         {list.length > 0 && (
-          <AppText color="onPrimary" weight={700} style={styles.counter}>
+          <AppText color="onPrimary" weight={600} style={styles.counter}>
             {`${current + 1} / ${list.length}`}
           </AppText>
         )}
       </View>
 
-      {photos.isPending ? (
-        <StateView state="loading" />
-      ) : list.length === 0 ? (
-        <StateView state="error" onRetry={() => void photos.refetch()} />
-      ) : (
-        <FlatList
-          data={list}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          initialScrollIndex={Math.min(start, list.length - 1)}
-          getItemLayout={(_, i) => ({ length: width, offset: width * i, index: i })}
-          keyExtractor={(item) => item.id}
-          onLayout={(event) => setPageHeight(event.nativeEvent.layout.height)}
-          onMomentumScrollEnd={(event) =>
-            setCurrent(Math.round(event.nativeEvent.contentOffset.x / width))
-          }
-          renderItem={({ item, index: i }) => (
-            <View style={{ width, height: pageHeight || undefined }}>
-              <Image
-                source={{ uri: item.url.large }}
-                placeholder={item.blurhash ? { blurhash: item.blurhash } : undefined}
-                contentFit="contain"
-                accessible
-                accessibilityLabel={
-                  item.credit ?? t('gallery.photoOf', { number: i + 1, total: list.length })
-                }
-                style={styles.photo}
-              />
-            </View>
-          )}
-          style={styles.list}
-        />
-      )}
+      <View
+        style={styles.list}
+        onLayout={(event) => {
+          const { width: w, height: h } = event.nativeEvent.layout;
+          setPage({ width: w, height: h });
+        }}
+      >
+        {photos.isPending ? (
+          <StateView state="loading" />
+        ) : list.length === 0 ? (
+          <StateView state="error" onRetry={() => void photos.refetch()} />
+        ) : width === 0 ? null : (
+          <FlatList
+            data={list}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            initialScrollIndex={Math.min(start, list.length - 1)}
+            getItemLayout={(_, i) => ({ length: width, offset: width * i, index: i })}
+            keyExtractor={(item) => item.id}
+            onMomentumScrollEnd={(event) =>
+              setCurrent(Math.round(event.nativeEvent.contentOffset.x / width))
+            }
+            renderItem={({ item, index: i }) => (
+              <View style={{ width, height: page.height }}>
+                <Image
+                  source={{ uri: item.url.large }}
+                  placeholder={item.blurhash ? { blurhash: item.blurhash } : undefined}
+                  contentFit="contain"
+                  accessible
+                  accessibilityLabel={
+                    item.credit ?? t('gallery.photoOf', { number: i + 1, total: list.length })
+                  }
+                  style={styles.photo}
+                />
+              </View>
+            )}
+            style={styles.list}
+          />
+        )}
+      </View>
 
       {photo?.credit && (
         <View style={styles.caption}>
@@ -114,17 +129,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: Sizes.pageGutter,
     paddingVertical: Spacing.sm,
   },
+  // Dark glass: a light, blurred capsule over the black viewer.
   close: {
     minHeight: Sizes.tapTarget,
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
-    paddingHorizontal: Spacing.md,
+    paddingLeft: Spacing.md,
+    paddingRight: Spacing.lg,
     borderRadius: Radius.chip,
-    backgroundColor: Colors.scrim,
+    backgroundColor: 'rgba(120, 120, 128, 0.36)',
+    ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(20px)' } as ViewStyle) : null),
   },
   closePressed: {
-    backgroundColor: Colors.primary,
+    backgroundColor: 'rgba(120, 120, 128, 0.56)',
   },
   counter: {
     fontVariant: ['tabular-nums'],
