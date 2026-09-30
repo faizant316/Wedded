@@ -15,6 +15,7 @@ import { StateView } from '@/components/state-view';
 import { TextField } from '@/components/text-field';
 import { makeStyles, Spacing } from '@/constants/theme';
 import { useSendInquiry, type GuestBand, type ReplyBy, type SendOutcome } from '@/data/inquiries';
+import { useVendorDateStatus } from '@/data/availability';
 import { useHomeEvents } from '@/data/reference';
 import { usePlan } from '@/features/planner/plan';
 import { normalizePhone } from '@/features/auth/about-you-validation';
@@ -69,6 +70,7 @@ export default function AskScreen() {
   const [date, setDate] = useState<string | null>(null);
   const [dateUnsure, setDateUnsure] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const dateStatus = useVendorDateStatus(vendorId || null, dateUnsure ? null : date);
   // The guest count set for this event in My Wedding, if there is one
   const plannedGuests = usePlan().guests?.[params.event ?? ''];
   const [guests, setGuests] = useState<GuestBand | null>(
@@ -315,6 +317,20 @@ export default function AskScreen() {
               label={t('location.done')}
               onPress={() => setPickerOpen(false)}
             />
+          )}
+          {!dateUnsure && date && dateStatus.data && dateStatus.data !== 'unknown' && (
+            <AppText
+              color={
+                dateStatus.data === 'open'
+                  ? 'success'
+                  : dateStatus.data === 'booked'
+                    ? 'error'
+                    : 'text2'
+              }
+              weight={600}
+            >
+              {t(`inquiry.dateStatus.${dateStatus.data}`)}
+            </AppText>
           )}
           <Checkbox
             label={t('inquiry.dateUnsure')}

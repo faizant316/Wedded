@@ -460,6 +460,12 @@
       "whichHall": "Which hall?",
       "whichHallHint": "Many halls only allow caterers on their list.",
       "tasting": "Would you like a tasting?"
+    },
+    "dateStatus": {
+      "open": "Open on this date, as of their calendar.",
+      "booked": "Their calendar shows this date as booked. You can still ask, or pick another date.",
+      "held": "Someone is holding this date. Ask soon.",
+      "partly": "Part of this day is booked. Ask which part is free."
     }
   },
   "deleteAccount": {
@@ -615,7 +621,11 @@
       "founding": "Founding vendors"
     },
     "show": "Show results",
-    "clear": "Clear filters"
+    "clear": "Clear filters",
+    "date": "Your wedding date",
+    "dateHint": "From My Wedding. Vendors keep their calendars with us.",
+    "anyDate": "Any date",
+    "freeOn": "Free on {{date}}"
   },
   "planTogether": {
     "title": "Plan together with family",
