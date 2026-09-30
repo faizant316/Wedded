@@ -14,6 +14,7 @@ import { Card } from '@/components/card';
 import { Icon } from '@/components/icon';
 import { Screen } from '@/components/screen';
 import { Spacing, Springs, useColors } from '@/constants/theme';
+import { useConversations } from '@/data/chat';
 import { useHomeEvents } from '@/data/reference';
 import { useInquiryVendor } from '@/features/inquiry/inquiry-helpers';
 import { localized } from '@/i18n/localized';
@@ -30,6 +31,10 @@ export default function AskSentScreen() {
   const { t, locale } = useLocale();
   const params = useLocalSearchParams<{ vendorId?: string; event?: string; queued?: string }>();
   const vendor = useInquiryVendor(params.vendorId ?? '');
+  // The inquiry started (or continued) a chat with this vendor
+  const conversation = useConversations().data?.find(
+    (c) => c.side === 'family' && c.vendor.id === params.vendorId,
+  );
   const events = useHomeEvents();
 
   const name = vendor.data ? localized(vendor.data.name, locale) : '';
@@ -62,6 +67,21 @@ export default function AskSentScreen() {
         <AppText variant="bodyLg" color="text2" style={styles.center}>
           {t('inquiry.sent.next')}
         </AppText>
+
+        {conversation && (
+          <Card style={styles.card}>
+            <AppText variant="heading">{t('inquiry.sent.chatTitle')}</AppText>
+            <AppText color="text2">{t('inquiry.sent.chatBody', { vendor: name })}</AppText>
+            <Button
+              icon="chatbubbles-outline"
+              label={t('inquiry.sent.chatButton')}
+              onPress={() => {
+                router.back();
+                router.push({ pathname: '/chat/[id]', params: { id: conversation.id } });
+              }}
+            />
+          </Card>
+        )}
 
         {(callNumber || textNumber) && (
           <Card style={styles.card}>
