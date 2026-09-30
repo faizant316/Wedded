@@ -55,7 +55,7 @@ export function PressableScale({
       onPressIn?.(event);
     },
     onPressOut: (event: GestureResponderEvent) => {
-      pressed.value = withSpring(0, Springs.snappy);
+      pressed.value = withSpring(0, Springs.release);
       onPressOut?.(event);
     },
   };

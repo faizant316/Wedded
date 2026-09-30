@@ -18,16 +18,19 @@ export type GlassProps = {
   interactive?: boolean;
   /** For the one prominent action: tints the glass with the app colour. */
   tinted?: boolean;
+  /** A different tint, e.g. red for a destructive button. */
+  tintColor?: string;
 };
 
 /**
- * Apple's Liquid Glass, for floating chrome only: the tab bar, buttons over
- * photos and bars that float above content. Never for cards or rows (glass
- * on content muddles the hierarchy). On iOS 26 it is the system material;
+ * Apple's Liquid Glass, for chrome and controls: the tab bar, bars that float
+ * above content, and on iOS 26 the buttons, selected chips and segmented
+ * thumbs (DECISIONS 2026-09-30). Never for cards or rows (glass on content
+ * muddles the hierarchy). On iOS 26 it is the system material;
  * on the web a blurred, saturated translucent layer; on Android and older
  * iPhones a milky white that keeps the text on it readable.
  */
-export function Glass({ children, style, interactive, tinted }: GlassProps) {
+export function Glass({ children, style, interactive, tinted, tintColor }: GlassProps) {
   const Colors = useColors();
   const styles = useStyles();
   const scheme = useScheme();
@@ -36,7 +39,7 @@ export function Glass({ children, style, interactive, tinted }: GlassProps) {
       <GlassView
         glassEffectStyle="regular"
         isInteractive={interactive}
-        tintColor={tinted ? Colors.primaryFill : undefined}
+        tintColor={tintColor ?? (tinted ? Colors.primaryFill : undefined)}
         colorScheme={scheme}
         style={style}
       >
@@ -47,7 +50,12 @@ export function Glass({ children, style, interactive, tinted }: GlassProps) {
 
   return (
     <View
-      style={[Platform.OS === 'web' ? styles.web : styles.fallback, tinted && styles.tinted, style]}
+      style={[
+        Platform.OS === 'web' ? styles.web : styles.fallback,
+        tinted && styles.tinted,
+        tintColor ? { backgroundColor: tintColor } : null,
+        style,
+      ]}
     >
       {children}
     </View>
