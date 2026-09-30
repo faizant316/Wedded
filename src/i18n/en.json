@@ -688,5 +688,17 @@
       "other": "Saved by {{count}} families"
     },
     "replied": "Replied to {{replied}} of {{answered}} families who asked"
+  },
+  "familyShortlist": {
+    "title": "Family shortlist",
+    "hint": "Every vendor anyone in the family saved. Tap how you feel about each one.",
+    "empty": "When anyone in the family saves a vendor, it shows up here for everyone.",
+    "savedBy": "Saved by {{names}}",
+    "lovedBy": "{{names}} love it",
+    "reactions": {
+      "love": "Love it",
+      "maybe": "Maybe",
+      "no": "Not for us"
+    }
   }
 }
