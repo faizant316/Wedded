@@ -671,5 +671,12 @@
       "too_many": "You're already part of 10 wedding plans. Leave one to join this.",
       "failed": "Joining didn't work. Check your internet, then try again."
     }
+  },
+  "vendorStats": {
+    "savedBy": {
+      "one": "Saved by {{count}} family",
+      "other": "Saved by {{count}} families"
+    },
+    "replied": "Replied to {{replied}} of {{answered}} families who asked"
   }
 }

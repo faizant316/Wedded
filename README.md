@@ -75,6 +75,18 @@ Everything is checked before anything is saved, and each problem is explained. R
 
 `✗` means the demo breaks; `!` means it works but could look better. For the hosted database, set `SUPABASE_URL`, `SUPABASE_SECRET_KEY` and `SUPABASE_PUBLISHABLE_KEY`, and add `--send` to also send the tour request, which emails for real.
 
+### The founders' numbers
+
+`npm run report -- --local` prints the last 7 days as text you can paste into WhatsApp:
+- new families;
+- inquiries and follow-up answers;
+- saves;
+- shared plans;
+- new vendor sign-ups;
+- the most viewed vendors.
+
+Add `--days=30` for longer. `npm run report -- --local --vendor=<slug> --month=2026-10` writes one vendor's monthly scorecard, ready to send to them. For the hosted database, set `SUPABASE_URL` and `SUPABASE_SECRET_KEY` instead of `--local`.
+
 ### Punjabi review sheet
 
 `npm run i18n:review -- --local` writes `punjabi-review.csv` (gitignored): every English text in the app (event names and timings, vendor types, groups, area-code chips, and the app's own words) next to its Punjabi, with the missing ones first in each section. Open it in Google Sheets or Excel, have the family fill in the **Correction** column, and give the file back to Claude Code to apply. Add `--out=<file>` to write it somewhere else.
