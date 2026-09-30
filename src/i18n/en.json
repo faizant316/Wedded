@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Wedding Vendor App"
+    "name": "Wedded App"
   },
   "tabs": {
     "home": "Home",
@@ -524,8 +524,8 @@
     "viewProfile": "Open {{name}}'s profile"
   },
   "share": {
-    "vendor": "{{name}}, {{category}} in {{city}}. Found on the Wedding Vendor App.",
-    "vendorNoCategory": "{{name}} in {{city}}. Found on the Wedding Vendor App.",
+    "vendor": "{{name}}, {{category}} in {{city}}. Found on Wedded App.",
+    "vendorNoCategory": "{{name}} in {{city}}. Found on Wedded App.",
     "copied": "Copied. Paste it into WhatsApp or a text."
   },
   "settings": {
