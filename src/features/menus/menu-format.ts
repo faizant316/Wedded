@@ -15,15 +15,3 @@ export function menuPrice(menu: Pick<Menu, 'price'>, t: Translate): string | nul
 export function menuMinimum(menu: Pick<Menu, 'minGuests'>, t: Translate): string | null {
   return menu.minGuests ? t('menus.minGuests', { count: menu.minGuests }) : null;
 }
-
-/**
- * The cheapest per-guest menu, for Compare's "Menus from $X": per person or
- * plate only (a flat event price isn't comparable), or null.
- */
-export function cheapestPerGuest(menus: Pick<Menu, 'price'>[]): number | null {
-  const amounts = menus
-    .map((menu) => menu.price)
-    .filter((price) => price !== null && price.unit !== 'event')
-    .map((price) => price!.amount);
-  return amounts.length > 0 ? Math.min(...amounts) : null;
-}

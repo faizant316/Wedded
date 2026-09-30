@@ -1466,6 +1466,22 @@ export type Database = {
     };
     Functions: {
       accept_wedding_invite: { Args: { p_token: string }; Returns: string };
+      claim_chat_notifications: {
+        Args: { p_quiet_minutes?: number };
+        Returns: {
+          conversation_id: string;
+          family_name: string;
+          last_body: string;
+          last_kind: string;
+          notified_at: string;
+          notify_side: string;
+          recipients: string[];
+          unread_count: number;
+          vendor_has_account: boolean;
+          vendor_name: string;
+          vendor_slug: string;
+        }[];
+      };
       create_inquiry: {
         Args: {
           p_details: Json;
