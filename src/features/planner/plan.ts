@@ -74,6 +74,11 @@ export function addEvents(slugs: string[]) {
   update((p) => ({ ...p, events: [...new Set([...p.events, ...slugs])] }));
 }
 
+/** Sets the family's traditions outright (the first questions). */
+export function setTraditions(slugs: string[]) {
+  update((p) => ({ ...p, traditions: slugs }));
+}
+
 /** Picks or unpicks a tradition; `current` is what the screen shows (see pickTradition). */
 export function toggleTradition(slug: string, current: string[]) {
   update((p) => {
@@ -110,6 +115,11 @@ export function replacePlan(next: WeddingPlan) {
 /** Forget the plan on this phone (after it's saved to the account, or on sign-out). */
 export function clearPlan() {
   update(() => EMPTY);
+}
+
+/** The plan as it is right now, outside React (e.g. to save it to the account). */
+export function getPlan(): WeddingPlan {
+  return current();
 }
 
 /** The plan, re-rendering whenever it changes. */

@@ -1,26 +1,26 @@
 // delete-account: in-app account deletion (vision S19, §8; required by Apple
 // guideline 5.1.1(v) and Google Play).
 //
-// POST with the signed-in person's session. They must have verified a fresh
-// email code in the last 10 minutes (the app asks for one on the second
-// screen), so a borrowed or forgotten-open phone can't delete the account in
-// one tap. Deleting the auth user cascades in the database: profile and saved
-// vendors are deleted, and inquiries keep the vendor's history with the
-// sender's name, phone and email scrubbed.
+// POST with the signed-in person's session. They must have shown it's them in
+// the last 10 minutes, the way they signed up: a fresh email or text code
+// (amr `otp`), or signing in again with Apple or Google (amr `oauth`). The
+// app asks for that on its second screen, so a borrowed or forgotten-open
+// phone can't delete the account in one tap. Deleting the auth user cascades
+// in the database: profile and saved vendors are deleted, and inquiries keep
+// the vendor's history with the sender's name, phone and email scrubbed.
 //
 //   200 { deleted: true }
 //   401 { error: 'unauthorized' }
-//   403 { error: 'reauth_required' }   verify a fresh code first
+//   403 { error: 'reauth_required' }   verify a fresh code, or sign in again, first
 //   500 { error: 'server_error' }
 
 import { createClient } from '@supabase/supabase-js';
 
+import { type AuthMethod, signedInRecently } from './fresh-sign-in.ts';
+
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ??
   Deno.env.get('SUPABASE_SECRET_KEY') ?? '';
-
-/** How recent the email code must be, in seconds. */
-const FRESH_CODE_SECONDS = 10 * 60;
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -34,8 +34,6 @@ function json(body: unknown, status: number): Response {
     headers: { ...CORS, 'Content-Type': 'application/json' },
   });
 }
-
-type AuthMethod = { method?: string; timestamp?: number };
 
 /** The token's claims. Only read after getUser() has verified the token. */
 function claimsOf(token: string): { amr?: AuthMethod[] } {
@@ -61,13 +59,9 @@ Deno.serve(async (request) => {
   if (error || !data.user) return json({ error: 'unauthorized' }, 401);
 
   const now = Math.floor(Date.now() / 1000);
-  const freshCode = (claimsOf(token).amr ?? []).some(
-    (entry) =>
-      entry.method === 'otp' &&
-      typeof entry.timestamp === 'number' &&
-      now - entry.timestamp <= FRESH_CODE_SECONDS,
-  );
-  if (!freshCode) return json({ error: 'reauth_required' }, 403);
+  if (!signedInRecently(claimsOf(token).amr, now)) {
+    return json({ error: 'reauth_required' }, 403);
+  }
 
   const { error: deleteError } = await admin.auth.admin.deleteUser(data.user.id);
   if (deleteError) {

@@ -83,4 +83,29 @@ describe('validateAboutYou', () => {
   it('never submits without the 18+ box', () => {
     expect(validateAboutYou({ ...complete, isAdult: false }).values).toBeNull();
   });
+
+  it('lets accounts without an email finish (phone, Apple or Google)', () => {
+    expect(validateAboutYou({ ...complete, email: '  ' })).toEqual({
+      errors: {},
+      values: {
+        name: 'Harjit Kaur',
+        city: 'Yuba City',
+        phone: '+15305550101',
+        email: null,
+        isAdult: true,
+      },
+    });
+  });
+
+  it('still refuses a broken email when one is given', () => {
+    expect(validateAboutYou({ ...complete, email: 'harjit@' }).errors).toEqual({
+      email: 'emailInvalid',
+    });
+  });
+
+  it('takes a number from a phone sign-in as the app shows it', () => {
+    expect(validateAboutYou({ ...complete, phone: '(530) 555-0100' }).values?.phone).toBe(
+      '+15305550100',
+    );
+  });
 });
