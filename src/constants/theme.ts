@@ -43,6 +43,7 @@ const light = {
   kesari: '#A8500A', // text-safe saffron, "Founding vendor" text
   kesariTint: '#FBEFE3', // saffron at about 10 percent, behind founding numbers
   success: '#248A3D', // systemGreen as iOS draws it with Increase Contrast, 4.6:1
+  successTint: 'rgba(36, 138, 61, 0.14)', // behind a green word, e.g. the Veg tag
   pink: '#B4335C',
   verified: '#1F6F5F',
   error: '#D70015', // systemRed with Increase Contrast, 5.1:1 (the default #FF3B30 is 3.6:1)
@@ -104,6 +105,7 @@ const dark: Palette = {
   kesari: '#F0A04B', // 8:1
   kesariTint: '#3A2A14',
   success: '#30D158',
+  successTint: 'rgba(48, 209, 88, 0.18)',
   pink: '#FF6B9A',
   verified: '#4FC3A9',
   error: '#FF6961', // 6:1
