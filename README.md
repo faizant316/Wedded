@@ -75,15 +75,23 @@ Everything is checked before anything is saved, and each problem is explained. R
 
 `✗` means the demo breaks; `!` means it works but could look better. For the hosted database, set `SUPABASE_URL`, `SUPABASE_SECRET_KEY` and `SUPABASE_PUBLISHABLE_KEY`, and add `--send` to also send the tour request, which emails for real.
 
+### The founders' numbers
+
+`npm run report -- --local` prints the last 7 days as text you can paste into WhatsApp:
+- new families;
+- inquiries and follow-up answers;
+- saves;
+- shared plans;
+- new vendor sign-ups;
+- the most viewed vendors.
+
+Add `--days=30` for longer. `npm run report -- --local --vendor=<slug> --month=2026-10` writes one vendor's monthly scorecard, ready to send to them. For the hosted database, set `SUPABASE_URL` and `SUPABASE_SECRET_KEY` instead of `--local`.
 ### Vendor calendars
-
 Until vendors have accounts, founders keep each vendor's calendar after a call or text:
-
 ```bash
 npm run availability -- --local --vendor=royal-orchard-banquet-hall --booked=2027-06-12,2027-06-13 --held=2027-06-19 --evening=2027-06-26
 npm run availability -- --local --vendor=royal-orchard-banquet-hall --open=2027-06-13 --list
 ```
-
 - **Days you mark:** `--booked` (all day), `--held` (someone is holding it), `--morning` / `--evening` (that part of the day is booked). `--open` clears a day.
 - **Days you don't mark** show as open for 60 days after each update, and after that as unknown. Families see "open", "booked", "held" or "partly booked", never who booked.
 
