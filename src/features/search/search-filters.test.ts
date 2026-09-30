@@ -17,8 +17,14 @@ describe('search filters', () => {
     expect(activeFilterCount(NO_FILTERS)).toBe(0);
     expect(activeFilterCount({ ...NO_FILTERS, minGuests: 400, sort: 'price_low' })).toBe(1);
     expect(
-      activeFilterCount({ minGuests: 400, maxPrice: 40, language: 'pa', sort: 'distance' }),
-    ).toBe(3);
+      activeFilterCount({
+        minGuests: 400,
+        maxPrice: 40,
+        language: 'pa',
+        availableOn: '2027-06-12',
+        sort: 'distance',
+      }),
+    ).toBe(4);
   });
 
   it('can be set and cleared', () => {

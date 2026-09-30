@@ -15,6 +15,8 @@ export type SearchFilters = {
   /** A shown starting price at or under this, in dollars. */
   maxPrice: number | null;
   language: SearchLanguage | null;
+  /** Leave out vendors booked all day on this yyyy-mm-dd date. */
+  availableOn: string | null;
   sort: SearchSort;
 };
 
@@ -22,6 +24,7 @@ export const NO_FILTERS: SearchFilters = {
   minGuests: null,
   maxPrice: null,
   language: null,
+  availableOn: null,
   sort: 'distance',
 };
 
@@ -40,7 +43,9 @@ export function priceSteps(groupSlug: string | null): number[] {
 
 /** How many filters are on (the order isn't a filter). */
 export function activeFilterCount(filters: SearchFilters): number {
-  return [filters.minGuests, filters.maxPrice, filters.language].filter((v) => v !== null).length;
+  return [filters.minGuests, filters.maxPrice, filters.language, filters.availableOn].filter(
+    (v) => v !== null,
+  ).length;
 }
 
 let current: SearchFilters = NO_FILTERS;
