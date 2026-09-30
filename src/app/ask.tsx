@@ -17,6 +17,7 @@ import { makeStyles, Spacing } from '@/constants/theme';
 import { useSendInquiry, type GuestBand, type ReplyBy, type SendOutcome } from '@/data/inquiries';
 import { useVendorDateStatus } from '@/data/availability';
 import { useHomeEvents } from '@/data/reference';
+import { usePlan } from '@/features/planner/plan';
 import { normalizePhone } from '@/features/auth/about-you-validation';
 import { useSession } from '@/features/auth/session';
 import { CatererQuestions, VenueQuestions } from '@/features/inquiry/category-questions';
@@ -70,7 +71,11 @@ export default function AskScreen() {
   const [dateUnsure, setDateUnsure] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const dateStatus = useVendorDateStatus(vendorId || null, dateUnsure ? null : date);
-  const [guests, setGuests] = useState<GuestBand | null>(null);
+  // The guest count set for this event in My Wedding, if there is one
+  const plannedGuests = usePlan().guests?.[params.event ?? ''];
+  const [guests, setGuests] = useState<GuestBand | null>(
+    GUEST_BANDS.includes(plannedGuests as GuestBand) ? (plannedGuests as GuestBand) : null,
+  );
   const [place, setPlace] = useState(profile?.city ?? '');
   const [ownMessage, setOwnMessage] = useState<string | null>(null);
   const [name, setName] = useState(profile?.full_name ?? '');

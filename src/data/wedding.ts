@@ -19,6 +19,7 @@ import { useSession } from '@/features/auth/session';
 import {
   clearPlan,
   replacePlan,
+  setEventGuests as setLocalGuests,
   setWeddingDate as setLocalDate,
   toggleBooked as toggleLocalBooked,
   toggleEvent as toggleLocalEvent,
@@ -38,6 +39,9 @@ export type AccountWedding = {
   joinedAt: string;
   events: string[];
   booked: Record<string, string[]>;
+  guests: Record<string, string>;
+  /** Who they booked, keyed "event/category", when a vendor is named. */
+  bookedVendors: Record<string, { slug: string; name: string }>;
 };
 
 export const weddingKeys = {
@@ -60,7 +64,14 @@ type MembershipRow = {
     id: string;
     title: string | null;
     wedding_date: string | null;
-    wedding_events: { event_slug: string; wedding_bookings: { category_slug: string }[] }[];
+    wedding_events: {
+      event_slug: string;
+      guest_band: string | null;
+      wedding_bookings: {
+        category_slug: string;
+        vendor: { slug: string; name: string } | null;
+      }[];
+    }[];
   } | null;
 };
 
@@ -68,9 +79,17 @@ type MembershipRow = {
 export function toAccountWedding(row: MembershipRow): AccountWedding | null {
   if (!row.wedding || !isRole(row.role)) return null;
   const booked: Record<string, string[]> = {};
+  const guests: Record<string, string> = {};
+  const bookedVendors: Record<string, { slug: string; name: string }> = {};
   for (const event of row.wedding.wedding_events) {
+    for (const booking of event.wedding_bookings) {
+      if (booking.vendor) {
+        bookedVendors[`${event.event_slug}/${booking.category_slug}`] = booking.vendor;
+      }
+    }
     const categories = event.wedding_bookings.map((b) => b.category_slug);
     if (categories.length > 0) booked[event.event_slug] = categories;
+    if (event.guest_band) guests[event.event_slug] = event.guest_band;
   }
   return {
     id: row.wedding.id,
@@ -80,6 +99,8 @@ export function toAccountWedding(row: MembershipRow): AccountWedding | null {
     joinedAt: row.joined_at,
     events: row.wedding.wedding_events.map((e) => e.event_slug),
     booked,
+    guests,
+    bookedVendors,
   };
 }
 
@@ -96,6 +117,7 @@ export function toPlan(wedding: AccountWedding): WeddingPlan {
     weddingDate: wedding.weddingDate,
     events: wedding.events,
     booked: wedding.booked,
+    guests: wedding.guests,
     syncedWeddingId: wedding.id,
   };
 }
@@ -104,7 +126,7 @@ async function fetchMyWeddings(userId: string): Promise<AccountWedding[]> {
   const { data, error } = await supabase
     .from('wedding_members')
     .select(
-      'role, joined_at, wedding:weddings(id, title, wedding_date, wedding_events(event_slug, wedding_bookings(category_slug)))',
+      'role, joined_at, wedding:weddings(id, title, wedding_date, wedding_events(event_slug, guest_band, wedding_bookings(category_slug, vendor:vendors(slug, name))))',
     )
     .eq('user_id', userId)
     .order('joined_at');
@@ -154,7 +176,8 @@ export function WeddingSync() {
 export type WeddingChange =
   | { kind: 'date'; date: string | null }
   | { kind: 'event'; slug: string; on: boolean }
-  | { kind: 'booked'; event: string; category: string; on: boolean };
+  | { kind: 'booked'; event: string; category: string; on: boolean }
+  | { kind: 'guests'; event: string; band: string | null };
 
 /** The same change applied to the cached wedding, so the screen updates at once. */
 export function applyChange(wedding: AccountWedding, change: WeddingChange): AccountWedding {
@@ -169,7 +192,14 @@ export function applyChange(wedding: AccountWedding, change: WeddingChange): Acc
       }
       const booked = { ...wedding.booked };
       delete booked[change.slug];
-      return { ...wedding, events: wedding.events.filter((e) => e !== change.slug), booked };
+      const guests = { ...wedding.guests };
+      delete guests[change.slug];
+      return {
+        ...wedding,
+        events: wedding.events.filter((e) => e !== change.slug),
+        booked,
+        guests,
+      };
     }
     case 'booked': {
       const list = wedding.booked[change.event] ?? [];
@@ -179,6 +209,12 @@ export function applyChange(wedding: AccountWedding, change: WeddingChange): Acc
           : [...list, change.category]
         : list.filter((c) => c !== change.category);
       return { ...wedding, booked: { ...wedding.booked, [change.event]: next } };
+    }
+    case 'guests': {
+      const guests = { ...wedding.guests };
+      if (change.band) guests[change.event] = change.band;
+      else delete guests[change.event];
+      return { ...wedding, guests };
     }
   }
 }
@@ -220,6 +256,13 @@ async function saveChange(weddingId: string, change: WeddingChange): Promise<voi
             .eq('wedding_id', weddingId)
             .eq('event_slug', change.event)
             .eq('category_slug', change.category));
+      break;
+    case 'guests':
+      ({ error } = await supabase
+        .from('wedding_events')
+        .update({ guest_band: change.band })
+        .eq('wedding_id', weddingId)
+        .eq('event_slug', change.event));
       break;
   }
   if (error) throw error;
@@ -273,6 +316,7 @@ export function useWeddingPlan() {
       setWeddingDate: setLocalDate,
       toggleEvent: toggleLocalEvent,
       toggleBooked: toggleLocalBooked,
+      setEventGuests: setLocalGuests,
     };
   }
 
@@ -292,6 +336,7 @@ export function useWeddingPlan() {
         category,
         on: !(wedding.booked[event] ?? []).includes(category),
       }),
+    setEventGuests: (event: string, band: string | null) => change({ kind: 'guests', event, band }),
   };
 }
 
@@ -314,6 +359,18 @@ export function useStartWedding() {
         p_booked: plan.booked,
       });
       if (error) throw error;
+      // Guest counts per event come across too (best effort)
+      await Promise.all(
+        Object.entries(plan.guests ?? {})
+          .filter(([event]) => plan.events.includes(event))
+          .map(([event, band]) =>
+            supabase
+              .from('wedding_events')
+              .update({ guest_band: band })
+              .eq('wedding_id', data)
+              .eq('event_slug', event),
+          ),
+      );
       return data;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: weddingKeys.all }),

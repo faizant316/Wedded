@@ -26,6 +26,7 @@ function load(): WeddingPlan {
         ? parsed.events.filter((e) => typeof e === 'string')
         : [],
       booked: typeof parsed.booked === 'object' && parsed.booked ? parsed.booked : {},
+      guests: typeof parsed.guests === 'object' && parsed.guests ? parsed.guests : {},
       syncedWeddingId: typeof parsed.syncedWeddingId === 'string' ? parsed.syncedWeddingId : null,
     };
   } catch {
@@ -72,6 +73,16 @@ export function toggleBooked(eventSlug: string, categorySlug: string) {
       ? list.filter((c) => c !== categorySlug)
       : [...list, categorySlug];
     return { ...p, booked: { ...p.booked, [eventSlug]: next } };
+  });
+}
+
+/** About how many guests an event will have (a guest band, or null to clear). */
+export function setEventGuests(eventSlug: string, band: string | null) {
+  update((p) => {
+    const guests = { ...(p.guests ?? {}) };
+    if (band) guests[eventSlug] = band;
+    else delete guests[eventSlug];
+    return { ...p, guests };
   });
 }
 
