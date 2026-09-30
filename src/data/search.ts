@@ -8,6 +8,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
 import type { PriceUnit } from '@/components/vendor-card';
+import type { SearchFilters } from '@/features/search/search-filters';
 import { asLocalizedText, type LocalizedText } from '@/i18n/localized';
 import { supabase } from '@/lib/supabase';
 import type { Database } from '@/types/database';
@@ -29,6 +30,8 @@ export type VendorSearch = {
   query?: string;
   /** Also vendors who travel beyond their radius ("Show vendors who travel to you"). */
   includeTravelers?: boolean;
+  /** Guest capacity, price ceiling, language and order (the /filters sheet). */
+  filters?: SearchFilters;
   /** At most 100. */
   limit?: number;
   offset?: number;
@@ -81,6 +84,10 @@ export async function searchVendors(params: VendorSearch): Promise<VendorResult[
     include_travelers: params.includeTravelers ?? false,
     result_limit: params.limit ?? 50,
     result_offset: params.offset ?? 0,
+    min_guests: params.filters?.minGuests ?? undefined,
+    max_price: params.filters?.maxPrice ?? undefined,
+    language: params.filters?.language ?? undefined,
+    sort: params.filters?.sort ?? 'distance',
   } as SearchFunction['Args'];
 
   const { data, error } = await supabase.rpc('search_vendors', args);

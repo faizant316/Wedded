@@ -595,6 +595,27 @@
       "other": "{{count}} ਬੁੱਕ"
     }
   },
+  "filters": {
+    "title": "ਫਿਲਟਰ",
+    "button": "ਫਿਲਟਰ",
+    "buttonCount": "ਫਿਲਟਰ ({{count}})",
+    "any": "ਕੋਈ ਵੀ",
+    "guests": "ਕਿੰਨੇ ਮਹਿਮਾਨ?",
+    "guestsStep": "{{count}}+",
+    "price": "ਸ਼ੁਰੂਆਤੀ ਕੀਮਤ ਵੱਧ ਤੋਂ ਵੱਧ",
+    "pricePlateHint": "ਪ੍ਰਤੀ ਪਲੇਟ ਜਾਂ ਪ੍ਰਤੀ ਵਿਅਕਤੀ ਸ਼ੁਰੂਆਤੀ ਕੀਮਤ।",
+    "priceEventHint": "ਸਮਾਗਮ ਲਈ ਸ਼ੁਰੂਆਤੀ ਕੀਮਤ।",
+    "upTo": "{{price}} ਤੱਕ",
+    "language": "ਬੋਲਦੇ ਹਨ",
+    "sort": "ਪਹਿਲਾਂ ਦਿਖਾਓ",
+    "sorts": {
+      "distance": "ਸਭ ਤੋਂ ਨੇੜੇ",
+      "price_low": "ਸਭ ਤੋਂ ਘੱਟ ਕੀਮਤ",
+      "founding": "ਫਾਊਂਡਿੰਗ ਵੈਂਡਰ"
+    },
+    "show": "ਨਤੀਜੇ ਦਿਖਾਓ",
+    "clear": "ਫਿਲਟਰ ਹਟਾਓ"
+  },
   "vendorStats": {
     "savedBy": {
       "one": "{{count}} ਪਰਿਵਾਰ ਨੇ ਸੰਭਾਲਿਆ",
