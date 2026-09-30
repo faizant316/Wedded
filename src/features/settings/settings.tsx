@@ -10,7 +10,15 @@ import {
 } from 'react';
 import { useColorScheme } from 'react-native';
 
-import { Palettes, SchemeContext, TextScaleContext, type Scheme } from '@/constants/theme';
+import {
+  PALETTE_IDS,
+  PaletteContext,
+  SchemeContext,
+  TextScaleContext,
+  Themes,
+  type PaletteId,
+  type Scheme,
+} from '@/constants/theme';
 import { setHapticsEnabled } from '@/lib/haptics';
 import { readSetting, StorageKeys, writeSetting } from '@/lib/storage';
 
@@ -33,6 +41,9 @@ type SettingsValue = {
   setTextSize: (size: TextSize) => void;
   haptics: boolean;
   setHaptics: (on: boolean) => void;
+  /** Settings > Appearance > Colour. */
+  palette: PaletteId;
+  setPalette: (palette: PaletteId) => void;
 };
 
 const SettingsContext = createContext<SettingsValue | null>(null);
@@ -43,8 +54,9 @@ function oneOf<T extends string>(value: string | null, options: readonly T[], fa
 
 /**
  * The app's own settings, saved on this phone (vision S16: Profile and
- * settings): appearance (automatic, light or dark), text size and haptics.
- * Provides the colour scheme and text scale to every screen.
+ * settings): appearance (automatic, light or dark), the colour palette, text
+ * size and haptics. Provides the palette, colour scheme and text scale to
+ * every screen.
  */
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const system = useColorScheme();
@@ -55,6 +67,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     oneOf(readSetting(StorageKeys.textSize), TEXT_SIZES, 'default'),
   );
   const [haptics, setHapticsState] = useState(() => readSetting(StorageKeys.haptics) !== 'off');
+  const [palette, setPaletteState] = useState<PaletteId>(() =>
+    oneOf(readSetting(StorageKeys.palette), PALETTE_IDS, 'classic'),
+  );
 
   const scheme: Scheme =
     appearance === 'system' ? (system === 'dark' ? 'dark' : 'light') : appearance;
@@ -65,8 +80,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   // The window behind the app (seen during rotations and sheet animations).
   useEffect(() => {
-    void SystemUI.setBackgroundColorAsync(Palettes[scheme].bg).catch(() => {});
-  }, [scheme]);
+    void SystemUI.setBackgroundColorAsync(Themes[palette][scheme].bg).catch(() => {});
+  }, [palette, scheme]);
 
   const setAppearance = useCallback((next: Appearance) => {
     setAppearanceState(next);
@@ -80,6 +95,10 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     setHapticsState(on);
     void writeSetting(StorageKeys.haptics, on ? 'on' : 'off');
   }, []);
+  const setPalette = useCallback((next: PaletteId) => {
+    setPaletteState(next);
+    void writeSetting(StorageKeys.palette, next);
+  }, []);
 
   const value = useMemo<SettingsValue>(
     () => ({
@@ -90,17 +109,31 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       setTextSize,
       haptics,
       setHaptics,
+      palette,
+      setPalette,
     }),
-    [appearance, setAppearance, scheme, textSize, setTextSize, haptics, setHaptics],
+    [
+      appearance,
+      setAppearance,
+      scheme,
+      textSize,
+      setTextSize,
+      haptics,
+      setHaptics,
+      palette,
+      setPalette,
+    ],
   );
 
   return (
     <SettingsContext.Provider value={value}>
-      <SchemeContext.Provider value={scheme}>
-        <TextScaleContext.Provider value={TEXT_SCALES[textSize]}>
-          {children}
-        </TextScaleContext.Provider>
-      </SchemeContext.Provider>
+      <PaletteContext.Provider value={palette}>
+        <SchemeContext.Provider value={scheme}>
+          <TextScaleContext.Provider value={TEXT_SCALES[textSize]}>
+            {children}
+          </TextScaleContext.Provider>
+        </SchemeContext.Provider>
+      </PaletteContext.Provider>
     </SettingsContext.Provider>
   );
 }

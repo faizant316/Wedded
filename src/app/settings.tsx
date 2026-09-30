@@ -8,7 +8,15 @@ import { ListRow, ListSection } from '@/components/list';
 import { NavScreen } from '@/components/nav';
 import { Segmented } from '@/components/segmented';
 import { Switch } from '@/components/switch';
-import { makeStyles, Palettes, Spacing, useColors, type Scheme } from '@/constants/theme';
+import {
+  makeStyles,
+  PALETTE_IDS,
+  Spacing,
+  Themes,
+  useColors,
+  type PaletteId,
+  type Scheme,
+} from '@/constants/theme';
 import { useSession } from '@/features/auth/session';
 import { useSearchLocation } from '@/features/location/search-location';
 import { TEXT_SIZES, useSettings, type TextSize } from '@/features/settings/settings';
@@ -73,6 +81,24 @@ export default function SettingsScreen() {
             />
           }
         />
+      </ListSection>
+
+      {/* A preview for the founders to choose the app's colours (2026-09-30). */}
+      <ListSection header={t('settings.colour')} footer={t('settings.colourHint')}>
+        {PALETTE_IDS.map((id) => (
+          <ListRow
+            key={id}
+            title={t(`settings.palettes.${id}.name`)}
+            subtitle={t(`settings.palettes.${id}.hint`)}
+            leading={<Swatches palette={id} scheme={settings.scheme} />}
+            accessibilityRole="radio"
+            checked={settings.palette === id}
+            onPress={() => {
+              if (settings.palette !== id) selectionHaptic();
+              settings.setPalette(id);
+            }}
+          />
+        ))}
       </ListSection>
 
       <ListSection header={t('settings.textSize')} footer={t('settings.textSizeHint')}>
@@ -192,6 +218,22 @@ export default function SettingsScreen() {
  * A little phone drawn in one scheme's colours, like iOS Settings > Display:
  * a title bar, two rows and a tab bar, with a round check under it.
  */
+/** Three dots showing a palette: its button colour, accent and page. */
+function Swatches({ palette, scheme }: { palette: PaletteId; scheme: Scheme }) {
+  const styles = useStyles();
+  const p = Themes[palette][scheme];
+  return (
+    <View style={styles.swatches} accessible={false}>
+      {[p.primaryFill, p.accent, p.bg].map((color, i) => (
+        <View
+          key={i}
+          style={[styles.swatch, { backgroundColor: color, marginLeft: i === 0 ? 0 : -8 }]}
+        />
+      ))}
+    </View>
+  );
+}
+
 function SchemePreview({
   scheme,
   label,
@@ -205,7 +247,7 @@ function SchemePreview({
 }) {
   const Colors = useColors();
   const styles = useStyles();
-  const p = Palettes[scheme];
+  const p = Themes[useSettings().palette][scheme];
 
   return (
     <Pressable
@@ -241,6 +283,17 @@ function SchemePreview({
 }
 
 const useStyles = makeStyles((Colors) => ({
+  swatches: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  swatch: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: Colors.surface,
+  },
   previews: {
     flexDirection: 'row',
     justifyContent: 'center',
