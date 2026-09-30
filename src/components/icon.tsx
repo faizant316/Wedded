@@ -28,6 +28,8 @@ const SF_SYMBOLS: Partial<Record<IconName, SFSymbol>> = {
   'chevron-down': 'chevron.down',
   close: 'xmark',
   'close-circle': 'xmark.circle.fill',
+  'help-circle': 'questionmark.circle.fill',
+  'help-circle-outline': 'questionmark.circle',
   'close-circle-outline': 'xmark.circle',
   checkmark: 'checkmark',
   'checkmark-sharp': 'checkmark',
