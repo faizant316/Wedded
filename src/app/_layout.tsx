@@ -103,6 +103,7 @@ function AppShell() {
           <Stack.Screen name="sign-in" options={{ presentation: 'modal' }} />
           <Stack.Screen name="save-vendor" options={{ presentation: 'modal' }} />
           <Stack.Screen name="location" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="filters" options={{ presentation: 'modal' }} />
           <Stack.Screen name="ask" options={{ presentation: 'modal' }} />
           <Stack.Screen name="ask-sent" options={{ presentation: 'modal' }} />
           <Stack.Screen name="delete-account" options={{ presentation: 'modal' }} />
