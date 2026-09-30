@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import * as Linking from 'expo-linking';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Head from 'expo-router/head';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Alert,
   Platform,
@@ -29,6 +29,7 @@ import { Glass } from '@/components/glass';
 import { GlassButton } from '@/components/glass-button';
 import { groupIcon } from '@/components/group-icon';
 import { Icon, type IconName } from '@/components/icon';
+import { IconLine } from '@/components/icon-line';
 import { ListRow, ListSection, SectionTitle } from '@/components/list';
 import { NavBar, useNavScroll, useNavTop } from '@/components/nav';
 import { StateView } from '@/components/state-view';
@@ -40,6 +41,7 @@ import { useSavedEventsFor, useSaveVendor } from '@/data/saved';
 import { useVendorLinks, type LinkedVendor } from '@/data/vendor-links';
 import { useRealWeddingsAt, useVendorPhotos, type VendorPhoto } from '@/data/vendor-media';
 import { useVendor } from '@/data/vendors';
+import { trackVendorActivity, useVendorPublicStats } from '@/data/vendor-stats';
 import { ALL_NORCAL_MILES, factLabels, priceLine } from '@/features/vendors/profile-format';
 import { shareVendor } from '@/features/vendors/share';
 import { bilingual, localized, vendorText } from '@/i18n/localized';
@@ -201,6 +203,14 @@ export default function VendorProfileScreen() {
   const stackButtons = useFontScale('button') >= 1.5;
   const [barHeight, setBarHeight] = useState(0);
   const vendor = useVendor(slug);
+  const vendorId = vendor.data?.id ?? '';
+  // "Saved by N families", "Replied to N of M": null until 5+ people are behind them.
+  const stats = useVendorPublicStats(vendorId);
+
+  // One anonymous view per visit (trackVendorActivity de-dupes per session).
+  useEffect(() => {
+    if (vendorId) trackVendorActivity(vendorId, 'view');
+  }, [vendorId]);
   const links = useVendorLinks(vendor.data?.id ?? '');
   const photos = useVendorPhotos(vendor.data?.id ?? '');
   const realWeddings = useRealWeddingsAt(vendor.data?.id ?? '');
@@ -295,10 +305,16 @@ export default function VendorProfileScreen() {
         // nothing there, so the link opens straight away.
         onPress: () =>
           Platform.OS === 'web'
-            ? open(`tel:${phone}`)
+            ? (trackVendorActivity(v.id, 'call'), open(`tel:${phone}`))
             : Alert.alert(t('vendor.callTitle', { name }), formatPhone(phone), [
                 { text: t('vendor.cancel'), style: 'cancel' },
-                { text: t('vendor.call'), onPress: () => open(`tel:${phone}`) },
+                {
+                  text: t('vendor.call'),
+                  onPress: () => {
+                    trackVendorActivity(v.id, 'call');
+                    open(`tel:${phone}`);
+                  },
+                },
               ]),
       });
     }
@@ -308,7 +324,10 @@ export default function VendorProfileScreen() {
         icon: 'chatbubble-outline',
         label: t('vendor.text'),
         spoken: t('vendor.textSpoken', { name, phone: formatPhone(v.textPhone) }),
-        onPress: () => open(`sms:${v.textPhone}`),
+        onPress: () => {
+          trackVendorActivity(v.id, 'text');
+          open(`sms:${v.textPhone}`);
+        },
       });
     }
     if (v.whatsappPhone) {
@@ -317,7 +336,10 @@ export default function VendorProfileScreen() {
         icon: 'logo-whatsapp',
         label: t('vendor.whatsapp'),
         spoken: t('vendor.whatsappSpoken', { name }),
-        onPress: () => open(`https://wa.me/${v.whatsappPhone?.replace(/\D/g, '')}`),
+        onPress: () => {
+          trackVendorActivity(v.id, 'whatsapp');
+          open(`https://wa.me/${v.whatsappPhone?.replace(/\D/g, '')}`);
+        },
       });
     }
     if (v.instagramHandle) {
@@ -326,7 +348,10 @@ export default function VendorProfileScreen() {
         icon: 'logo-instagram',
         label: t('vendor.instagram'),
         spoken: t('vendor.instagramSpoken', { name }),
-        onPress: () => open(`https://instagram.com/${v.instagramHandle}`),
+        onPress: () => {
+          trackVendorActivity(v.id, 'instagram');
+          open(`https://instagram.com/${v.instagramHandle}`);
+        },
       });
     }
     if (v.addressLine) {
@@ -336,12 +361,14 @@ export default function VendorProfileScreen() {
         icon: 'navigate-outline',
         label: t('vendor.directions'),
         spoken: t('vendor.directionsSpoken', { name }),
-        onPress: () =>
+        onPress: () => {
+          trackVendorActivity(v.id, 'directions');
           open(
             Platform.OS === 'ios'
               ? `https://maps.apple.com/?daddr=${destination}`
               : `https://www.google.com/maps/dir/?api=1&destination=${destination}`,
-          ),
+          );
+        },
       });
     }
 
@@ -431,6 +458,17 @@ export default function VendorProfileScreen() {
             </AppText>
           )}
           <AppText color="text2">{[categoryNames.join(', '), v.city].join(' · ')}</AppText>
+          {/* Quiet trust lines, shown only once 5+ families are behind each. */}
+          {stats.data?.savedBy != null && (
+            <IconLine icon="heart-outline" color="text2">
+              {t('vendorStats.savedBy', { count: stats.data.savedBy })}
+            </IconLine>
+          )}
+          {stats.data?.replied != null && (
+            <IconLine icon="chatbubble-outline" color="text2">
+              {t('vendorStats.replied', stats.data.replied)}
+            </IconLine>
+          )}
         </View>
 
         {tagline && <AppText variant="bodyLg">{tagline}</AppText>}
@@ -650,6 +688,7 @@ export default function VendorProfileScreen() {
               onPress={() => {
                 const v = vendor.data;
                 if (!v) return;
+                trackVendorActivity(v.id, 'share');
                 void shareVendor(
                   {
                     name: localized(v.name, locale),
