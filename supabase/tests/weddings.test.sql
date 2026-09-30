@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(26);
+select plan(27);
 
 -- People: Asha (sets up the wedding), Balwinder (joins as a planner),
 -- Charan (joins as a viewer), Dev (a stranger)
@@ -138,6 +138,13 @@ select is(
   (select updated_by from public.wedding_bookings where category_slug = 'photographer'),
   'b2000000-0000-4000-8000-00000000000b'::uuid,
   'A planner can tick off a booking, and it records who did'
+);
+
+update public.weddings set traditions = '{punjabi-sikh,pakistani}';
+select is(
+  (select traditions from public.weddings),
+  '{punjabi-sikh,pakistani}'::text[],
+  'A planner can set the wedding''s traditions'
 );
 
 select pg_temp.as_user('c2000000-0000-4000-8000-00000000000c');

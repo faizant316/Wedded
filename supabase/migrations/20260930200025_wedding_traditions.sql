@@ -141,6 +141,19 @@ cross join lateral (
 delete from public.event_categories
 where event_slug = 'whole-wedding' and category_slug in ('granthi', 'turban-tying');
 
+-- A wedding saved to the account remembers its traditions ------------------
+-- (Plan together, 20260930081956): relatives who join see the same events.
+-- Unknown slugs are ignored by the app, so no lookup is needed; owners and
+-- planners change them like the date.
+
+alter table public.weddings
+  add column traditions text[] not null default '{}' check (cardinality(traditions) <= 10);
+
+comment on column public.weddings.traditions is
+  'Culture slugs the family picked in My Wedding (a mixed wedding has several). Empty means the default culture.';
+
+grant update (traditions) on public.weddings to authenticated;
+
 -- Search words the new traditions use ---------------------------------------
 
 update public.categories set aliases = aliases || array['qawwali', 'qawwal', 'zaffa', 'zaffa band']

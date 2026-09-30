@@ -1224,6 +1224,7 @@ export type Database = {
           id: string;
           planning_for: string | null;
           title: string | null;
+          traditions: string[];
           updated_at: string;
           wedding_date: string | null;
         };
@@ -1233,6 +1234,7 @@ export type Database = {
           id?: string;
           planning_for?: string | null;
           title?: string | null;
+          traditions?: string[];
           updated_at?: string;
           wedding_date?: string | null;
         };
@@ -1242,6 +1244,7 @@ export type Database = {
           id?: string;
           planning_for?: string | null;
           title?: string | null;
+          traditions?: string[];
           updated_at?: string;
           wedding_date?: string | null;
         };
