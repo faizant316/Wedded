@@ -40,6 +40,8 @@ export type AccountWedding = {
   events: string[];
   booked: Record<string, string[]>;
   guests: Record<string, string>;
+  /** Who they booked, keyed "event/category", when a vendor is named. */
+  bookedVendors: Record<string, { slug: string; name: string }>;
 };
 
 export const weddingKeys = {
@@ -65,7 +67,10 @@ type MembershipRow = {
     wedding_events: {
       event_slug: string;
       guest_band: string | null;
-      wedding_bookings: { category_slug: string }[];
+      wedding_bookings: {
+        category_slug: string;
+        vendor: { slug: string; name: string } | null;
+      }[];
     }[];
   } | null;
 };
@@ -75,7 +80,13 @@ export function toAccountWedding(row: MembershipRow): AccountWedding | null {
   if (!row.wedding || !isRole(row.role)) return null;
   const booked: Record<string, string[]> = {};
   const guests: Record<string, string> = {};
+  const bookedVendors: Record<string, { slug: string; name: string }> = {};
   for (const event of row.wedding.wedding_events) {
+    for (const booking of event.wedding_bookings) {
+      if (booking.vendor) {
+        bookedVendors[`${event.event_slug}/${booking.category_slug}`] = booking.vendor;
+      }
+    }
     const categories = event.wedding_bookings.map((b) => b.category_slug);
     if (categories.length > 0) booked[event.event_slug] = categories;
     if (event.guest_band) guests[event.event_slug] = event.guest_band;
@@ -89,6 +100,7 @@ export function toAccountWedding(row: MembershipRow): AccountWedding | null {
     events: row.wedding.wedding_events.map((e) => e.event_slug),
     booked,
     guests,
+    bookedVendors,
   };
 }
 
@@ -114,7 +126,7 @@ async function fetchMyWeddings(userId: string): Promise<AccountWedding[]> {
   const { data, error } = await supabase
     .from('wedding_members')
     .select(
-      'role, joined_at, wedding:weddings(id, title, wedding_date, wedding_events(event_slug, guest_band, wedding_bookings(category_slug)))',
+      'role, joined_at, wedding:weddings(id, title, wedding_date, wedding_events(event_slug, guest_band, wedding_bookings(category_slug, vendor:vendors(slug, name))))',
     )
     .eq('user_id', userId)
     .order('joined_at');
