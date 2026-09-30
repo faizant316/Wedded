@@ -87,6 +87,7 @@ const VENDOR_KEYS = new Set([
   'events',
   'private',
   'links',
+  'menus',
 ]);
 const PRIVATE_KEYS = new Set([
   'email',
@@ -121,7 +122,25 @@ export type VendorInput = {
   events: string[];
   private: VendorPrivate | null;
   links: VendorLink[];
+  /** Replaces the vendor's menus when given (null: leave them as they are). */
+  menus: VendorMenu[] | null;
 };
+
+/** A menu as the file gives it; the database checks the sections' shape. */
+export type VendorMenu = {
+  name: string;
+  name_pa?: string;
+  description?: string;
+  description_pa?: string;
+  cuisine?: string;
+  diet?: string[];
+  price_from?: number;
+  price_unit?: 'person' | 'plate' | 'event';
+  min_guests?: number;
+  sections: unknown[];
+};
+
+const MENU_DIETS = ['veg', 'non_veg', 'jhatka', 'halal', 'jain', 'eggless', 'vegan', 'gluten_free'];
 
 export type ParseResult = { vendors: VendorInput[]; errors: string[]; warnings: string[] };
 
@@ -375,6 +394,61 @@ function parseOne(raw: unknown, label: string, errors: string[], warnings: strin
     }
   }
 
+  let menus: VendorMenu[] | null = null;
+  if (raw.menus !== undefined) {
+    if (!Array.isArray(raw.menus)) fail('menus must be a list.');
+    else {
+      menus = [];
+      raw.menus.forEach((menu, i) => {
+        const where = `menus[${i + 1}]`;
+        if (!isObject(menu) || typeof menu.name !== 'string' || !menu.name.trim()) {
+          fail(`${where} needs a name.`);
+          return;
+        }
+        if (
+          menu.price_from !== undefined &&
+          !(Number.isInteger(menu.price_from) && (menu.price_from as number) > 0)
+        ) {
+          fail(`${where}.price_from must be a whole number above 0.`);
+        }
+        if (
+          menu.price_from !== undefined &&
+          !['person', 'plate', 'event'].includes(menu.price_unit as string)
+        ) {
+          fail(`${where} with a price needs "price_unit": "plate", "person" or "event".`);
+        }
+        if (
+          menu.min_guests !== undefined &&
+          !(Number.isInteger(menu.min_guests) && (menu.min_guests as number) > 0)
+        ) {
+          fail(`${where}.min_guests must be a whole number above 0.`);
+        }
+        const diet = menu.diet === undefined ? [] : menu.diet;
+        if (!Array.isArray(diet) || !diet.every((d) => MENU_DIETS.includes(d as string))) {
+          fail(`${where}.diet must be a list from ${MENU_DIETS.join(', ')}.`);
+        }
+        const sections = menu.sections === undefined ? [] : menu.sections;
+        if (
+          !Array.isArray(sections) ||
+          !sections.every(
+            (s) =>
+              isObject(s) &&
+              typeof s.title === 'string' &&
+              Array.isArray(s.items) &&
+              s.items.every((item) => isObject(item) && typeof item.name === 'string'),
+          )
+        ) {
+          fail(`${where}.sections must be [{ "title": "...", "items": [{ "name": "..." }] }].`);
+        }
+        menus!.push({
+          ...(menu as VendorMenu),
+          name: menu.name.trim(),
+          sections: sections as unknown[],
+        });
+      });
+    }
+  }
+
   return {
     row: row as VendorRow,
     point,
@@ -382,6 +456,7 @@ function parseOne(raw: unknown, label: string, errors: string[], warnings: strin
     events: events ?? [],
     private: privateInfo,
     links,
+    menus,
   };
 }
 

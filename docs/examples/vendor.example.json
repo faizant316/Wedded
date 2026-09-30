@@ -43,8 +43,61 @@
       "notes": "Met at the hall on Oct 15. Wants the QR tent for the front desk."
     },
     "links": [
-      { "vendor": "saffron-tandoor-catering", "kind": "approved_at" },
-      { "vendor": "royal-feast-caterers", "kind": "approved_at" }
+      {
+        "vendor": "saffron-tandoor-catering",
+        "kind": "approved_at"
+      },
+      {
+        "vendor": "royal-feast-caterers",
+        "kind": "approved_at"
+      }
+    ],
+    "menus": [
+      {
+        "name": "Gold Reception Menu",
+        "description": "Food included with the hall.",
+        "cuisine": "Punjabi",
+        "diet": ["veg", "non_veg"],
+        "price_from": 45,
+        "price_unit": "plate",
+        "min_guests": 200,
+        "sections": [
+          {
+            "title": "Appetizers",
+            "items": [
+              {
+                "name": "Paneer tikka",
+                "diet": ["veg"]
+              },
+              {
+                "name": "Chicken malai tikka",
+                "diet": ["non_veg"]
+              }
+            ]
+          },
+          {
+            "title": "Mains",
+            "items": [
+              {
+                "name": "Butter chicken",
+                "diet": ["non_veg"]
+              },
+              {
+                "name": "Dal makhani",
+                "diet": ["veg"]
+              }
+            ]
+          },
+          {
+            "title": "Dessert",
+            "items": [
+              {
+                "name": "Gulab jamun"
+              }
+            ]
+          }
+        ]
+      }
     ]
   }
 ]

@@ -185,6 +185,20 @@ async function write(supabase: SupabaseClient, vendors: VendorInput[], checked: 
       if (eventError) fail(`Could not save ${slug}'s events: ${eventError.message}`);
     }
 
+    if (vendor.menus) {
+      const { error: menuClearError } = await supabase
+        .from('vendor_menus')
+        .delete()
+        .eq('vendor_id', id);
+      if (menuClearError) fail(`Could not update ${slug}'s menus: ${menuClearError.message}`);
+      if (vendor.menus.length > 0) {
+        const { error: menuError } = await supabase
+          .from('vendor_menus')
+          .insert(vendor.menus.map((menu, i) => ({ ...menu, vendor_id: id, sort_order: i + 1 })));
+        if (menuError) fail(`Could not save ${slug}'s menus: ${menuError.message}`);
+      }
+    }
+
     const number = data.founding_number ? `, founding #${data.founding_number}` : '';
     console.log(`  ${slug} (${data.status}${number})`);
   }
