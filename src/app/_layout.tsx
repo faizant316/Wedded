@@ -23,6 +23,7 @@ import { Platform } from 'react-native';
 import { WebFrame } from '@/components/web-frame';
 import { useColors, useScheme } from '@/constants/theme';
 import { queryClient } from '@/data/query-client';
+import { WeddingSync } from '@/data/wedding';
 import { SessionProvider } from '@/features/auth/session';
 import { SearchLocationProvider } from '@/features/location/search-location';
 import { SettingsProvider } from '@/features/settings/settings';
@@ -95,12 +96,14 @@ function AppShell() {
   return (
     <ThemeProvider value={theme}>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+      <WeddingSync />
       <WebFrame>
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Colors.bg } }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="sign-in" options={{ presentation: 'modal' }} />
           <Stack.Screen name="save-vendor" options={{ presentation: 'modal' }} />
           <Stack.Screen name="location" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="filters" options={{ presentation: 'modal' }} />
           <Stack.Screen name="ask" options={{ presentation: 'modal' }} />
           <Stack.Screen name="ask-sent" options={{ presentation: 'modal' }} />
           <Stack.Screen name="delete-account" options={{ presentation: 'modal' }} />

@@ -14,6 +14,8 @@ import { useCategories, useEvent } from '@/data/reference';
 import { useSavedVendors, useSaveVendor } from '@/data/saved';
 import { useVendorSearch } from '@/data/search';
 import { LocationChip } from '@/features/location/location-chip';
+import { FiltersButton } from '@/features/search/filters-button';
+import { useSearchFilters } from '@/features/search/search-filters';
 import { useSearchLocation } from '@/features/location/search-location';
 import { bilingual, localized } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
@@ -44,6 +46,8 @@ export default function ResultsScreen() {
   const [includeTravelers, setIncludeTravelers] = useState(false);
   const categories = useCategories();
   const event = useEvent(eventSlug ?? '');
+  // Guests, price, language and order from the /filters sheet.
+  const filters = useSearchFilters();
   const vendors = useVendorSearch({
     latitude: place?.latitude,
     longitude: place?.longitude,
@@ -53,6 +57,7 @@ export default function ResultsScreen() {
     // serve, and they shouldn't disappear. The event only decides where a
     // heart saves them.
     includeTravelers,
+    filters,
     limit: 100,
   });
   const [refreshing, setRefreshing] = useState(false);
@@ -99,6 +104,7 @@ export default function ResultsScreen() {
         />
       )}
       <LocationChip />
+      <FiltersButton groupSlug={category?.groupSlug} />
       {vendors.isSuccess && vendors.data.length > 0 && (
         <AppText variant="label" weight={400} color="text2" style={styles.count}>
           {t('counts.vendors', { count: vendors.data.length })}

@@ -1,11 +1,11 @@
-# Wedding Vendor App
+# Wedded App
 
-> Working name. The final name is picked in Phase 5 (see [Name Ideas](docs/PROJECT_PLAN.md#ongoing-name-ideas)).
+> The name is **Wedded App** ("App" is part of the name). The App Store, domain and trademark checks are still to do (Phase 5).
 
 A cross-platform mobile app (iOS and Android) for finding and booking every wedding vendor, organized by event: roka, mehndi, jaago, anand karaj, reception, and more.
 
 - **Founders:** Kirat and Fezy (50/50)
-- **Launch market:** Northern California Punjabi weddings (510, 916, 408, 209, 530)
+- **Launch market:** Northern California (510, 916, 408, 209, 530), starting with Punjabi wedding vendors. The brand is for every culture.
 - **Approach:** Build the app and prove it works with sample vendors first. Handle the name, LLC, and other official steps once the app is running.
 
 ## Stack
@@ -75,6 +75,26 @@ Everything is checked before anything is saved, and each problem is explained. R
 
 `✗` means the demo breaks; `!` means it works but could look better. For the hosted database, set `SUPABASE_URL`, `SUPABASE_SECRET_KEY` and `SUPABASE_PUBLISHABLE_KEY`, and add `--send` to also send the tour request, which emails for real.
 
+### The founders' numbers
+
+`npm run report -- --local` prints the last 7 days as text you can paste into WhatsApp:
+- new families;
+- inquiries and follow-up answers;
+- saves;
+- shared plans;
+- new vendor sign-ups;
+- the most viewed vendors.
+
+Add `--days=30` for longer. `npm run report -- --local --vendor=<slug> --month=2026-10` writes one vendor's monthly scorecard, ready to send to them. For the hosted database, set `SUPABASE_URL` and `SUPABASE_SECRET_KEY` instead of `--local`.
+### Vendor calendars
+Until vendors have accounts, founders keep each vendor's calendar after a call or text:
+```bash
+npm run availability -- --local --vendor=royal-orchard-banquet-hall --booked=2027-06-12,2027-06-13 --held=2027-06-19 --evening=2027-06-26
+npm run availability -- --local --vendor=royal-orchard-banquet-hall --open=2027-06-13 --list
+```
+- **Days you mark:** `--booked` (all day), `--held` (someone is holding it), `--morning` / `--evening` (that part of the day is booked). `--open` clears a day.
+- **Days you don't mark** show as open for 60 days after each update, and after that as unknown. Families see "open", "booked", "held" or "partly booked", never who booked.
+
 ### Punjabi review sheet
 
 `npm run i18n:review -- --local` writes `punjabi-review.csv` (gitignored): every English text in the app (event names and timings, vendor types, groups, area-code chips, and the app's own words) next to its Punjabi, with the missing ones first in each section. Open it in Google Sheets or Excel, have the family fill in the **Correction** column, and give the file back to Claude Code to apply. Add `--out=<file>` to write it somewhere else.
@@ -102,7 +122,7 @@ Settings for the hosted project (set once with `supabase secrets set NAME=value`
 | Name | What it's for |
 | --- | --- |
 | `RESEND_API_KEY` | Sending inquiry emails through Resend |
-| `INQUIRY_FROM` | The sender, e.g. `Wedding Vendor App <inquiries@mail.yourdomain.com>` (needs the verified domain, Phase 5) |
+| `INQUIRY_FROM` | The sender, e.g. `Wedded App <inquiries@mail.yourdomain.com>` (needs the verified domain, Phase 5) |
 | `FOUNDERS_EMAIL` | Founders' emails, comma-separated: a blind copy of every inquiry, and relayed inquiries for vendors who don't use email |
 | `INQUIRY_TEST_INBOX` | While testing, every vendor email goes here instead of to the vendor |
 
@@ -132,6 +152,7 @@ select vault.create_secret('<service role key>', 'service_role_key');
 - [Project plan and checklist](docs/PROJECT_PLAN.md): every phase and task, with checkboxes
 - [Product vision](docs/PRODUCT_VISION.md): how the app looks and works, screen by screen, and the November prototype plan
 - [Decisions log](docs/DECISIONS.md): what we decided and why
+- [Growth research](docs/RESEARCH_GROWTH.md): what successful apps do and what we're building from it
 - [Putting the app online](docs/HOSTED_SETUP.md): the hosted Supabase project, emails and server code, step by step
 
 ## How we work

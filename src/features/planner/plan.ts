@@ -1,8 +1,9 @@
 /**
  * My Wedding (vision S15b/S15c, the planning board): the wedding date, which
  * events the family is having, and which vendor types are booked for each.
- * Kept on this phone for now (no account needed); a shared, synced board is
- * Phase 8.
+ * Works on the phone with no account. Once it's saved to the account (Plan
+ * together, src/data/wedding.ts), this store holds a copy of the account's
+ * plan (syncedWeddingId set), so Home and Profile show it without waiting.
  */
 import { useSyncExternalStore } from 'react';
 
@@ -25,6 +26,7 @@ function load(): WeddingPlan {
         ? parsed.events.filter((e) => typeof e === 'string')
         : [],
       booked: typeof parsed.booked === 'object' && parsed.booked ? parsed.booked : {},
+      syncedWeddingId: typeof parsed.syncedWeddingId === 'string' ? parsed.syncedWeddingId : null,
     };
   } catch {
     return EMPTY;
@@ -71,6 +73,16 @@ export function toggleBooked(eventSlug: string, categorySlug: string) {
       : [...list, categorySlug];
     return { ...p, booked: { ...p.booked, [eventSlug]: next } };
   });
+}
+
+/** Replace the whole plan: the copy of the account's plan (Plan together). */
+export function replacePlan(next: WeddingPlan) {
+  update(() => next);
+}
+
+/** Forget the plan on this phone (after it's saved to the account, or on sign-out). */
+export function clearPlan() {
+  update(() => EMPTY);
 }
 
 /** The plan, re-rendering whenever it changes. */
