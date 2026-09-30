@@ -1,68 +1,57 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
-import type { ComponentProps } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/app-text';
-import { Button } from '@/components/button';
-import { Card } from '@/components/card';
-import { Screen } from '@/components/screen';
+import { Icon } from '@/components/icon';
+import { ListRow, ListSection } from '@/components/list';
+import { NavScreen } from '@/components/nav';
+import { PressableScale } from '@/components/pressable-scale';
 import { StateView } from '@/components/state-view';
-import { Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useMyInquiries } from '@/data/inquiries';
 import { useSession } from '@/features/auth/session';
 import type { Locale } from '@/i18n';
 import { useLocale } from '@/i18n/locale-context';
 import { formatPhone } from '@/lib/phone';
-
-type IoniconName = ComponentProps<typeof Ionicons>['name'];
+import { selectionHaptic } from '@/lib/haptics';
 
 const LANGUAGES: { locale: Locale; labelKey: string }[] = [
   { locale: 'en', labelKey: 'profile.english' },
   { locale: 'pa', labelKey: 'profile.punjabi' },
 ];
 
+/**
+ * S16 Profile, laid out like iOS Settings: the account card at the top (the
+ * Apple Account row), then grouped rows for inquiries, language and the
+ * account actions.
+ */
 export default function ProfileScreen() {
   const { locale, setLocale, t } = useLocale();
 
   return (
-    <Screen>
-      <ScrollView contentContainerStyle={styles.content}>
-        <AppText variant="title" accessibilityRole="header">
-          {t('tabs.profile')}
-        </AppText>
+    <NavScreen title={t('tabs.profile')} back={false}>
+      <AccountSection />
 
-        <AccountSection />
+      <ListSection header={t('profile.language')}>
+        {LANGUAGES.map((language) => (
+          <ListRow
+            key={language.locale}
+            title={t(language.labelKey)}
+            titleLang={language.locale}
+            accessibilityRole="radio"
+            checked={language.locale === locale}
+            onPress={() => {
+              if (language.locale !== locale) selectionHaptic();
+              setLocale(language.locale);
+            }}
+          />
+        ))}
+      </ListSection>
 
-        <AppText variant="heading" accessibilityRole="header">
-          {t('profile.language')}
-        </AppText>
-        <View style={styles.cards} accessibilityRole="radiogroup">
-          {LANGUAGES.map((language) => {
-            const selected = language.locale === locale;
-            return (
-              <Pressable
-                key={language.locale}
-                accessibilityRole="radio"
-                accessibilityState={{ selected }}
-                onPress={() => setLocale(language.locale)}
-                style={[styles.card, selected && styles.cardSelected]}
-              >
-                <AppText variant="heading" lang={language.locale}>
-                  {t(language.labelKey)}
-                </AppText>
-                {selected && <Ionicons name="checkmark-circle" size={28} color={Colors.primary} />}
-              </Pressable>
-            );
-          })}
-        </View>
-
-        <AppText variant="heading" accessibilityRole="header">
-          {t('profile.textSize')}
-        </AppText>
-        <AppText color="text2">{t('common.comingSoon')}</AppText>
-      </ScrollView>
-    </Screen>
+      <ListSection>
+        <ListRow title={t('profile.textSize')} value={t('common.comingSoon')} />
+      </ListSection>
+    </NavScreen>
   );
 }
 
@@ -78,106 +67,118 @@ function AccountSection() {
   if (status === 'error') {
     return <StateView state="error" onRetry={reloadProfile} style={styles.state} />;
   }
-  if (status === 'signedOut') {
+  if (status === 'signedOut' || status === 'needsProfile' || !profile) {
+    const signedOut = status === 'signedOut';
     return (
-      <Card style={styles.account}>
-        <AppText variant="heading">{t('profile.account.signInTitle')}</AppText>
-        <AppText color="text2">{t('profile.account.signInBody')}</AppText>
-        <Button
-          label={t('profile.account.signIn')}
-          icon="mail-outline"
-          onPress={() => router.push('/sign-in')}
+      <PressableScale
+        accessibilityRole="button"
+        accessibilityLabel={signedOut ? t('profile.account.signIn') : t('profile.account.finish')}
+        onPress={() => router.push('/sign-in')}
+        style={styles.accountCard}
+      >
+        <View style={[styles.avatar, styles.avatarEmpty]}>
+          <Icon name="person" size={30} color={Colors.onPrimary} />
+        </View>
+        <View style={styles.accountText}>
+          <AppText variant="heading" weight={600} color="primary">
+            {signedOut ? t('profile.account.signInTitle') : t('profile.account.finishTitle')}
+          </AppText>
+          <AppText variant="label" weight={400} color="text2">
+            {signedOut ? t('profile.account.signInBody') : t('profile.account.finishBody')}
+          </AppText>
+        </View>
+        <Icon name="chevron-forward" size={17} color={Colors.chevron} weight="semibold" />
+      </PressableScale>
+    );
+  }
+
+  const initials = profile.full_name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase())
+    .join('');
+
+  return (
+    <>
+      <View style={styles.accountCard}>
+        <View style={styles.avatar}>
+          <AppText variant="section" color="onPrimary">
+            {initials}
+          </AppText>
+        </View>
+        <View style={styles.accountText}>
+          <AppText variant="heading" weight={600}>
+            {profile.full_name}
+          </AppText>
+          {email && (
+            <AppText variant="label" weight={400} color="text2">
+              {email}
+            </AppText>
+          )}
+          <AppText variant="label" weight={400} color="text2">
+            {[formatPhone(profile.phone), profile.city].join(' · ')}
+          </AppText>
+        </View>
+      </View>
+
+      <ListSection inset>
+        <ListRow
+          title={t('profile.account.myInquiries')}
+          icon="chatbubbles-outline"
+          value={inquiries.data ? String(inquiries.data.length) : undefined}
+          accessibilityLabel={
+            inquiries.data
+              ? t('profile.account.myInquiriesCount', { count: inquiries.data.length })
+              : t('profile.account.myInquiries')
+          }
+          onPress={() => router.push('/my-inquiries')}
         />
-      </Card>
-    );
-  }
-  if (status === 'needsProfile' || !profile) {
-    return (
-      <Card style={styles.account}>
-        <AppText variant="heading">{t('profile.account.finishTitle')}</AppText>
-        <AppText color="text2">{t('profile.account.finishBody')}</AppText>
-        <Button label={t('profile.account.finish')} onPress={() => router.push('/sign-in')} />
-      </Card>
-    );
-  }
+        <ListRow
+          title={t('profile.account.edit')}
+          icon="person-circle-outline"
+          onPress={() => router.push({ pathname: '/sign-in', params: { mode: 'edit' } })}
+        />
+      </ListSection>
 
-  return (
-    <Card style={styles.account}>
-      <AppText variant="heading">{profile.full_name}</AppText>
-      <Detail icon="location-outline" text={profile.city} />
-      <Detail icon="call-outline" text={formatPhone(profile.phone)} />
-      {email && <Detail icon="mail-outline" text={email} />}
-      <Button
-        variant="secondary"
-        icon="chatbubbles-outline"
-        label={
-          inquiries.data
-            ? t('profile.account.myInquiriesCount', { count: inquiries.data.length })
-            : t('profile.account.myInquiries')
-        }
-        onPress={() => router.push('/my-inquiries')}
-      />
-      <Button
-        variant="secondary"
-        label={t('profile.account.edit')}
-        onPress={() => router.push({ pathname: '/sign-in', params: { mode: 'edit' } })}
-      />
-      <Button variant="text" label={t('profile.account.signOut')} onPress={signOut} />
-      <Button
-        variant="text"
-        label={t('profile.account.deleteAccount')}
-        onPress={() => router.push('/delete-account')}
-      />
-    </Card>
-  );
-}
-
-function Detail({ icon, text }: { icon: IoniconName; text: string }) {
-  return (
-    <View style={styles.detail}>
-      <Ionicons name={icon} size={Sizes.iconSmall} color={Colors.text2} />
-      <AppText style={styles.detailText}>{text}</AppText>
-    </View>
+      <ListSection>
+        <ListRow title={t('profile.account.signOut')} tone="primary" onPress={signOut} />
+        <ListRow
+          title={t('profile.account.deleteAccount')}
+          tone="error"
+          onPress={() => router.push('/delete-account')}
+        />
+      </ListSection>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  content: {
-    paddingVertical: Spacing.lg,
-    gap: Spacing.lg,
-  },
-  account: {
-    gap: Spacing.md,
-  },
   state: {
     paddingVertical: Spacing.xl,
   },
-  detail: {
+  accountCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.sm,
-  },
-  detailText: {
-    flexShrink: 1,
-  },
-  cards: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-  },
-  card: {
-    flex: 1,
-    minHeight: 64,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.lg,
+    gap: Spacing.lg,
+    padding: Spacing.lg,
     borderRadius: Radius.card,
-    borderWidth: 2,
-    borderColor: Colors.border,
+    borderCurve: 'continuous',
     backgroundColor: Colors.surface,
   },
-  cardSelected: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primaryTint,
+  avatar: {
+    width: 64,
+    height: 64,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: Radius.circle,
+    backgroundColor: Colors.primary,
+  },
+  avatarEmpty: {
+    backgroundColor: Colors.textDisabled,
+  },
+  accountText: {
+    flex: 1,
+    gap: 2,
   },
 });

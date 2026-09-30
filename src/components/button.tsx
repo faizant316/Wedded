@@ -1,5 +1,3 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import type { ComponentProps } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -10,19 +8,19 @@ import {
 } from 'react-native';
 
 import { AppText, useFontScale } from '@/components/app-text';
-import { BorderWidth, Colors, Radius, Sizes, Spacing, type ColorToken } from '@/constants/theme';
-
-type IoniconName = ComponentProps<typeof Ionicons>['name'];
+import { Icon, type IconName } from '@/components/icon';
+import { Colors, Radius, Sizes, Spacing, type ColorToken } from '@/constants/theme';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'text' | 'danger';
 
 export type ButtonProps = Omit<PressableProps, 'children' | 'style' | 'disabled'> & {
   label: string;
-  /** primary: the one main action on a screen. secondary: outlined. text: a link-style action.
+  /** primary: the one main action on a screen, a filled capsule. secondary: a
+   * tinted capsule (iOS "bordered"). text: a plain link-style action.
    * danger: red, for actions that can't be undone (delete account). */
   variant?: ButtonVariant;
   /** Optional icon before the label. */
-  icon?: IoniconName;
+  icon?: IconName;
   /** Shows a spinner and ignores taps, e.g. while sending. */
   loading?: boolean;
   disabled?: boolean;
@@ -37,8 +35,9 @@ const LABEL_COLOR: Record<ButtonVariant, ColorToken> = {
 };
 
 /**
- * The app's button: at least 56 tall, stretches to the width of its container,
- * and lets long (Punjabi) labels wrap onto a second line instead of clipping.
+ * The app's button, an iOS 26 capsule at least 52 tall that stretches to the
+ * width of its container, and lets long (Punjabi) labels wrap onto a second
+ * line instead of clipping.
  */
 export function Button({
   label,
@@ -50,7 +49,7 @@ export function Button({
   accessibilityLabel,
   ...rest
 }: ButtonProps) {
-  const labelColor: ColorToken = disabled ? 'text2' : LABEL_COLOR[variant];
+  const labelColor: ColorToken = disabled ? 'textDisabled' : LABEL_COLOR[variant];
   const scale = useFontScale('button');
 
   return (
@@ -71,7 +70,14 @@ export function Button({
       {loading ? (
         <ActivityIndicator color={Colors[labelColor]} />
       ) : (
-        icon && <Ionicons name={icon} size={Sizes.icon * scale} color={Colors[labelColor]} />
+        icon && (
+          <Icon
+            name={icon}
+            size={Sizes.iconSmall * scale}
+            color={Colors[labelColor]}
+            weight="semibold"
+          />
+        )
       )}
       <AppText variant="button" color={labelColor} style={styles.label}>
         {label}
@@ -95,9 +101,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
   },
   secondary: {
-    backgroundColor: Colors.surface,
-    borderWidth: BorderWidth.strong,
-    borderColor: Colors.primary,
+    backgroundColor: Colors.primaryTint,
   },
   text: {
     paddingHorizontal: Spacing.lg,
@@ -106,8 +110,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.error,
   },
   disabled: {
-    backgroundColor: Colors.skeleton,
-    borderColor: Colors.skeleton,
+    backgroundColor: Colors.fill,
   },
   label: {
     flexShrink: 1,
@@ -120,10 +123,10 @@ const pressedStyles = StyleSheet.create({
     backgroundColor: Colors.primaryPressed,
   },
   secondary: {
-    backgroundColor: Colors.primaryTint,
+    backgroundColor: Colors.fillPressed,
   },
   text: {
-    backgroundColor: Colors.primaryTint,
+    opacity: 0.5,
   },
   danger: {
     backgroundColor: Colors.errorPressed,

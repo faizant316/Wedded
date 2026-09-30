@@ -2,7 +2,7 @@ import { Text, useWindowDimensions, type TextProps } from 'react-native';
 
 import {
   Colors,
-  FontFamilies,
+  fontStyle,
   GURMUKHI_SIZE_MULTIPLIER,
   Typography,
   type ColorToken,
@@ -30,9 +30,9 @@ type TypeStyleOptions = {
 };
 
 /**
- * Font family, size, line height and scaling cap for a type variant in the
- * current script. AppText uses it; so does anything that can't render AppText
- * itself, like TextInput.
+ * Font family (and weight, for the system font), size, line height and
+ * scaling cap for a type variant in the current script. AppText uses it; so
+ * does anything that can't render AppText itself, like TextInput.
  */
 export function useTypeStyle({ variant = 'body', weight, lang, text = '' }: TypeStyleOptions) {
   const { locale } = useLocale();
@@ -42,9 +42,9 @@ export function useTypeStyle({ variant = 'body', weight, lang, text = '' }: Type
 
   return {
     script,
-    fontFamily: FontFamilies[script][weight ?? spec.weight],
+    ...fontStyle(script, weight ?? spec.weight),
     fontSize,
-    lineHeight: fontSize * (script === 'pa' ? spec.lineHeightPa : spec.lineHeight),
+    lineHeight: Math.round(fontSize * (script === 'pa' ? spec.lineHeightPa : spec.lineHeight)),
     maxFontSizeMultiplier: spec.maxScale,
   };
 }
@@ -75,7 +75,7 @@ export function AppText({
   ...rest
 }: AppTextProps) {
   const text = typeof children === 'string' ? children : '';
-  const { script, fontFamily, fontSize, lineHeight, maxFontSizeMultiplier } = useTypeStyle({
+  const { script, maxFontSizeMultiplier, ...type } = useTypeStyle({
     variant,
     weight,
     lang,
@@ -87,7 +87,7 @@ export function AppText({
       accessibilityLanguage={script}
       maxFontSizeMultiplier={maxFontSizeMultiplier}
       {...rest}
-      style={[{ fontFamily, fontSize, lineHeight, color: Colors[color] }, style]}
+      style={[{ ...type, color: Colors[color] }, style]}
     >
       {children}
     </Text>

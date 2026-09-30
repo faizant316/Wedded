@@ -1,12 +1,12 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/app-text';
-import { BackButton } from '@/components/back-button';
 import { CategoryRow } from '@/components/category-row';
-import { IconLine } from '@/components/icon-line';
 import { groupIcon } from '@/components/group-icon';
-import { Screen } from '@/components/screen';
+import { IconLine } from '@/components/icon-line';
+import { ListSection, SectionTitle } from '@/components/list';
+import { NavScreen } from '@/components/nav';
 import { StateView } from '@/components/state-view';
 import { Spacing } from '@/constants/theme';
 import { useEvent, useEventNeeds } from '@/data/reference';
@@ -26,6 +26,7 @@ export default function EventScreen() {
   const { locale, t } = useLocale();
   const event = useEvent(slug);
   const needs = useEventNeeds(slug);
+  const title = event.data ? bilingual(event.data.name, locale) : null;
 
   const retry = () => {
     void event.refetch();
@@ -47,80 +48,66 @@ export default function EventScreen() {
       />
     );
   } else {
-    const { primary, secondary } = bilingual(event.data.name, locale);
     body = (
       <>
-        <View>
-          <AppText variant="display" lang={primary.lang} accessibilityRole="header">
-            {primary.text}
-          </AppText>
-          {secondary && (
-            <AppText variant="bodyLg" color="text2" lang={secondary.lang}>
-              {secondary.text}
-            </AppText>
-          )}
+        {(event.data.timing || event.data.summary) && (
+          <View style={styles.about}>
+            {event.data.timing && (
+              <IconLine icon="time-outline" color="text2">
+                {localized(event.data.timing, locale)}
+              </IconLine>
+            )}
+            {event.data.summary && (
+              <AppText variant="bodyLg">{localized(event.data.summary, locale)}</AppText>
+            )}
+          </View>
+        )}
+
+        <View style={styles.needs}>
+          <SectionTitle>{t('event.needsTitle')}</SectionTitle>
+          {needs.data.map((section) => {
+            const heading = IMPORTANCE_HEADINGS[section.importance];
+            return (
+              <ListSection key={section.importance} header={heading ? t(heading) : undefined} inset>
+                {section.needs.map((need) => (
+                  <CategoryRow
+                    key={need.categorySlug}
+                    name={need.name}
+                    icon={groupIcon(need.groupSlug)}
+                    onPress={() =>
+                      router.push({
+                        pathname: '/c/[category]',
+                        params: { category: need.categorySlug, event: slug },
+                      })
+                    }
+                  />
+                ))}
+              </ListSection>
+            );
+          })}
         </View>
-
-        {event.data.timing && (
-          <IconLine icon="time-outline" color="text2">
-            {localized(event.data.timing, locale)}
-          </IconLine>
-        )}
-        {event.data.summary && (
-          <AppText variant="bodyLg">{localized(event.data.summary, locale)}</AppText>
-        )}
-
-        <AppText variant="title" accessibilityRole="header" style={styles.needsTitle}>
-          {t('event.needsTitle')}
-        </AppText>
-        {needs.data.map((section) => {
-          const heading = IMPORTANCE_HEADINGS[section.importance];
-          return (
-            <View key={section.importance} style={styles.section}>
-              {heading && (
-                <AppText variant="heading" accessibilityRole="header">
-                  {t(heading)}
-                </AppText>
-              )}
-              {section.needs.map((need) => (
-                <CategoryRow
-                  key={need.categorySlug}
-                  name={need.name}
-                  icon={groupIcon(need.groupSlug)}
-                  onPress={() =>
-                    router.push({
-                      pathname: '/c/[category]',
-                      params: { category: need.categorySlug, event: slug },
-                    })
-                  }
-                />
-              ))}
-            </View>
-          );
-        })}
       </>
     );
   }
 
   return (
-    <Screen>
-      <ScrollView contentContainerStyle={styles.content}>
-        <BackButton />
-        {body}
-      </ScrollView>
-    </Screen>
+    <NavScreen
+      title={title?.primary.text}
+      titleLang={title?.primary.lang}
+      subtitle={title?.secondary?.text}
+      subtitleLang={title?.secondary?.lang}
+    >
+      {body}
+    </NavScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  content: {
+  about: {
+    gap: Spacing.md,
+    paddingHorizontal: Spacing.xs,
+  },
+  needs: {
     gap: Spacing.lg,
-    paddingVertical: Spacing.md,
-  },
-  needsTitle: {
-    marginTop: Spacing.sm,
-  },
-  section: {
-    gap: Spacing.sm,
   },
 });

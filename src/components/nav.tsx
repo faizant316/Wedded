@@ -1,0 +1,304 @@
+import type { ReactNode } from 'react';
+import {
+  Platform,
+  StyleSheet,
+  View,
+  type LayoutChangeEvent,
+  type ScrollViewProps,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
+import Animated, {
+  Extrapolation,
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { AppText } from '@/components/app-text';
+import { BackButton } from '@/components/back-button';
+import { useBottomSpace } from '@/components/tab-bar';
+import { Colors, Sizes, Spacing } from '@/constants/theme';
+import type { Locale } from '@/i18n';
+
+/**
+ * Scroll tracking for a screen with a large title: pass `onScroll` to an
+ * Animated scroll view (with scrollEventThrottle 16), `onTitleLayout` to the
+ * LargeTitle, and the whole object to the NavBar.
+ */
+export function useNavScroll() {
+  const scrollY = useSharedValue(0);
+  // Scrolling past this shows the bar's backdrop and small title.
+  const collapseAt = useSharedValue(56);
+  const onScroll = useAnimatedScrollHandler((event) => {
+    scrollY.value = event.contentOffset.y;
+  });
+  /** For screens whose title isn't a LargeTitle: where the bar should switch. */
+  const setCollapseAt = (offset: number) => {
+    collapseAt.value = offset;
+  };
+  const onTitleLayout = (event: LayoutChangeEvent) =>
+    setCollapseAt(event.nativeEvent.layout.height);
+  return { scrollY, collapseAt, onScroll, onTitleLayout, setCollapseAt };
+}
+
+export type NavScroll = ReturnType<typeof useNavScroll>;
+
+/** The top of the nav bar row: under the status bar, or a little way down
+ * a browser page, which has none. */
+function useBarTop() {
+  return Math.max(useSafeAreaInsets().top, Spacing.sm);
+}
+
+/** Where scroll content starts: under the status bar and the nav bar row. */
+export function useNavTop() {
+  return useBarTop() + Sizes.navBar;
+}
+
+type NavBarProps = {
+  scroll: NavScroll;
+  /** The small centred title that appears once the large one scrolls away. */
+  title?: string | null;
+  titleLang?: Locale;
+  /** Shows the glass Back button (Home, with nothing to go back to). */
+  back?: boolean;
+  /** Glass buttons on the right, e.g. the language switch. */
+  trailing?: ReactNode;
+  /** A custom control on the left instead of Back. */
+  leading?: ReactNode;
+};
+
+/**
+ * The iOS 26 navigation bar: floating glass buttons over the content, and,
+ * once the large title scrolls under it, a soft backdrop that fades the
+ * content out and the title in small type. Sits on top of the screen.
+ */
+export function NavBar({ scroll, title, titleLang, back = true, trailing, leading }: NavBarProps) {
+  const top = useBarTop();
+
+  const collapsed = useAnimatedStyle(() => ({
+    opacity: interpolate(
+      scroll.scrollY.value,
+      [scroll.collapseAt.value - 12, scroll.collapseAt.value + 4],
+      [0, 1],
+      Extrapolation.CLAMP,
+    ),
+  }));
+
+  return (
+    <View style={[styles.bar, { height: top + Sizes.navBar }]}>
+      <Animated.View style={[styles.backdrop, collapsed]} />
+      <View style={[styles.row, { marginTop: top }]}>
+        <View style={styles.side}>{leading ?? (back ? <BackButton /> : null)}</View>
+        {title ? (
+          <Animated.View style={[styles.titleWrap, styles.noTouch, collapsed]}>
+            <AppText
+              variant="button"
+              lang={titleLang}
+              numberOfLines={1}
+              maxFontSizeMultiplier={1.3}
+              style={styles.title}
+            >
+              {title}
+            </AppText>
+          </Animated.View>
+        ) : (
+          <View style={styles.titleWrap} />
+        )}
+        <View style={[styles.side, styles.trailing]}>{trailing}</View>
+      </View>
+    </View>
+  );
+}
+
+type LargeTitleProps = {
+  scroll: NavScroll;
+  title: string;
+  lang?: Locale;
+  /** The other script, or a line of context, under the title. */
+  subtitle?: string | null;
+  subtitleLang?: Locale;
+  /** A small line above the title, e.g. "Saving to Jaago". */
+  eyebrow?: string | null;
+  style?: StyleProp<ViewStyle>;
+};
+
+/**
+ * The 34-point large title at the top of a screen's scroll content. It grows
+ * a little when pulled down, as on iOS, and hands over to the NavBar's small
+ * title when it scrolls away.
+ */
+export function LargeTitle({
+  scroll,
+  title,
+  lang,
+  subtitle,
+  subtitleLang,
+  eyebrow,
+  style,
+}: LargeTitleProps) {
+  const stretch = useAnimatedStyle(() => ({
+    transform: [
+      {
+        scale: interpolate(scroll.scrollY.value, [-120, 0], [1.08, 1], Extrapolation.CLAMP),
+      },
+    ],
+  }));
+
+  return (
+    <Animated.View onLayout={scroll.onTitleLayout} style={[styles.largeTitle, stretch, style]}>
+      {eyebrow ? (
+        <AppText variant="label" weight={600} color="text2">
+          {eyebrow}
+        </AppText>
+      ) : null}
+      <AppText variant="display" lang={lang} accessibilityRole="header">
+        {title}
+      </AppText>
+      {subtitle ? (
+        <AppText variant="bodyLg" color="text2" lang={subtitleLang}>
+          {subtitle}
+        </AppText>
+      ) : null}
+    </Animated.View>
+  );
+}
+
+type NavScreenProps = Omit<ScrollViewProps, 'onScroll' | 'children'> & {
+  title?: string | null;
+  titleLang?: Locale;
+  subtitle?: string | null;
+  subtitleLang?: Locale;
+  eyebrow?: string | null;
+  back?: boolean;
+  trailing?: ReactNode;
+  children: ReactNode;
+};
+
+/**
+ * A scrolling screen with a large title and the iOS 26 nav bar: the usual
+ * shape of a page in this app. Content gets the page gutter and 24 points
+ * between blocks, and scrolls clear of the tab bar or home indicator.
+ */
+export function NavScreen({
+  title,
+  titleLang,
+  subtitle,
+  subtitleLang,
+  eyebrow,
+  back = true,
+  trailing,
+  children,
+  contentContainerStyle,
+  ...rest
+}: NavScreenProps) {
+  const scroll = useNavScroll();
+  const top = useNavTop();
+  const bottom = useBottomSpace();
+
+  return (
+    <View style={styles.screen}>
+      <Animated.ScrollView
+        onScroll={scroll.onScroll}
+        scrollEventThrottle={16}
+        keyboardShouldPersistTaps="handled"
+        {...rest}
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop: top, paddingBottom: bottom },
+          contentContainerStyle,
+        ]}
+      >
+        {title ? (
+          <LargeTitle
+            scroll={scroll}
+            title={title}
+            lang={titleLang}
+            subtitle={subtitle}
+            subtitleLang={subtitleLang}
+            eyebrow={eyebrow}
+          />
+        ) : null}
+        {children}
+      </Animated.ScrollView>
+      <NavBar scroll={scroll} title={title} titleLang={titleLang} back={back} trailing={trailing} />
+    </View>
+  );
+}
+
+// The backdrop behind the bar: the page colour, solid under the status bar
+// and fading out below the bar, like iOS 26's scroll edge effect. The web
+// also blurs what's behind it.
+const FADE = 20;
+const bgFade = `linear-gradient(to bottom, rgba(242, 242, 247, 0.97) 0%, rgba(242, 242, 247, 0.9) 72%, rgba(242, 242, 247, 0) 100%)`;
+const backdropStyle = (
+  Platform.OS === 'web'
+    ? {
+        backgroundImage: bgFade,
+        backdropFilter: 'blur(12px) saturate(180%)',
+        maskImage: 'linear-gradient(to bottom, #000 75%, transparent 100%)',
+        WebkitMaskImage: 'linear-gradient(to bottom, #000 75%, transparent 100%)',
+      }
+    : { experimental_backgroundImage: bgFade }
+) as ViewStyle;
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: Colors.bg,
+  },
+  content: {
+    gap: Spacing.xl,
+    paddingHorizontal: Sizes.pageGutter,
+  },
+  bar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+    pointerEvents: 'box-none',
+  },
+  noTouch: {
+    pointerEvents: 'none',
+  },
+  backdrop: {
+    pointerEvents: 'none',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: -FADE,
+    ...backdropStyle,
+  },
+  row: {
+    pointerEvents: 'box-none',
+    height: Sizes.navBar,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Sizes.pageGutter,
+    gap: Spacing.sm,
+  },
+  side: {
+    pointerEvents: 'box-none',
+    minWidth: 88,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  trailing: {
+    justifyContent: 'flex-end',
+  },
+  titleWrap: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  title: {
+    textAlign: 'center',
+  },
+  largeTitle: {
+    gap: 2,
+    transformOrigin: 'left center',
+  },
+});

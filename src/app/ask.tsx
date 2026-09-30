@@ -1,8 +1,7 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Platform, ScrollView, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/app-text';
 import { Button } from '@/components/button';
@@ -11,9 +10,10 @@ import { Checkbox } from '@/components/checkbox';
 import { Chip } from '@/components/chip';
 import { FieldError } from '@/components/field-error';
 import { Screen } from '@/components/screen';
+import { SheetHeader } from '@/components/sheet-header';
 import { StateView } from '@/components/state-view';
 import { TextField } from '@/components/text-field';
-import { Colors, Sizes, Spacing } from '@/constants/theme';
+import { Colors, Spacing } from '@/constants/theme';
 import { useSendInquiry, type GuestBand, type ReplyBy, type SendOutcome } from '@/data/inquiries';
 import { useHomeEvents } from '@/data/reference';
 import { normalizePhone } from '@/features/auth/about-you-validation';
@@ -206,34 +206,33 @@ export default function AskScreen() {
     );
   }
 
+  // Until the vendor loads there's no form, but there's always a way out.
+  let notReady;
   if (!vendorId || vendor.isError || events.isError) {
-    return <StateView state="error" onRetry={() => void vendor.refetch()} />;
-  }
-  if (vendor.isPending || events.isPending) {
-    return <StateView state="loading" />;
-  }
-  if (!vendor.data) {
-    return (
+    notReady = <StateView state="error" onRetry={() => void vendor.refetch()} />;
+  } else if (vendor.isPending || events.isPending) {
+    notReady = <StateView state="loading" />;
+  } else if (!vendor.data) {
+    notReady = (
       <StateView state="empty" icon="storefront-outline" message={t('inquiry.errors.vendorGone')} />
+    );
+  }
+  if (notReady || !vendor.data) {
+    return (
+      <Screen edges={['top', 'bottom']}>
+        <SheetHeader onClose={close} />
+        {notReady}
+      </Screen>
     );
   }
   const vendorName = localized(vendor.data.name, locale);
 
   return (
     <Screen edges={['top', 'bottom']}>
-      <View style={styles.topBar}>
-        <AppText variant="heading" accessibilityRole="header" style={styles.grow}>
-          {t(isTour && questionSet === 'venue' ? 'inquiry.tourTitle' : 'inquiry.title')}
-        </AppText>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t('signIn.close')}
-          onPress={close}
-          style={({ pressed }) => [styles.close, pressed && styles.pressed]}
-        >
-          <Ionicons name="close" size={Sizes.icon + 4} color={Colors.text} />
-        </Pressable>
-      </View>
+      <SheetHeader
+        onClose={close}
+        title={t(isTour && questionSet === 'venue' ? 'inquiry.tourTitle' : 'inquiry.title')}
+      />
 
       <ScrollView
         contentContainerStyle={styles.content}
@@ -449,23 +448,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 const styles = StyleSheet.create({
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingTop: Spacing.sm,
-  },
   grow: {
     flex: 1,
-  },
-  close: {
-    width: Sizes.tapTarget,
-    height: Sizes.tapTarget,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: Sizes.tapTarget / 2,
-  },
-  pressed: {
-    backgroundColor: Colors.primaryTint,
   },
   content: {
     gap: Spacing.xl,

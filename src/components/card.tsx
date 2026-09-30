@@ -1,44 +1,45 @@
-import {
-  Pressable,
-  StyleSheet,
-  View,
-  type StyleProp,
-  type ViewProps,
-  type ViewStyle,
-} from 'react-native';
+import type { ReactNode } from 'react';
+import { StyleSheet, View, type StyleProp, type ViewProps, type ViewStyle } from 'react-native';
 
-import { BorderWidth, Colors, Radius, Spacing } from '@/constants/theme';
+import { PressableScale } from '@/components/pressable-scale';
+import { Colors, Radius, Spacing } from '@/constants/theme';
 
 export type CardProps = Omit<ViewProps, 'style'> & {
   /** Makes the whole card one tap target. Give it an `accessibilityLabel` that
    * says what opening it does, e.g. "Jaago, 9 vendor types". */
   onPress?: () => void;
+  /** Buttons drawn over a tappable card, e.g. the heart on a vendor photo. */
+  overlay?: ReactNode;
   style?: StyleProp<ViewStyle>;
 };
 
 /**
- * White rounded surface on the cream page. Grows with its content (never a
- * fixed height) so Punjabi and large text don't clip. Pass `style={{ padding: 0 }}`
- * for edge-to-edge photos; the corners clip the photo.
+ * White rounded surface on the grey page, with iOS's continuous corners. No
+ * border or shadow: the white on grey is the edge. Tappable cards shrink a
+ * little under the finger. Grows with its content (never a fixed height) so
+ * Punjabi and large text don't clip. Pass `style={{ padding: 0 }}` for
+ * edge-to-edge photos; the corners clip the photo.
  */
-export function Card({ onPress, style, children, ...rest }: CardProps) {
+export function Card({ onPress, overlay, style, children, ...rest }: CardProps) {
   if (!onPress) {
     return (
       <View {...rest} style={[styles.card, style]}>
         {children}
+        {overlay}
       </View>
     );
   }
 
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       {...rest}
       onPress={onPress}
-      style={({ pressed }) => [styles.card, pressed && styles.pressed, style]}
+      overlay={overlay}
+      style={[styles.card, style]}
     >
       {children}
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -46,13 +47,8 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: Colors.surface,
     borderRadius: Radius.card,
-    borderWidth: BorderWidth.hairline,
-    borderColor: Colors.border,
+    borderCurve: 'continuous',
     padding: Spacing.lg,
     overflow: 'hidden',
-  },
-  pressed: {
-    backgroundColor: Colors.bg,
-    borderColor: Colors.borderInput,
   },
 });

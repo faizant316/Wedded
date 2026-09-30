@@ -1,13 +1,13 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, type Href } from 'expo-router';
 import { useState } from 'react';
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { RefreshControl, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/app-text';
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
 import { FieldError } from '@/components/field-error';
-import { Screen } from '@/components/screen';
+import { Icon, type IconName } from '@/components/icon';
+import { NavScreen } from '@/components/nav';
 import { StateView } from '@/components/state-view';
 import { Colors, Radius, Sizes, Spacing, type ColorToken } from '@/constants/theme';
 import {
@@ -28,7 +28,7 @@ const STATUS_COLOR: Record<string, ColorToken> = {
   failed: 'error',
 };
 
-const ANSWER_ICON: Record<ReplyAnswer, keyof typeof Ionicons.glyphMap> = {
+const ANSWER_ICON: Record<ReplyAnswer, IconName> = {
   booked: 'checkmark-circle',
   deciding: 'chatbubble-ellipses-outline',
   no_reply: 'time-outline',
@@ -57,7 +57,7 @@ function FollowUp({
   if (answer && !changing) {
     return (
       <View style={styles.answered}>
-        <Ionicons
+        <Icon
           name={ANSWER_ICON[answer]}
           size={Sizes.iconSmall}
           color={answer === 'booked' ? Colors.success : Colors.text2}
@@ -120,13 +120,8 @@ export default function MyInquiriesScreen() {
     body = <StateView state="empty" icon="chatbubbles-outline" message={t('myInquiries.empty')} />;
   } else {
     body = (
-      <FlatList
-        data={inquiries.data}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
-        onRefresh={() => void inquiries.refetch()}
-        refreshing={inquiries.isRefetching}
-        renderItem={({ item }) => {
+      <View style={styles.list}>
+        {inquiries.data.map((item) => {
           const vendorName = item.vendor
             ? localized(
                 item.vendor.name_pa
@@ -146,7 +141,7 @@ export default function MyInquiriesScreen() {
               : t('saved.notSure');
           const canAskAgain = item.vendor && item.canAskAgain;
           return (
-            <Card style={styles.card}>
+            <Card key={item.id} style={styles.card}>
               <View style={styles.row}>
                 <AppText variant="bodyLg" weight={700} style={styles.grow}>
                   {vendorName}
@@ -200,51 +195,31 @@ export default function MyInquiriesScreen() {
               )}
             </Card>
           );
-        }}
-      />
+        })}
+      </View>
     );
   }
 
   return (
-    <Screen edges={['top']}>
-      <View style={styles.topBar}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t('myInquiries.back')}
-          onPress={() => router.back()}
-          style={({ pressed }) => [styles.back, pressed && styles.pressed]}
-        >
-          <Ionicons name="chevron-back" size={Sizes.icon + 4} color={Colors.text} />
-        </Pressable>
-        <AppText variant="title" accessibilityRole="header">
-          {t('myInquiries.title')}
-        </AppText>
-      </View>
+    <NavScreen
+      title={t('myInquiries.title')}
+      refreshControl={
+        <RefreshControl
+          refreshing={inquiries.isRefetching}
+          onRefresh={() => void inquiries.refetch()}
+          tintColor={Colors.chevron}
+          colors={[Colors.primary]}
+        />
+      }
+    >
       {body}
-    </Screen>
+    </NavScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingVertical: Spacing.sm,
-  },
-  back: {
-    width: Sizes.tapTarget,
-    height: Sizes.tapTarget,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: Sizes.tapTarget / 2,
-  },
-  pressed: {
-    backgroundColor: Colors.primaryTint,
-  },
   list: {
-    gap: Spacing.md,
-    paddingBottom: Spacing.xxxl,
+    gap: Spacing.lg,
   },
   card: {
     gap: Spacing.xs,

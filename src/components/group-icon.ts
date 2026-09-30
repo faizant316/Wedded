@@ -1,12 +1,9 @@
-import type Ionicons from '@expo/vector-icons/Ionicons';
-import type { ComponentProps } from 'react';
-
-type IoniconName = ComponentProps<typeof Ionicons>['name'];
+import type { IconName } from '@/components/icon';
 
 // Display only: the categories themselves come from the database. A group
 // that isn't listed here (a new one added later) gets the shop-front icon, so
 // it never breaks a screen. No religious symbols as decoration (vision §4).
-const GROUP_ICONS: Partial<Record<string, IoniconName>> = {
+const GROUP_ICONS: Partial<Record<string, IconName>> = {
   venues: 'business-outline',
   food: 'restaurant-outline',
   music: 'musical-notes-outline',
@@ -21,6 +18,6 @@ const GROUP_ICONS: Partial<Record<string, IoniconName>> = {
 };
 
 /** The icon for a category group slug (categories.group_slug). */
-export function groupIcon(groupSlug: string): IoniconName {
+export function groupIcon(groupSlug: string): IconName {
   return GROUP_ICONS[groupSlug] ?? 'storefront-outline';
 }

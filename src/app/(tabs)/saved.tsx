@@ -1,13 +1,14 @@
 import { router, type Href } from 'expo-router';
-import { SectionList, StyleSheet, View } from 'react-native';
+import { RefreshControl, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/app-text';
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
-import { Screen } from '@/components/screen';
+import { SectionTitle } from '@/components/list';
+import { NavScreen } from '@/components/nav';
 import { StateView } from '@/components/state-view';
 import { VendorCard } from '@/components/vendor-card';
-import { Spacing } from '@/constants/theme';
+import { Colors, Spacing } from '@/constants/theme';
 import { useHomeEvents } from '@/data/reference';
 import { useSavedVendors, useSaveVendor, type SavedVendor } from '@/data/saved';
 import { useSession } from '@/features/auth/session';
@@ -58,34 +59,39 @@ export default function SavedScreen() {
       events.data.flatMap((section) => section.events),
       t('saved.notSure'),
     );
-    body = (
-      <SectionList
-        sections={sections}
-        keyExtractor={(save) => save.id}
-        stickySectionHeadersEnabled={false}
-        contentContainerStyle={styles.list}
-        ListHeaderComponent={
-          <AppText color="text2">{t('saved.count', { count: saved.data.length })}</AppText>
-        }
-        renderSectionHeader={({ section }) => (
-          <AppText variant="heading" accessibilityRole="header" style={styles.sectionHeader}>
-            {localized(section.title, locale)}
-          </AppText>
-        )}
-        renderItem={({ item }) => <SavedItem save={item} onRemove={() => removeSave(item.id)} />}
-        onRefresh={() => void saved.refetch()}
-        refreshing={saved.isRefetching}
-      />
-    );
+    body = sections.map((section) => (
+      <View key={section.key} style={styles.section}>
+        <SectionTitle>{localized(section.title, locale)}</SectionTitle>
+        {section.data.map((save) => (
+          <SavedItem key={save.id} save={save} onRemove={() => removeSave(save.id)} />
+        ))}
+      </View>
+    ));
   }
 
+  const signedIn = status === 'signedIn';
   return (
-    <Screen style={styles.screen}>
-      <AppText variant="title" accessibilityRole="header">
-        {t('tabs.saved')}
-      </AppText>
+    <NavScreen
+      title={t('tabs.saved')}
+      back={false}
+      eyebrow={
+        signedIn && saved.data && saved.data.length > 0
+          ? t('saved.count', { count: saved.data.length })
+          : null
+      }
+      refreshControl={
+        signedIn ? (
+          <RefreshControl
+            refreshing={saved.isRefetching}
+            onRefresh={() => void saved.refetch()}
+            tintColor={Colors.chevron}
+            colors={[Colors.primary]}
+          />
+        ) : undefined
+      }
+    >
       {body}
-    </Screen>
+    </NavScreen>
   );
 }
 
@@ -121,6 +127,7 @@ function SavedItem({ save, onRemove }: { save: SavedVendor; onRemove: () => void
             : t('saved.remove')
         }
         onPress={onRemove}
+        style={styles.remove}
       />
     </View>
   );
@@ -157,18 +164,14 @@ function groupByEvent(
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    paddingTop: Spacing.lg,
-    gap: Spacing.md,
-  },
-  list: {
-    paddingBottom: Spacing.xxxl,
-    gap: Spacing.md,
-  },
-  sectionHeader: {
-    marginTop: Spacing.lg,
+  section: {
+    gap: Spacing.lg,
   },
   item: {
     gap: Spacing.xs,
+  },
+  remove: {
+    alignSelf: 'center',
+    minHeight: 44,
   },
 });

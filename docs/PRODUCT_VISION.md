@@ -189,6 +189,8 @@ Whole-wedding totals, both sides, excluding jewellery and clothes bought in Indi
 
 ## 4. How it looks
 
+> **Updated 2026-09-29:** the app now follows Apple's iOS 26 system design (grouped grey pages, white inset-grouped lists, San Francisco / Inter, maroon as the one tint, Liquid Glass on floating chrome). The colour, type and component sizes below are superseded; see `docs/DECISIONS.md` and `src/constants/theme.ts`. The accessibility rules in this section still apply.
+
 ### The feel, in one paragraph
 
 Open it and you see a cream page, not white, with a deep maroon primary colour (the red of a bridal lehenga and the choora) and marigold used only as small fills on icons and badges. The home screen is a vertical list of big event cards, each with a real photo from a NorCal Punjabi wedding: a lit jaago pot, mehndi hands, a gurdwara dome silhouette. Every event and category name appears in both scripts, English on top and Gurmukhi below (or the reverse in Punjabi mode). Text is large: body 17 to 18 point, buttons 56 tall. There is one main action on every screen. Nothing scrolls sideways except photo rows. A 60-year-old who has watched her kids use Instagram already knows where things are on a vendor profile, but there are no likes, followers or comments, and price and service area sit above the fold. It should feel like a well-made community directory that happens to be beautiful, not a wedding blog.

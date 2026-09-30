@@ -1,5 +1,4 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { useEffect, type ComponentProps } from 'react';
+import { useEffect } from 'react';
 import {
   AccessibilityInfo,
   ActivityIndicator,
@@ -11,10 +10,9 @@ import {
 
 import { AppText } from '@/components/app-text';
 import { Button } from '@/components/button';
-import { Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { Icon, type IconName } from '@/components/icon';
+import { Colors, Sizes, Spacing } from '@/constants/theme';
 import { useLocale } from '@/i18n/locale-context';
-
-type IoniconName = ComponentProps<typeof Ionicons>['name'];
 
 type Common = {
   /** One plain sentence. Loading and error have friendly defaults. */
@@ -27,7 +25,7 @@ export type StateViewProps =
   | (Common & {
       state: 'empty';
       message: string;
-      icon?: IoniconName;
+      icon?: IconName;
       /** The one next step, e.g. "Widen to 50 mi". */
       action?: { label: string; onPress: () => void };
     })
@@ -35,8 +33,9 @@ export type StateViewProps =
 
 /**
  * One component for "still loading", "nothing here" and "something went
- * wrong". Every state is one sentence and at most one action; errors always
- * say what to do next and offer Try again when `onRetry` is given.
+ * wrong", laid out like iOS's ContentUnavailableView: a large grey symbol,
+ * one sentence and at most one action. Errors always say what to do next and
+ * offer Try again when `onRetry` is given.
  * For lists, prefer a skeleton shaped like the content over the loading state.
  */
 export function StateView(props: StateViewProps) {
@@ -60,8 +59,8 @@ export function StateView(props: StateViewProps) {
         accessibilityState={{ busy: true }}
         style={[styles.container, style]}
       >
-        <ActivityIndicator size="large" color={Colors.primary} />
-        <AppText variant="bodyLg" color="text2" style={styles.message}>
+        <ActivityIndicator size="large" color={Colors.chevron} />
+        <AppText color="text2" style={styles.message}>
           {message}
         </AppText>
       </View>
@@ -76,10 +75,8 @@ export function StateView(props: StateViewProps) {
 
   return (
     <View style={[styles.container, style]}>
-      <View style={styles.iconCircle}>
-        <Ionicons name={icon} size={Sizes.iconLarge} color={Colors.primary} />
-      </View>
-      <AppText variant="bodyLg" style={styles.message}>
+      <Icon name={icon} size={Sizes.iconLarge} color={Colors.chevron} />
+      <AppText variant="bodyLg" weight={500} style={styles.message}>
         {message}
       </AppText>
       {action && (
@@ -88,6 +85,7 @@ export function StateView(props: StateViewProps) {
           icon={state === 'error' ? 'refresh' : undefined}
           label={action.label}
           onPress={action.onPress}
+          style={styles.action}
         />
       )}
     </View>
@@ -96,19 +94,17 @@ export function StateView(props: StateViewProps) {
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'stretch',
+    alignItems: 'center',
     justifyContent: 'center',
-    gap: Spacing.lg,
+    gap: Spacing.md,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.xxl,
   },
-  iconCircle: {
-    alignSelf: 'center',
-    padding: Spacing.lg,
-    borderRadius: Radius.circle,
-    backgroundColor: Colors.primaryTint,
-  },
   message: {
     textAlign: 'center',
+  },
+  action: {
+    alignSelf: 'stretch',
+    marginTop: Spacing.sm,
   },
 });

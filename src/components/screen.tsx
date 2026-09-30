@@ -7,7 +7,11 @@ type ScreenProps = ViewProps & {
   edges?: readonly Edge[];
 };
 
-/** Cream page background with safe-area padding; every screen starts here. */
+/**
+ * The grey grouped page background with safe-area padding, for sheets and
+ * simple pages. Scrolling pages with a title use NavScreen (components/nav)
+ * instead, which scrolls under a floating bar.
+ */
 export function Screen({ edges = ['top'], style, children, ...rest }: ScreenProps) {
   return (
     <SafeAreaView edges={edges} style={styles.safeArea}>

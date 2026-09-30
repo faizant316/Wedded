@@ -1,14 +1,15 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { AccessibilityInfo, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, RefreshControl, StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { AppText } from '@/components/app-text';
-import { BackButton } from '@/components/back-button';
 import { Button } from '@/components/button';
-import { Screen } from '@/components/screen';
+import { LargeTitle, NavBar, useNavScroll, useNavTop } from '@/components/nav';
 import { StateView } from '@/components/state-view';
+import { useBottomSpace } from '@/components/tab-bar';
 import { VendorCard } from '@/components/vendor-card';
-import { Colors, Spacing } from '@/constants/theme';
+import { Colors, Sizes, Spacing } from '@/constants/theme';
 import { useCategories, useEvent } from '@/data/reference';
 import { useSavedVendors, useSaveVendor } from '@/data/saved';
 import { useVendorSearch } from '@/data/search';
@@ -20,9 +21,9 @@ import { useLocale } from '@/i18n/locale-context';
 const WIDER_MILES = 50;
 
 /**
- * S6 Results: published vendors in a category, and (with ?event=) only those
- * who serve that event, nearest first from the search location. Without a
- * location they still show, founding vendors first. Deep link:
+ * S6 Results: published vendors in a category, nearest first from the search
+ * location (without one they still show, founding vendors first). With
+ * ?event= a heart saves under that event. Deep link:
  * /c/{category}?event={slug}.
  */
 export default function ResultsScreen() {
@@ -32,6 +33,9 @@ export default function ResultsScreen() {
   }>();
   const { locale, t } = useLocale();
   const router = useRouter();
+  const scroll = useNavScroll();
+  const top = useNavTop();
+  const bottom = useBottomSpace();
   const { place, maxMiles, setMaxMiles } = useSearchLocation();
   const saves = useSavedVendors();
   const { toggleSave } = useSaveVendor();
@@ -80,27 +84,21 @@ export default function ResultsScreen() {
 
   const header = (
     <View style={styles.header}>
-      <BackButton />
       {title && (
-        <View>
-          <AppText variant="title" lang={title.primary.lang} accessibilityRole="header">
-            {title.primary.text}
-          </AppText>
-          {title.secondary && (
-            <AppText color="text2" lang={title.secondary.lang}>
-              {title.secondary.text}
-            </AppText>
-          )}
-        </View>
-      )}
-      {event.data && (
-        <AppText color="text2">
-          {t('results.savingTo', { event: localized(event.data.name, locale) })}
-        </AppText>
+        <LargeTitle
+          scroll={scroll}
+          title={title.primary.text}
+          lang={title.primary.lang}
+          subtitle={title.secondary?.text}
+          subtitleLang={title.secondary?.lang}
+          eyebrow={
+            event.data ? t('results.savingTo', { event: localized(event.data.name, locale) }) : null
+          }
+        />
       )}
       <LocationChip />
       {vendors.isSuccess && vendors.data.length > 0 && (
-        <AppText variant="label" color="text2">
+        <AppText variant="label" weight={400} color="text2" style={styles.count}>
           {t('counts.vendors', { count: vendors.data.length })}
         </AppText>
       )}
@@ -149,10 +147,12 @@ export default function ResultsScreen() {
   }
 
   return (
-    <Screen>
-      <FlatList
+    <View style={styles.screen}>
+      <Animated.FlatList
         data={vendors.data ?? []}
         keyExtractor={(vendor) => vendor.id}
+        onScroll={scroll.onScroll}
+        scrollEventThrottle={16}
         renderItem={({ item }) => (
           <VendorCard
             name={item.name}
@@ -175,26 +175,34 @@ export default function ResultsScreen() {
         )}
         ListHeaderComponent={header}
         ListEmptyComponent={empty}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingTop: top, paddingBottom: bottom }]}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={Colors.primary}
+            tintColor={Colors.chevron}
             colors={[Colors.primary]}
           />
         }
       />
-    </Screen>
+      <NavBar scroll={scroll} title={title?.primary.text} titleLang={title?.primary.lang} />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: Colors.bg,
+  },
   content: {
     gap: Spacing.lg,
-    paddingVertical: Spacing.md,
+    paddingHorizontal: Sizes.pageGutter,
   },
   header: {
-    gap: Spacing.sm,
+    gap: Spacing.md,
+  },
+  count: {
+    paddingHorizontal: Spacing.xs,
   },
 });

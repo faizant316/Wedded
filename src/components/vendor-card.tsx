@@ -1,12 +1,23 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image';
+import { useEffect, useRef } from 'react';
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withSequence,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { AppText, useFontScale } from '@/components/app-text';
 import { Card } from '@/components/card';
-import { Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { Glass } from '@/components/glass';
+import { Icon } from '@/components/icon';
+import { Colors, Radius, Sizes, Spacing, Springs } from '@/constants/theme';
 import { localized, type LocalizedText } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
+import { saveHaptic } from '@/lib/haptics';
 
 export type PriceUnit = 'event' | 'hour' | 'person' | 'plate' | 'hand' | 'turban' | 'day';
 
@@ -45,9 +56,9 @@ const usd = new Intl.NumberFormat('en-US', {
 });
 
 /**
- * A vendor in a list: 3:2 cover photo, name, "Dhol · Tracy, CA · 31 mi" and
- * "From $450 / event". The whole card opens the profile; there's deliberately
- * no Call button on cards.
+ * A vendor in a list: 3:2 cover photo with a glass heart and glass badges on
+ * it, then the name, "Dhol · Tracy, CA · 31 mi" and "From $450 / event". The
+ * whole card opens the profile; there's deliberately no Call button on cards.
  */
 export function VendorCard({
   name,
@@ -64,7 +75,7 @@ export function VendorCard({
   style,
 }: VendorCardProps) {
   const { locale, t } = useLocale();
-  const scale = useFontScale('label');
+  const scale = Math.min(useFontScale('label'), 1.4);
 
   let distance: { shown: string; spoken: string } | undefined;
   if (distanceMiles != null) {
@@ -95,7 +106,7 @@ export function VendorCard({
   const vendorName = localized(name, locale);
   const categoryName = localized(category, locale);
   // Non-breaking spaces keep "31 mi" together when the line wraps.
-  const details = [categoryName, city, distance?.shown.replace(/ /g, '\u00a0')]
+  const details = [categoryName, city, distance?.shown.replace(/ /g, ' ')]
     .filter(Boolean)
     .join(' · ');
   const saveLabel = saved
@@ -130,6 +141,11 @@ export function VendorCard({
       onAccessibilityAction={(event) => {
         if (event.nativeEvent.actionName === 'toggleSave') onToggleSave?.();
       }}
+      overlay={
+        onToggleSave ? (
+          <SaveHeart saved={saved} label={saveLabel} onPress={onToggleSave} />
+        ) : undefined
+      }
       style={[styles.card, style]}
     >
       <View>
@@ -137,61 +153,101 @@ export function VendorCard({
           <Image
             source={{ uri: photoUrl }}
             contentFit="cover"
+            transition={200}
             accessible={false}
             style={styles.photo}
           />
         ) : (
           <View style={[styles.photo, styles.noPhoto]}>
-            <Ionicons name="image-outline" size={Sizes.iconLarge} color={Colors.textDisabled} />
+            <Icon name="image-outline" size={Sizes.iconLarge} color={Colors.textDisabled} />
           </View>
-        )}
-        {onToggleSave && (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={saveLabel}
-            onPress={onToggleSave}
-            style={({ pressed }) => [styles.heart, pressed && styles.heartPressed]}
-          >
-            <Ionicons
-              name={saved ? 'heart' : 'heart-outline'}
-              size={Sizes.icon}
-              color={Colors.primary}
-            />
-          </Pressable>
         )}
         {badges.length > 0 && (
           <View style={styles.badges}>
             {badges.map((badge) => (
-              <View key={badge.key} style={styles.badge}>
-                <Ionicons
+              <Glass key={badge.key} style={styles.badge}>
+                <Icon
                   name={badge.icon}
-                  size={Sizes.iconSmall * scale}
+                  size={16 * scale}
                   color={badge.key === 'founding' ? Colors.kesari : Colors.text}
                 />
                 <AppText
-                  variant="label"
-                  weight={700}
+                  variant="caption"
+                  weight={600}
                   color={badge.key === 'founding' ? 'kesari' : 'text'}
                 >
                   {badge.label}
                 </AppText>
-              </View>
+              </Glass>
             ))}
           </View>
         )}
       </View>
       <View style={styles.body}>
-        <AppText variant="bodyLg" weight={700}>
+        <AppText variant="bodyLg" weight={600}>
           {vendorName}
         </AppText>
-        <AppText color="text2">{details}</AppText>
+        <AppText variant="label" weight={400} color="text2">
+          {details}
+        </AppText>
         {price && (
-          <AppText weight={700} style={styles.price}>
+          <AppText weight={600} style={styles.price}>
             {price.shown}
           </AppText>
         )}
       </View>
     </Card>
+  );
+}
+
+/**
+ * The glass heart on a cover photo. Saving pops it once (vision §4) with a
+ * light tap you can feel; removing just changes the icon.
+ */
+function SaveHeart({
+  saved,
+  label,
+  onPress,
+}: {
+  saved: boolean;
+  label: string;
+  onPress: () => void;
+}) {
+  const reduceMotion = useReducedMotion();
+  const pop = useSharedValue(1);
+  const wasSaved = useRef(saved);
+
+  useEffect(() => {
+    if (saved && !wasSaved.current && !reduceMotion) {
+      pop.value = withSequence(withTiming(1.25, { duration: 110 }), withSpring(1, Springs.pop));
+    }
+    wasSaved.current = saved;
+  }, [saved, reduceMotion, pop]);
+
+  const popStyle = useAnimatedStyle(() => ({ transform: [{ scale: pop.value }] }));
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      onPress={() => {
+        if (!saved) saveHaptic();
+        onPress();
+      }}
+      hitSlop={4}
+      style={styles.heartWrap}
+    >
+      <Glass interactive style={styles.heart}>
+        <Animated.View style={popStyle}>
+          <Icon
+            name={saved ? 'heart' : 'heart-outline'}
+            size={Sizes.iconSmall + 2}
+            color={Colors.primary}
+            weight="semibold"
+          />
+        </Animated.View>
+      </Glass>
+    </Pressable>
   );
 }
 
@@ -208,21 +264,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  heart: {
+  heartWrap: {
     position: 'absolute',
-    top: Spacing.sm,
-    right: Spacing.sm,
-    width: Sizes.tapTarget,
-    height: Sizes.tapTarget,
+    top: Spacing.md,
+    right: Spacing.md,
+  },
+  heart: {
+    width: Sizes.glassButton,
+    height: Sizes.glassButton,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: Radius.circle,
-    backgroundColor: Colors.surface,
-  },
-  heartPressed: {
-    backgroundColor: Colors.primaryTint,
   },
   badges: {
+    pointerEvents: 'none',
     position: 'absolute',
     left: Spacing.md,
     right: Spacing.md,
@@ -235,16 +290,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.md - 2,
+    paddingVertical: Spacing.xs + 1,
     borderRadius: Radius.chip,
-    backgroundColor: Colors.surface,
   },
   body: {
-    gap: Spacing.xs,
-    padding: Spacing.lg,
+    gap: 3,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.md,
+    paddingBottom: Spacing.lg,
   },
   price: {
+    marginTop: 2,
     fontVariant: ['tabular-nums'],
   },
 });

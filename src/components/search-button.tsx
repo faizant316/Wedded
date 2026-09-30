@@ -1,17 +1,17 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, StyleSheet } from 'react-native';
 
 import { AppText, useFontScale } from '@/components/app-text';
-import { BorderWidth, Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { Icon } from '@/components/icon';
+import { Colors, Radius, Sizes, Spacing } from '@/constants/theme';
 import { useLocale } from '@/i18n/locale-context';
 
 /**
- * Looks like a search box, acts as a button: tapping it opens the Search tab
- * (vision doc S4). The real text field lives on the Search screen.
+ * Looks like the iOS search field, acts as a button: tapping it opens the
+ * Search tab (vision doc S4). The real text field lives on the Search screen.
  */
 export function SearchButton({ onPress }: { onPress: () => void }) {
   const { t } = useLocale();
-  const scale = useFontScale('bodyLg');
+  const scale = useFontScale('body');
 
   return (
     <Pressable
@@ -20,8 +20,8 @@ export function SearchButton({ onPress }: { onPress: () => void }) {
       onPress={onPress}
       style={({ pressed }) => [styles.field, pressed && styles.pressed]}
     >
-      <Ionicons name="search-outline" size={Sizes.icon * scale} color={Colors.text2} />
-      <AppText variant="bodyLg" color="text2" style={styles.label}>
+      <Icon name="search" size={Sizes.iconSmall * scale} color={Colors.text2} weight="medium" />
+      <AppText color="text2" style={styles.label}>
         {t('search.placeholder')}
       </AppText>
     </Pressable>
@@ -30,20 +30,17 @@ export function SearchButton({ onPress }: { onPress: () => void }) {
 
 const styles = StyleSheet.create({
   field: {
-    minHeight: Sizes.input,
+    minHeight: Sizes.search,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.md,
-    paddingHorizontal: Spacing.lg,
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.md + 2,
     paddingVertical: Spacing.sm,
     borderRadius: Radius.button,
-    borderWidth: BorderWidth.strong,
-    borderColor: Colors.borderInput,
-    backgroundColor: Colors.surface,
+    backgroundColor: Colors.fill,
   },
   pressed: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primaryTint,
+    backgroundColor: Colors.fillPressed,
   },
   label: {
     flex: 1,

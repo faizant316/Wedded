@@ -1,13 +1,14 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, View, type TextInput } from 'react-native';
+import { StyleSheet, View, type TextInput } from 'react-native';
 
-import { AppText, useFontScale } from '@/components/app-text';
+import { useFontScale } from '@/components/app-text';
 import { CategoryRow } from '@/components/category-row';
 import { CategoryTile } from '@/components/category-tile';
 import { Chip } from '@/components/chip';
 import { groupIcon } from '@/components/group-icon';
-import { Screen } from '@/components/screen';
+import { ListSection, SectionTitle } from '@/components/list';
+import { NavScreen } from '@/components/nav';
 import { SearchField } from '@/components/search-field';
 import { StateView } from '@/components/state-view';
 import { VendorCard } from '@/components/vendor-card';
@@ -107,11 +108,9 @@ export default function SearchScreen() {
       ) : (
         <>
           {matches.length > 0 && (
-            <>
-              <AppText variant="heading" accessibilityRole="header">
-                {t('search.types')}
-              </AppText>
-              <View style={styles.list}>
+            <View style={styles.block}>
+              <SectionTitle>{t('search.types')}</SectionTitle>
+              <ListSection inset>
                 {matches.map((category) => (
                   <CategoryRow
                     key={category.slug}
@@ -120,14 +119,12 @@ export default function SearchScreen() {
                     onPress={() => openCategory(category.slug)}
                   />
                 ))}
-              </View>
-            </>
+              </ListSection>
+            </View>
           )}
           {foundVendors.length > 0 && (
-            <>
-              <AppText variant="heading" accessibilityRole="header" style={styles.allTitle}>
-                {t('search.vendors')}
-              </AppText>
+            <View style={styles.block}>
+              <SectionTitle>{t('search.vendors')}</SectionTitle>
               <View style={styles.list}>
                 {foundVendors.map((vendor) => (
                   <VendorCard
@@ -147,7 +144,7 @@ export default function SearchScreen() {
                   />
                 ))}
               </View>
-            </>
+            </View>
           )}
         </>
       );
@@ -159,10 +156,8 @@ export default function SearchScreen() {
     body = (
       <>
         {popular.length > 0 && (
-          <>
-            <AppText variant="heading" accessibilityRole="header">
-              {t('search.popular')}
-            </AppText>
+          <View style={styles.block}>
+            <SectionTitle>{t('search.popular')}</SectionTitle>
             <View style={styles.chips}>
               {popular.map((category) => (
                 <Chip
@@ -173,64 +168,54 @@ export default function SearchScreen() {
                 />
               ))}
             </View>
-          </>
+          </View>
         )}
-        <AppText variant="heading" accessibilityRole="header" style={styles.allTitle}>
-          {t('search.allCategories')}
-        </AppText>
-        <View style={styles.list}>
-          {rows.map((row) => (
-            <View key={row[0].slug} style={styles.gridRow}>
-              {row.map((category) => (
-                <CategoryTile
-                  key={category.slug}
-                  name={category.name}
-                  icon={groupIcon(category.groupSlug)}
-                  vendorCount={vendorCount(category.slug) || undefined}
-                  nearYou={false}
-                  onPress={() => openCategory(category.slug)}
-                  style={styles.tile}
-                />
-              ))}
-              {row.length < columns && <View style={styles.tile} />}
-            </View>
-          ))}
+        <View style={styles.block}>
+          <SectionTitle>{t('search.allCategories')}</SectionTitle>
+          <View style={styles.grid}>
+            {rows.map((row) => (
+              <View key={row[0].slug} style={styles.gridRow}>
+                {row.map((category) => (
+                  <CategoryTile
+                    key={category.slug}
+                    name={category.name}
+                    icon={groupIcon(category.groupSlug)}
+                    vendorCount={vendorCount(category.slug) || undefined}
+                    nearYou={false}
+                    onPress={() => openCategory(category.slug)}
+                    style={styles.tile}
+                  />
+                ))}
+                {row.length < columns && <View style={styles.tile} />}
+              </View>
+            ))}
+          </View>
         </View>
       </>
     );
   }
 
   return (
-    <Screen>
-      <ScrollView
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="on-drag"
-      >
-        <AppText variant="title" accessibilityRole="header">
-          {t('tabs.search')}
-        </AppText>
-        <SearchField ref={inputRef} value={query} onChangeText={setQuery} />
-        {body}
-      </ScrollView>
-    </Screen>
+    <NavScreen title={t('tabs.search')} back={false} keyboardDismissMode="on-drag">
+      <SearchField ref={inputRef} value={query} onChangeText={setQuery} />
+      {body}
+    </NavScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  content: {
+  block: {
     gap: Spacing.lg,
-    paddingVertical: Spacing.lg,
   },
   chips: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Spacing.sm,
   },
-  allTitle: {
-    marginTop: Spacing.sm,
-  },
   list: {
+    gap: Spacing.lg,
+  },
+  grid: {
     gap: Spacing.md,
   },
   gridRow: {

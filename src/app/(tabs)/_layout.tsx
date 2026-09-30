@@ -1,13 +1,15 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Colors, FontFamilies, Sizes } from '@/constants/theme';
+import {
+  GlassTabBar,
+  TabBarSpaceProvider,
+  useTabBarOffset,
+  type TabSpec,
+} from '@/components/tab-bar';
+import { Colors, Sizes, Spacing } from '@/constants/theme';
 import { useLocale } from '@/i18n/locale-context';
 
-type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
-
-const TABS: { name: string; labelKey: string; icon: IoniconName; iconFilled: IoniconName }[] = [
+const TABS: (Omit<TabSpec, 'label'> & { labelKey: string })[] = [
   { name: '(home)', labelKey: 'tabs.home', icon: 'home-outline', iconFilled: 'home' },
   { name: '(search)', labelKey: 'tabs.search', icon: 'search-outline', iconFilled: 'search' },
   { name: 'saved', labelKey: 'tabs.saved', icon: 'heart-outline', iconFilled: 'heart' },
@@ -20,52 +22,29 @@ const TABS: { name: string; labelKey: string; icon: IoniconName; iconFilled: Ion
 ];
 
 /**
- * Bottom tabs: Home, Search, Saved, Profile. Labels are always visible and
- * bilingual through i18n. Expo Router's JS tabs are used instead of native
- * tabs so the app runs in Expo Go for the first builds.
+ * Bottom tabs: Home, Search, Saved, Profile, in a floating glass bar (the iOS
+ * 26 tab bar) that content scrolls under. Labels are always visible and
+ * bilingual through i18n. Expo Router's JS tabs draw it the same on iPhone,
+ * Android and the web; the glass itself is the system material on iOS 26.
  */
 export default function TabsLayout() {
-  const { locale, t } = useLocale();
-  const insets = useSafeAreaInsets();
+  const { t } = useLocale();
+  const offset = useTabBarOffset();
+  const tabs = TABS.map(({ labelKey, ...tab }) => ({ ...tab, label: t(labelKey) }));
 
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        sceneStyle: { backgroundColor: Colors.bg },
-        tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.text2,
-        tabBarStyle: {
-          height: Sizes.tabBar + insets.bottom,
-          paddingBottom: insets.bottom + 6,
-          paddingTop: 6,
-          backgroundColor: Colors.surface,
-          borderTopColor: Colors.border,
-        },
-        tabBarLabelStyle: {
-          fontFamily: FontFamilies[locale][600],
-          fontSize: 13,
-          lineHeight: 18,
-        },
-        tabBarItemStyle: { minHeight: Sizes.tapTarget },
-      }}
-    >
-      {TABS.map((tab) => (
-        <Tabs.Screen
-          key={tab.name}
-          name={tab.name}
-          options={{
-            title: t(tab.labelKey),
-            tabBarIcon: ({ color, focused }) => (
-              <Ionicons
-                name={focused ? tab.iconFilled : tab.icon}
-                size={Sizes.tabIcon}
-                color={color}
-              />
-            ),
-          }}
-        />
-      ))}
-    </Tabs>
+    <TabBarSpaceProvider value={Sizes.tabBar + offset + Spacing.sm}>
+      <Tabs
+        tabBar={(props) => <GlassTabBar {...props} tabs={tabs} />}
+        screenOptions={{
+          headerShown: false,
+          sceneStyle: { backgroundColor: Colors.bg },
+        }}
+      >
+        {tabs.map((tab) => (
+          <Tabs.Screen key={tab.name} name={tab.name} options={{ title: tab.label }} />
+        ))}
+      </Tabs>
+    </TabBarSpaceProvider>
   );
 }

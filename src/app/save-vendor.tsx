@@ -1,18 +1,20 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/app-text';
-import { BilingualName } from '@/components/bilingual-name';
 import { FieldError } from '@/components/field-error';
+import { Icon } from '@/components/icon';
+import { ListRow, ListSection } from '@/components/list';
 import { Screen } from '@/components/screen';
+import { SheetHeader } from '@/components/sheet-header';
 import { StateView } from '@/components/state-view';
-import { BorderWidth, Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { Colors, Sizes, Spacing } from '@/constants/theme';
 import { useHomeEvents } from '@/data/reference';
 import { useSavedEventsFor, useSaveVendor } from '@/data/saved';
-import type { LocalizedText } from '@/i18n/localized';
+import { bilingual, type LocalizedText } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
+import { saveHaptic } from '@/lib/haptics';
 
 /**
  * "Save to which event?" (vision §6: Save, then "Save to which event?").
@@ -20,7 +22,7 @@ import { useLocale } from '@/i18n/locale-context';
  * context, e.g. from Search or a vendor profile. `?vendorId=` is required.
  */
 export default function SaveVendorScreen() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const { vendorId = '' } = useLocalSearchParams<{ vendorId?: string }>();
   const events = useHomeEvents();
   const savedFor = useSavedEventsFor(vendorId);
@@ -31,6 +33,7 @@ export default function SaveVendorScreen() {
     setError(undefined);
     try {
       await saveFor({ vendorId, eventSlug });
+      saveHaptic();
       if (router.canGoBack()) router.back();
     } catch {
       setError(t('saved.saveFailed'));
@@ -49,97 +52,61 @@ export default function SaveVendorScreen() {
     ];
     content = (
       <ScrollView contentContainerStyle={styles.content}>
-        <AppText variant="title" accessibilityRole="header">
-          {t('saveVendor.title')}
-        </AppText>
-        <AppText color="text2">{t('saveVendor.subtitle')}</AppText>
+        <View style={styles.intro}>
+          <AppText variant="title" accessibilityRole="header">
+            {t('saveVendor.title')}
+          </AppText>
+          <AppText color="text2">{t('saveVendor.subtitle')}</AppText>
+        </View>
         {error && <FieldError message={error} />}
-        {options.map((option) => {
-          const alreadySaved = savedFor.includes(option.slug);
-          return (
-            <Pressable
-              key={option.slug ?? 'not-sure'}
-              accessibilityRole="button"
-              accessibilityState={{ disabled: alreadySaved || saving, selected: alreadySaved }}
-              disabled={alreadySaved || saving}
-              onPress={() => choose(option.slug)}
-              style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
-            >
-              <View style={styles.rowName}>
-                <BilingualName name={option.name} />
-              </View>
-              {alreadySaved ? (
-                <View style={styles.saved}>
-                  <Ionicons name="heart" size={Sizes.iconSmall} color={Colors.pink} />
-                  <AppText variant="label" color="text2">
-                    {t('saveVendor.alreadySaved')}
-                  </AppText>
-                </View>
-              ) : (
-                <Ionicons name="heart-outline" size={Sizes.icon} color={Colors.primary} />
-              )}
-            </Pressable>
-          );
-        })}
+        <ListSection>
+          {options.map((option) => {
+            const alreadySaved = savedFor.includes(option.slug);
+            const { primary, secondary } = bilingual(option.name, locale);
+            return (
+              <ListRow
+                key={option.slug ?? 'not-sure'}
+                title={primary.text}
+                titleLang={primary.lang}
+                titleVariant="bodyLg"
+                subtitle={alreadySaved ? t('saveVendor.alreadySaved') : secondary?.text}
+                subtitleLang={alreadySaved ? undefined : secondary?.lang}
+                chevron={false}
+                onPress={alreadySaved || saving ? undefined : () => choose(option.slug)}
+                accessibilityLabel={
+                  alreadySaved ? `${primary.text}, ${t('saveVendor.alreadySaved')}` : primary.text
+                }
+                trailing={
+                  <Icon
+                    name={alreadySaved ? 'heart' : 'heart-outline'}
+                    size={Sizes.icon}
+                    color={Colors.primary}
+                  />
+                }
+              />
+            );
+          })}
+        </ListSection>
       </ScrollView>
     );
   }
 
   return (
     <Screen edges={['top', 'bottom']}>
-      <View style={styles.topBar}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t('signIn.close')}
-          onPress={() => router.canGoBack() && router.back()}
-          style={({ pressed }) => [styles.close, pressed && styles.rowPressed]}
-        >
-          <Ionicons name="close" size={Sizes.icon + 4} color={Colors.text} />
-        </Pressable>
-      </View>
+      <SheetHeader onClose={() => router.canGoBack() && router.back()} />
       {content}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  topBar: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingTop: Spacing.sm,
-  },
-  close: {
-    width: Sizes.tapTarget,
-    height: Sizes.tapTarget,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: Sizes.tapTarget / 2,
-  },
   content: {
-    gap: Spacing.md,
-    paddingVertical: Spacing.lg,
+    gap: Spacing.lg,
+    paddingTop: Spacing.sm,
+    paddingBottom: Spacing.xl,
   },
-  row: {
-    minHeight: 64,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
-    borderRadius: Radius.card,
-    borderWidth: BorderWidth.hairline,
-    borderColor: Colors.border,
-    backgroundColor: Colors.surface,
-  },
-  rowPressed: {
-    backgroundColor: Colors.primaryTint,
-  },
-  rowName: {
-    flex: 1,
-  },
-  saved: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  intro: {
     gap: Spacing.xs,
+    paddingHorizontal: Spacing.xs,
   },
 });

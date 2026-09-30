@@ -1,4 +1,3 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   Pressable,
   StyleSheet,
@@ -10,7 +9,9 @@ import {
 
 import { AppText } from '@/components/app-text';
 import { FieldError } from '@/components/field-error';
+import { Icon } from '@/components/icon';
 import { BorderWidth, Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { selectionHaptic } from '@/lib/haptics';
 
 export type CheckboxProps = Omit<PressableProps, 'children' | 'style' | 'onPress'> & {
   label: string;
@@ -22,8 +23,8 @@ export type CheckboxProps = Omit<PressableProps, 'children' | 'style' | 'onPress
 };
 
 /**
- * A 28pt box with its label in one 56-tall row; tapping anywhere on the row
- * toggles it. Used for "I am 18 or older".
+ * A round 28-point check (as in Reminders) with its label in one 52-tall row;
+ * tapping anywhere on the row toggles it. Used for "I am 18 or older".
  */
 export function Checkbox({
   label,
@@ -44,7 +45,10 @@ export function Checkbox({
         accessibilityState={{ checked, disabled: !!disabled }}
         disabled={disabled}
         {...rest}
-        onPress={() => onChange(!checked)}
+        onPress={() => {
+          selectionHaptic();
+          onChange(!checked);
+        }}
         style={styles.row}
       >
         {({ pressed }) => (
@@ -59,10 +63,14 @@ export function Checkbox({
               ]}
             >
               {checked && (
-                <Ionicons name="checkmark-sharp" size={Sizes.iconSmall} color={Colors.onPrimary} />
+                <Icon name="checkmark" size={17} color={Colors.onPrimary} weight="bold" />
               )}
             </View>
-            <AppText variant="bodyLg" color={disabled ? 'text2' : 'text'} style={styles.label}>
+            <AppText
+              variant="bodyLg"
+              color={disabled ? 'textDisabled' : 'text'}
+              style={styles.label}
+            >
               {label}
             </AppText>
           </>
@@ -90,16 +98,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: Radius.checkbox,
-    borderWidth: BorderWidth.strong,
+    borderWidth: BorderWidth.control,
     borderColor: Colors.borderInput,
     backgroundColor: Colors.surface,
   },
   boxInvalid: {
+    borderWidth: BorderWidth.strong,
     borderColor: Colors.error,
   },
   boxPressed: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primaryTint,
+    backgroundColor: Colors.rowPressed,
   },
   boxChecked: {
     borderColor: Colors.primary,
@@ -107,7 +115,7 @@ const styles = StyleSheet.create({
   },
   boxDisabled: {
     borderColor: Colors.border,
-    backgroundColor: Colors.skeleton,
+    backgroundColor: Colors.fill,
   },
   label: {
     flex: 1,
