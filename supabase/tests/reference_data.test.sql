@@ -5,7 +5,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(21);
+select plan(25);
 
 -- Security ----------------------------------------------------------------
 
@@ -51,6 +51,30 @@ select is(
   (select count(*)::int from public.cultures),
   5,
   'Five traditions: Punjabi Sikh, Punjabi Hindu, Pakistani, Muslim and Arab'
+);
+
+select is(
+  (select count(*)::int from public.backgrounds),
+  6,
+  'Six backgrounds to pick from: Punjabi, Pakistani, Indian, Arab, Afghan and Bangladeshi'
+);
+
+select is(
+  (select count(*)::int from public.faiths),
+  4,
+  'Four faiths to pick from: Sikh, Hindu, Muslim and Christian'
+);
+
+select is(
+  (select count(*)::int from public.cultures where background_slug is null and faith_slug is null),
+  0,
+  'Every tradition belongs to a background, a faith or both, so the first questions can find it'
+);
+
+select results_eq(
+  $$ select background_slug, faith_slug from public.cultures where is_default $$,
+  $$ values ('punjabi'::text, 'sikh'::text) $$,
+  'The default tradition is Punjabi and Sikh'
 );
 
 select is(
