@@ -9,9 +9,10 @@ const message = (id: string, role: 'family' | 'vendor', at: string, readAt: stri
     senderRole: role,
     kind: 'text',
     body: id,
-    photoUrl: null,
+    photoPath: null,
     quote: null,
     menuId: null,
+    booking: null,
     createdAt: at,
     readAt,
   }) satisfies ChatMessage;

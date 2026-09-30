@@ -33,7 +33,12 @@ export function BookingCard({
     },
     { label: t('chat.booking.guests'), value: guestLabel || notSure },
     ...(booking.location ? [{ label: t('chat.booking.where'), value: booking.location }] : []),
-    ...Object.entries(booking.details ?? {}).map(([label, value]) => ({ label, value })),
+    ...Object.entries(booking.details ?? {})
+      .filter(([, value]) => value !== null && value !== undefined && value !== '')
+      .map(([label, value]) => ({
+        label,
+        value: Array.isArray(value) ? value.join(', ') : String(value),
+      })),
   ];
 
   return (

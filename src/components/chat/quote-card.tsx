@@ -27,7 +27,9 @@ export function QuoteCard({
 }) {
   const styles = useStyles();
   const { t } = useLocale();
-  const unit = quote.unit ? ` / ${t(`vendorCard.units.${quote.unit}`)}` : '';
+  const unit = quote.unit
+    ? ` / ${t(`vendorCard.units.${quote.unit}`, { defaultValue: quote.unit })}`
+    : '';
   const rows = [
     quote.date ? { label: t('chat.quote.date'), value: formatDate(quote.date) } : null,
     quote.guests ? { label: t('chat.quote.guests'), value: quote.guests } : null,

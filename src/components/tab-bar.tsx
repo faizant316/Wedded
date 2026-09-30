@@ -16,7 +16,14 @@ import { makeStyles, Sizes, Spacing, Springs, useColors } from '@/constants/them
 
 export type TabBarProps = Parameters<NonNullable<ComponentProps<typeof Tabs>['tabBar']>>[0];
 
-export type TabSpec = { name: string; label: string; icon: IconName; iconFilled: IconName };
+export type TabSpec = {
+  name: string;
+  label: string;
+  icon: IconName;
+  iconFilled: IconName;
+  /** A count on the icon, e.g. unread messages on Profile. */
+  badge?: number;
+};
 
 const PADDING = 6;
 
@@ -104,18 +111,33 @@ export function GlassTabBar({
                 key={route.key}
                 accessibilityRole="tab"
                 accessibilityState={{ selected: focused }}
-                accessibilityLabel={label}
+                accessibilityLabel={spec?.badge ? `${label}, ${spec.badge}` : label}
                 onPress={onPress}
                 onLongPress={() => navigation.emit({ type: 'tabLongPress', target: route.key })}
                 style={styles.item}
               >
                 {spec && (
-                  <Icon
-                    name={focused ? spec.iconFilled : spec.icon}
-                    size={Sizes.tabIcon}
-                    color={color}
-                    weight={focused ? 'semibold' : 'regular'}
-                  />
+                  <View>
+                    <Icon
+                      name={focused ? spec.iconFilled : spec.icon}
+                      size={Sizes.tabIcon}
+                      color={color}
+                      weight={focused ? 'semibold' : 'regular'}
+                    />
+                    {!!spec.badge && (
+                      <View style={styles.badge}>
+                        <AppText
+                          variant="caption"
+                          weight={700}
+                          color="onPrimary"
+                          maxFontSizeMultiplier={1.2}
+                          style={styles.badgeText}
+                        >
+                          {spec.badge > 99 ? '99+' : String(spec.badge)}
+                        </AppText>
+                      </View>
+                    )}
+                  </View>
                 )}
                 <AppText
                   variant="caption"
@@ -173,6 +195,24 @@ const useStyles = makeStyles((Colors) => ({
     left: PADDING,
     borderRadius: (Sizes.tabBar - PADDING * 2) / 2,
     backgroundColor: Colors.fillPressed,
+  },
+  badge: {
+    position: 'absolute',
+    top: -6,
+    right: -12,
+    minWidth: 20,
+    height: 20,
+    paddingHorizontal: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    backgroundColor: Colors.errorFill,
+    borderWidth: 2,
+    borderColor: Colors.surface,
+  },
+  badgeText: {
+    fontSize: 11,
+    lineHeight: 14,
   },
   item: {
     flex: 1,

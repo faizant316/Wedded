@@ -790,7 +790,9 @@
       "guests": "Guests",
       "validUntil": "Good until {{date}}",
       "accept": "Accept quote",
-      "ask": "Ask a question"
+      "ask": "Ask a question",
+      "acceptMessage": "We'd like to go ahead with your quote of {{amount}}.",
+      "askPrefix": "About your quote: "
     },
     "booking": {
       "title": "Inquiry",
@@ -805,6 +807,51 @@
       "price": "Can you send your prices?",
       "visit": "Can we visit?",
       "thanks": "Thank you!"
+    },
+    "message": "Message",
+    "messageSpoken": "Message {{name}} in the app",
+    "startFailed": "That didn't open. Check your internet and try again.",
+    "signIn": "Sign in to message vendors and see their replies here.",
+    "empty": "No messages yet. Tap Message on a vendor to start, or ask about price and date.",
+    "noMessages": "No messages yet",
+    "aFamily": "A family",
+    "forBusiness": "For {{name}}",
+    "unread": {
+      "one": "1 unread",
+      "other": "{{count}} unread"
+    },
+    "viewProfile": "View profile",
+    "openProfile": "Open {{name}}'s profile",
+    "sendQuote": "Send a quote",
+    "sendMenu": "Send a menu",
+    "preview": {
+      "you": "You: {{text}}",
+      "photo": "Photo",
+      "quote": "Sent a quote",
+      "menu": "Sent a menu",
+      "booking": "Inquiry"
+    },
+    "errors": {
+      "rate": "You're sending very fast. Wait a minute, then send again.",
+      "empty": "Type a message first.",
+      "notAllowed": "You can't send in this conversation.",
+      "invalid": "That message couldn't be sent. Check it and try again.",
+      "failed": "That didn't send. Check your internet and try again."
+    },
+    "quoteForm": {
+      "title": "Send a quote",
+      "amount": "Price in dollars",
+      "amountError": "Type a price, like 38.",
+      "per": "Per",
+      "guests": "For how many guests? (optional)",
+      "note": "Note (optional)",
+      "noteHint": "What's included, deposits, anything they should know.",
+      "send": "Send quote"
+    },
+    "menuPicker": {
+      "title": "Send a menu",
+      "hint": "Tap a menu to send it as a card.",
+      "none": "You have no menus yet. Text the founders to add them."
     }
   }
 }

@@ -12,6 +12,7 @@ import { StateView } from '@/components/state-view';
 import { WeddingCard } from '@/components/wedding-card';
 import { makeStyles, Radius, Spacing, useColors } from '@/constants/theme';
 import { useMyInquiries } from '@/data/inquiries';
+import { useUnreadCount } from '@/data/chat';
 import { useSavedVendors, type SavedVendor } from '@/data/saved';
 import { useSession } from '@/features/auth/session';
 import { bookedCount, usePlan } from '@/features/planner/plan';
@@ -26,6 +27,7 @@ import { formatPhone } from '@/lib/phone';
  */
 export default function ProfileScreen() {
   const { t } = useLocale();
+  const unread = useUnreadCount();
 
   return (
     <NavScreen
@@ -44,6 +46,12 @@ export default function ProfileScreen() {
       <WeddingCard compact />
       <SavedGrid />
       <ListSection inset>
+        <ListRow
+          icon="chatbubbles-outline"
+          title={t('chat.title')}
+          value={unread > 0 ? String(unread) : undefined}
+          onPress={() => router.push('/messages')}
+        />
         <ListRow
           icon="settings-outline"
           title={t('settings.title')}

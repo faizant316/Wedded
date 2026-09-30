@@ -7,6 +7,7 @@ import {
   type TabSpec,
 } from '@/components/tab-bar';
 import { Sizes, Spacing, useColors } from '@/constants/theme';
+import { useUnreadCount } from '@/data/chat';
 import { useLocale } from '@/i18n/locale-context';
 
 const TABS: (Omit<TabSpec, 'label'> & { labelKey: string })[] = [
@@ -32,7 +33,13 @@ export default function TabsLayout() {
   const Colors = useColors();
   const { t } = useLocale();
   const offset = useTabBarOffset();
-  const tabs = TABS.map(({ labelKey, ...tab }) => ({ ...tab, label: t(labelKey) }));
+  const unread = useUnreadCount();
+  // Unread messages show on Profile, where Messages lives.
+  const tabs = TABS.map(({ labelKey, ...tab }) => ({
+    ...tab,
+    label: t(labelKey),
+    badge: tab.name === 'profile' ? unread : undefined,
+  }));
 
   return (
     <TabBarSpaceProvider value={Sizes.tabBar + offset + Spacing.sm}>
