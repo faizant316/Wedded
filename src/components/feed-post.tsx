@@ -12,9 +12,10 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { AppText } from '@/components/app-text';
+import { AppText, useFontScale } from '@/components/app-text';
 import { Glass } from '@/components/glass';
-import { Icon } from '@/components/icon';
+import { Icon, type IconName } from '@/components/icon';
+import { PressableScale } from '@/components/pressable-scale';
 import { makeStyles, Radius, Sizes, Spacing, Springs, useColors } from '@/constants/theme';
 import type { FeedPost as Post } from '@/data/feed';
 import { priceLine } from '@/features/vendors/profile-format';
@@ -33,11 +34,12 @@ export type FeedPostProps = {
 };
 
 /**
- * One vendor in the Discover feed, laid out like an Instagram business post:
- * who it is, their photos to swipe through, "Ask about price & date" right
- * under them, then Save, Ask and Share, and a caption. Double-tap a photo to
- * save it, with the heart bursting over it. No likes, followers or comments
- * (vision §4): the heart is Save.
+ * One vendor in the Discover feed: who it is, their photos to swipe through
+ * (4:3, like the profile cover), then three labelled buttons, Save, Ask and
+ * Share, and a caption. Words rather than Instagram's bare icons, so nobody has
+ * to guess what a speech bubble or paper plane does (DECISIONS 2026-09-30).
+ * Double-tap a photo to save it, with the heart bursting over it. No likes,
+ * followers or comments (vision §4).
  */
 export function FeedPost({ post, saved, onToggleSave }: FeedPostProps) {
   const Colors = useColors();
@@ -50,6 +52,8 @@ export function FeedPost({ post, saved, onToggleSave }: FeedPostProps) {
   const [expanded, setExpanded] = useState(false);
   const lastTap = useRef(0);
   const burst = useSharedValue(0);
+  // Three buttons side by side stop fitting once the text is very large.
+  const stackActions = useFontScale('button') >= 1.5;
 
   const name = localized(post.name, locale);
   const category = post.category ? localized(post.category.name, locale) : null;
@@ -58,6 +62,7 @@ export function FeedPost({ post, saved, onToggleSave }: FeedPostProps) {
 
   const openProfile = () => router.push({ pathname: '/v/[slug]', params: { slug: post.slug } });
   const ask = () => router.push({ pathname: '/ask', params: { vendorId: post.vendorId } });
+  const share = () => void shareVendor({ name, category, city: post.city, slug: post.slug }, t);
 
   const save = () => {
     if (!saved) saveHaptic();
@@ -148,7 +153,7 @@ export function FeedPost({ post, saved, onToggleSave }: FeedPostProps) {
                   contentFit="cover"
                   transition={200}
                   accessible={false}
-                  style={{ width, height: width * 1.25 }}
+                  style={{ width, height: width * 0.75 }}
                 />
               </Pressable>
             )}
@@ -166,44 +171,29 @@ export function FeedPost({ post, saved, onToggleSave }: FeedPostProps) {
         </Animated.View>
       </View>
 
-      <Pressable
-        accessibilityRole="button"
-        onPress={ask}
-        style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed]}
-      >
-        <AppText weight={600} color="primary" style={styles.shrink}>
-          {t('vendor.ask')}
-        </AppText>
-        <Icon name="chevron-forward" size={16} color={Colors.primary} weight="semibold" />
-      </Pressable>
-
-      <View style={styles.actions}>
-        <ActionIcon
+      <View style={[styles.actions, stackActions && styles.actionsStacked]}>
+        <PostAction
           icon={saved ? 'heart' : 'heart-outline'}
-          color={saved ? Colors.primary : Colors.text}
-          label={saved ? t('vendorCard.unsave', { name }) : t('vendorCard.save', { name })}
+          label={saved ? t('vendor.saved') : t('vendor.save')}
+          accessibilityLabel={
+            saved ? t('vendorCard.unsave', { name }) : t('vendorCard.save', { name })
+          }
+          selected={saved}
           onPress={save}
         />
-        <ActionIcon
+        <PostAction
           icon="chatbubble-outline"
-          color={Colors.text}
-          label={t('discover.askLabel', { name })}
+          label={t('discover.ask')}
+          accessibilityLabel={t('discover.askLabel', { name })}
+          filled
           onPress={ask}
         />
-        <ActionIcon
-          icon="paper-plane-outline"
-          color={Colors.text}
-          label={t('discover.shareLabel', { name })}
-          onPress={() => void shareVendor({ name, category, city: post.city, slug: post.slug }, t)}
+        <PostAction
+          icon="share-outline"
+          label={t('discover.share')}
+          accessibilityLabel={t('discover.shareLabel', { name })}
+          onPress={share}
         />
-        <View style={styles.spacer} />
-        {post.photos.length > 1 && (
-          <View style={styles.dots} accessible={false}>
-            {post.photos.map((photo, i) => (
-              <View key={photo.id} style={[styles.dot, i === index && styles.dotOn]} />
-            ))}
-          </View>
-        )}
       </View>
 
       <View style={styles.body}>
@@ -225,45 +215,64 @@ export function FeedPost({ post, saved, onToggleSave }: FeedPostProps) {
   );
 }
 
-function ActionIcon({
+/**
+ * One of the post's three buttons: an icon and a word in a capsule. `filled` is
+ * the main action (Ask); `selected` fills the heart and pops it once (vision §4).
+ */
+function PostAction({
   icon,
-  color,
   label,
+  accessibilityLabel,
+  filled = false,
+  selected = false,
   onPress,
 }: {
-  icon: 'heart' | 'heart-outline' | 'chatbubble-outline' | 'paper-plane-outline';
-  color: string;
+  icon: IconName;
   label: string;
+  accessibilityLabel: string;
+  filled?: boolean;
+  selected?: boolean;
   onPress: () => void;
 }) {
+  const Colors = useColors();
   const styles = useStyles();
   const reduceMotion = useReducedMotion();
   const pop = useSharedValue(1);
-  const wasFilled = useRef(icon === 'heart');
+  const wasSelected = useRef(selected);
 
-  // The heart pops once when it fills (vision §4).
   useEffect(() => {
-    const filled = icon === 'heart';
-    if (filled && !wasFilled.current && !reduceMotion) {
+    if (selected && !wasSelected.current && !reduceMotion) {
       pop.value = withSequence(withTiming(1.3, { duration: 110 }), withSpring(1, Springs.pop));
     }
-    wasFilled.current = filled;
-  }, [icon, reduceMotion, pop]);
+    wasSelected.current = selected;
+  }, [selected, reduceMotion, pop]);
 
   const popStyle = useAnimatedStyle(() => ({ transform: [{ scale: pop.value }] }));
+  const tint = filled ? Colors.onPrimary : Colors.primary;
+  // The icon grows with the label so it doesn't look lost next to large text.
+  const iconScale = Math.min(useFontScale('button'), 1.6);
 
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
-      accessibilityLabel={label}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityState={selected ? { selected: true } : undefined}
       onPress={onPress}
-      hitSlop={6}
-      style={({ pressed }) => [styles.action, pressed && styles.dim]}
+      pressedScale={0.94}
+      style={[styles.action, filled ? styles.actionFilled : styles.actionTinted]}
     >
       <Animated.View style={popStyle}>
-        <Icon name={icon} size={27} color={color} />
+        <Icon name={icon} size={Sizes.iconSmall * iconScale} color={tint} weight="semibold" />
       </Animated.View>
-    </Pressable>
+      <AppText
+        variant="button"
+        color={filled ? 'onPrimary' : 'primary'}
+        numberOfLines={2}
+        style={styles.actionLabel}
+      >
+        {label}
+      </AppText>
+    </PressableScale>
   );
 }
 
@@ -320,50 +329,41 @@ const useStyles = makeStyles((Colors) => ({
     justifyContent: 'center',
     pointerEvents: 'none',
   },
-  cta: {
+  actions: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    paddingTop: Spacing.md,
+  },
+  actionsStacked: {
+    flexDirection: 'column',
+  },
+  action: {
+    flex: 1,
     minHeight: Sizes.tapTarget,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.lg,
+    justifyContent: 'center',
+    gap: Spacing.xs + 2,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: Radius.button,
+    borderCurve: 'continuous',
+  },
+  actionTinted: {
     backgroundColor: Colors.primaryTint,
   },
-  ctaPressed: {
-    backgroundColor: Colors.fillPressed,
+  actionFilled: {
+    backgroundColor: Colors.primaryFill,
   },
-  actions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.xs,
-    paddingHorizontal: Spacing.sm,
-    paddingTop: Spacing.xs,
-  },
-  action: {
-    width: Sizes.tapTarget,
-    height: Sizes.tapTarget,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  spacer: {
-    flex: 1,
-  },
-  dots: {
-    flexDirection: 'row',
-    gap: 5,
-    paddingRight: Spacing.md,
-  },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: Colors.separator,
-  },
-  dotOn: {
-    backgroundColor: Colors.primary,
+  actionLabel: {
+    flexShrink: 1,
+    textAlign: 'center',
   },
   body: {
     gap: Spacing.xs,
     paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.md,
     paddingBottom: Spacing.lg,
   },
   tabular: {

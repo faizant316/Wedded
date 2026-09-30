@@ -519,7 +519,9 @@
     "doubleTapHint": "Double-tap to save",
     "askLabel": "Ask {{name}} about price and date",
     "shareLabel": "Share {{name}}",
-    "andMore": "{{names}} and {{count}} more"
+    "andMore": "{{names}} and {{count}} more",
+    "ask": "Ask",
+    "share": "Share"
   },
   "story": {
     "previous": "Previous photo",
