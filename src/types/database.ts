@@ -191,6 +191,8 @@ export type Database = {
           created_at: string;
           culture_slug: string;
           event_slug: string;
+          is_core: boolean;
+          local_name: Json | null;
           phase: string;
           sort_order: number;
           updated_at: string;
@@ -199,6 +201,8 @@ export type Database = {
           created_at?: string;
           culture_slug: string;
           event_slug: string;
+          is_core?: boolean;
+          local_name?: Json | null;
           phase: string;
           sort_order: number;
           updated_at?: string;
@@ -207,6 +211,8 @@ export type Database = {
           created_at?: string;
           culture_slug?: string;
           event_slug?: string;
+          is_core?: boolean;
+          local_name?: Json | null;
           phase?: string;
           sort_order?: number;
           updated_at?: string;

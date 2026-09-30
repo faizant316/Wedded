@@ -44,7 +44,7 @@ async function databaseRows(supabase: SupabaseClient): Promise<Row[]> {
     if (error) fail(`Could not read ${table}: ${error.message}`);
     return data as T[];
   };
-  const [events, categories, groups, areaCodes, cultures] = await Promise.all([
+  const [events, categories, groups, areaCodes, cultures, localNames] = await Promise.all([
     read<{ slug: string; name: Localized; timing: Localized; summary: Localized }>(
       'events',
       'slug, name, timing, summary',
@@ -54,6 +54,11 @@ async function databaseRows(supabase: SupabaseClient): Promise<Row[]> {
     read<{ slug: string; name: Localized }>('category_groups', 'slug, name', 'slug'),
     read<{ code: string; label: Localized }>('area_codes', 'code, label', 'sort_order'),
     read<{ slug: string; name: Localized }>('cultures', 'slug, name', 'slug'),
+    read<{ culture_slug: string; event_slug: string; local_name: Localized }>(
+      'culture_events',
+      'culture_slug, event_slug, local_name',
+      'culture_slug',
+    ),
   ]);
 
   const rows: Row[] = [];
@@ -69,6 +74,9 @@ async function databaseRows(supabase: SupabaseClient): Promise<Row[]> {
   for (const group of groups) add('Vendor type groups', group.slug, group.name);
   for (const area of areaCodes) add('Area-code chips', area.code, area.label);
   for (const culture of cultures) add('Cultures', culture.slug, culture.name);
+  for (const row of localNames) {
+    add('Cultures', `${row.culture_slug}: ${row.event_slug}`, row.local_name);
+  }
   return rows;
 }
 
