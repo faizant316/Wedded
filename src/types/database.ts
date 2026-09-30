@@ -497,6 +497,35 @@ export type Database = {
           },
         ];
       };
+      vendor_activity_daily: {
+        Row: {
+          count: number;
+          day: string;
+          kind: string;
+          vendor_id: string;
+        };
+        Insert: {
+          count?: number;
+          day: string;
+          kind: string;
+          vendor_id: string;
+        };
+        Update: {
+          count?: number;
+          day?: string;
+          kind?: string;
+          vendor_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'vendor_activity_daily_vendor_id_fkey';
+            columns: ['vendor_id'];
+            isOneToOne: false;
+            referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       vendor_categories: {
         Row: {
           category_slug: string;
@@ -1009,6 +1038,32 @@ export type Database = {
           primary_category_slug: string;
           slug: string;
           within_search_radius: boolean;
+        }[];
+      };
+      track_vendor_activity: { Args: { p_kind: string; p_vendor_id: string }; Returns: undefined };
+      vendor_public_stats: {
+        Args: { p_vendor_id: string };
+        Returns: {
+          answered: number;
+          replied: number;
+          saved_by: number;
+        }[];
+      };
+      vendor_scorecard: {
+        Args: { p_from: string; p_to: string; p_vendor_id: string };
+        Returns: {
+          answered: number;
+          calls: number;
+          directions: number;
+          inquiries: number;
+          instagram: number;
+          replied: number;
+          saves: number;
+          shares: number;
+          texts: number;
+          views: number;
+          website: number;
+          whatsapps: number;
         }[];
       };
     };

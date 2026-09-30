@@ -594,5 +594,12 @@
       "one": "{{count}} ਬੁੱਕ",
       "other": "{{count}} ਬੁੱਕ"
     }
+  },
+  "vendorStats": {
+    "savedBy": {
+      "one": "{{count}} ਪਰਿਵਾਰ ਨੇ ਸੰਭਾਲਿਆ",
+      "other": "{{count}} ਪਰਿਵਾਰਾਂ ਨੇ ਸੰਭਾਲਿਆ"
+    },
+    "replied": "ਪੁੱਛਣ ਵਾਲੇ {{answered}} ਵਿੱਚੋਂ {{replied}} ਪਰਿਵਾਰਾਂ ਨੂੰ ਜਵਾਬ ਦਿੱਤਾ"
   }
 }

@@ -594,5 +594,12 @@
       "one": "{{count}} booked",
       "other": "{{count}} booked"
     }
+  },
+  "vendorStats": {
+    "savedBy": {
+      "one": "Saved by {{count}} family",
+      "other": "Saved by {{count}} families"
+    },
+    "replied": "Replied to {{replied}} of {{answered}} families who asked"
   }
 }
