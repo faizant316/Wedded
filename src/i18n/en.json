@@ -558,7 +558,31 @@
     "about": "About",
     "version": "Version",
     "account": "Account",
-    "madeIn": "Made in Northern California for Punjabi families"
+    "madeIn": "Made in Northern California for Punjabi families",
+    "colour": "Colour (preview, pick one)",
+    "colourHint": "Trying out colours for the app. Pick one to see every screen in it; you can switch back any time.",
+    "palettes": {
+      "classic": {
+        "name": "Classic",
+        "hint": "Maroon and marigold"
+      },
+      "midnight": {
+        "name": "Midnight & Champagne",
+        "hint": "Deep navy with champagne gold"
+      },
+      "rose": {
+        "name": "Rose Quartz",
+        "hint": "Blush with charcoal"
+      },
+      "emerald": {
+        "name": "Emerald & Gold",
+        "hint": "Deep green with gold"
+      },
+      "nebula": {
+        "name": "Nebula",
+        "hint": "Electric violet with aqua"
+      }
+    }
   },
   "planner": {
     "title": "My Wedding",
