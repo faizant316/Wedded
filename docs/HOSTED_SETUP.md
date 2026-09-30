@@ -48,7 +48,7 @@ Without a verified domain, Resend only delivers to the account's own email, so `
 ## 5. Deploy the server code
 
 ```bash
-supabase functions deploy          # send-inquiry, delete-account, send-queued-inquiries
+supabase functions deploy          # send-inquiry, delete-account, send-queued-inquiries, notify-chat
 supabase functions list            # all three should say ACTIVE
 ```
 
