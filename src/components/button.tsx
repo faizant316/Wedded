@@ -7,7 +7,9 @@ import {
 } from 'react-native';
 
 import { AppText, useFontScale } from '@/components/app-text';
+import { Glass, hasNativeGlass } from '@/components/glass';
 import { Icon, type IconName } from '@/components/icon';
+import { PressableScale } from '@/components/pressable-scale';
 import { type ColorToken, makeStyles, Radius, Sizes, Spacing, useColors } from '@/constants/theme';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'text' | 'danger';
@@ -34,9 +36,11 @@ const LABEL_COLOR: Record<ButtonVariant, ColorToken> = {
 };
 
 /**
- * The app's button, an iOS 26 capsule at least 52 tall that stretches to the
+ * The app's button, an iOS 26 capsule at least 48 tall that stretches to the
  * width of its container, and lets long (Punjabi) labels wrap onto a second
- * line instead of clipping.
+ * line instead of clipping. On iOS 26 it's Liquid Glass that glows under the
+ * finger (tinted for the main action, clear for secondary), inside a spring
+ * press (DECISIONS 2026-09-30); elsewhere it's a solid capsule.
  */
 export function Button({
   label,
@@ -53,22 +57,10 @@ export function Button({
   const pressedStyles = usePressedStyles();
   const labelColor: ColorToken = disabled ? 'textDisabled' : LABEL_COLOR[variant];
   const scale = useFontScale('button');
+  const off = disabled || loading;
 
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel ?? label}
-      accessibilityState={{ disabled: disabled || loading, busy: loading }}
-      disabled={disabled || loading}
-      {...rest}
-      style={({ pressed }) => [
-        styles.base,
-        styles[variant],
-        pressed && pressedStyles[variant],
-        disabled && variant !== 'text' && styles.disabled,
-        style,
-      ]}
-    >
+  const content = (
+    <>
       {loading ? (
         <ActivityIndicator color={Colors[labelColor]} />
       ) : (
@@ -84,6 +76,48 @@ export function Button({
       <AppText variant="button" color={labelColor} style={styles.label}>
         {label}
       </AppText>
+    </>
+  );
+
+  if (hasNativeGlass && variant !== 'text' && !disabled) {
+    return (
+      <PressableScale
+        accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel ?? label}
+        accessibilityState={{ disabled: off, busy: loading }}
+        disabled={off}
+        pressedScale={0.96}
+        {...rest}
+        style={style}
+      >
+        <Glass
+          interactive
+          tinted={variant === 'primary'}
+          tintColor={variant === 'danger' ? Colors.errorFill : undefined}
+          style={styles.base}
+        >
+          {content}
+        </Glass>
+      </PressableScale>
+    );
+  }
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? label}
+      accessibilityState={{ disabled: off, busy: loading }}
+      disabled={off}
+      {...rest}
+      style={({ pressed }) => [
+        styles.base,
+        styles[variant],
+        pressed && pressedStyles[variant],
+        disabled && variant !== 'text' && styles.disabled,
+        style,
+      ]}
+    >
+      {content}
     </Pressable>
   );
 }

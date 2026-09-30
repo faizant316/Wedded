@@ -5,7 +5,9 @@ import Animated, {
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
+  withSequence,
   withSpring,
+  withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -59,14 +61,26 @@ export function GlassTabBar({
   const [width, setWidth] = useState(0);
   const itemWidth = width > 0 ? (width - PADDING * 2) / state.routes.length : 0;
   const x = useSharedValue(0);
+  // Stretches as it slides and settles back, like a drop of liquid.
+  const stretch = useSharedValue(1);
   const keyboardShown = useKeyboardShown();
 
   useEffect(() => {
     const target = state.index * itemWidth;
-    x.value = reduceMotion || itemWidth === 0 ? target : withSpring(target, Springs.snappy);
-  }, [state.index, itemWidth, reduceMotion, x]);
+    if (reduceMotion || itemWidth === 0) {
+      x.value = target;
+      return;
+    }
+    x.value = withSpring(target, Springs.snappy);
+    stretch.value = withSequence(
+      withTiming(1.18, { duration: 110 }),
+      withSpring(1, Springs.stretch),
+    );
+  }, [state.index, itemWidth, reduceMotion, x, stretch]);
 
-  const highlight = useAnimatedStyle(() => ({ transform: [{ translateX: x.value }] }));
+  const highlight = useAnimatedStyle(() => ({
+    transform: [{ translateX: x.value }, { scaleX: stretch.value }],
+  }));
 
   // Android lifts the whole screen above the keyboard; the bar would ride on it.
   if (keyboardShown) return null;
