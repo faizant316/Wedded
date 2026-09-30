@@ -13,15 +13,10 @@ import { NavScreen } from '@/components/nav';
 import { StateView } from '@/components/state-view';
 import { makeStyles, Radius, Sizes, Spacing, useColors } from '@/constants/theme';
 import { useEventNeeds, useHomeEvents } from '@/data/reference';
+import { useWeddingPlan } from '@/data/wedding';
 import { formatDate } from '@/features/inquiry/inquiry-helpers';
-import {
-  bookedCount,
-  daysUntil,
-  setWeddingDate,
-  toggleBooked,
-  toggleEvent,
-  usePlan,
-} from '@/features/planner/plan';
+import { bookedCount, daysUntil } from '@/features/planner/plan';
+import { PlanTogether } from '@/features/planner/plan-together';
 import { bilingual, localized, type LocalizedText } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
 import { selectionHaptic, successHaptic } from '@/lib/haptics';
@@ -30,13 +25,15 @@ import { selectionHaptic, successHaptic } from '@/lib/haptics';
  * My Wedding: the countdown to the Anand Karaj, the events the family is
  * having, and for each a checklist of the vendors it needs (essential first)
  * to tick off as they're booked, with a shortcut to find each one. Saved on
- * this phone.
+ * this phone, or to the account and shared with family (Plan together,
+ * src/data/wedding.ts); viewers see the plan but can't change it.
  */
 export default function PlanScreen() {
   const Colors = useColors();
   const styles = useStyles();
   const { t, locale } = useLocale();
-  const plan = usePlan();
+  const { plan, wedding, canEdit, saveFailed, setWeddingDate, toggleEvent, toggleBooked } =
+    useWeddingPlan();
   const events = useHomeEvents();
   const allEvents = events.data?.flatMap((section) => section.events) ?? [];
   const chosen = allEvents.filter((event) => plan.events.includes(event.slug));
@@ -74,14 +71,16 @@ export default function PlanScreen() {
             <AppText color="text2">{t('planner.whenBody')}</AppText>
           </>
         )}
-        <DateField
-          value={plan.weddingDate}
-          onChange={(date) => {
-            successHaptic();
-            setWeddingDate(date);
-          }}
-          placeholder={plan.weddingDate ? t('planner.changeDate') : t('planner.pickDate')}
-        />
+        {canEdit && (
+          <DateField
+            value={plan.weddingDate}
+            onChange={(date) => {
+              successHaptic();
+              setWeddingDate(date);
+            }}
+            placeholder={plan.weddingDate ? t('planner.changeDate') : t('planner.pickDate')}
+          />
+        )}
         {chosen.length > 0 && (
           <View style={styles.summary}>
             <Stat value={booked} label={t('planner.bookedStat', { count: booked })} />
@@ -89,6 +88,13 @@ export default function PlanScreen() {
           </View>
         )}
       </View>
+
+      <PlanTogether wedding={wedding} />
+      {saveFailed && (
+        <AppText color="error" style={styles.pad}>
+          {t('planTogether.saveFailed')}
+        </AppText>
+      )}
 
       <View style={styles.block}>
         <SectionTitle>{t('planner.eventsTitle')}</SectionTitle>
@@ -103,6 +109,7 @@ export default function PlanScreen() {
               key={event.slug}
               label={localized(event.name, locale)}
               selected={plan.events.includes(event.slug)}
+              disabled={!canEdit}
               onPress={() => toggleEvent(event.slug)}
             />
           ))}
@@ -119,6 +126,8 @@ export default function PlanScreen() {
               name={event.name}
               booked={plan.booked[event.slug] ?? []}
               startOpen={i === 0}
+              canEdit={canEdit}
+              onToggleBooked={(category) => toggleBooked(event.slug, category)}
             />
           ))}
         </View>
@@ -147,11 +156,15 @@ function EventPlan({
   name,
   booked,
   startOpen,
+  canEdit,
+  onToggleBooked,
 }: {
   slug: string;
   name: LocalizedText;
   booked: string[];
   startOpen: boolean;
+  canEdit: boolean;
+  onToggleBooked: (categorySlug: string) => void;
 }) {
   const Colors = useColors();
   const styles = useStyles();
@@ -197,12 +210,13 @@ function EventPlan({
               <View key={need.categorySlug} style={styles.need}>
                 <Pressable
                   accessibilityRole="checkbox"
-                  accessibilityState={{ checked: isBooked }}
+                  accessibilityState={{ checked: isBooked, disabled: !canEdit }}
                   accessibilityLabel={t('planner.markBooked', { name: needName })}
+                  disabled={!canEdit}
                   onPress={() => {
                     if (isBooked) selectionHaptic();
                     else successHaptic();
-                    toggleBooked(slug, need.categorySlug);
+                    onToggleBooked(need.categorySlug);
                   }}
                   hitSlop={8}
                   style={[styles.check, isBooked && styles.checkOn]}

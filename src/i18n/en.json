@@ -615,5 +615,61 @@
     },
     "show": "Show results",
     "clear": "Clear filters"
+  },
+  "planTogether": {
+    "title": "Plan together with family",
+    "body": "Save your plan to your account, then invite family to see it and help. Everyone sees the same plan, and it's safe if you lose your phone.",
+    "start": "Save and invite family",
+    "signInToStart": "Sign in to plan together",
+    "sharedTitle": "Planning together",
+    "you": "You",
+    "someone": "Family member",
+    "roles": {
+      "owner": "Set up this plan",
+      "planner": "Can help plan",
+      "viewer": "Can see the plan"
+    },
+    "invite": "Invite family to help",
+    "inviteViewer": "Invite someone to only look",
+    "inviteHint": "You'll get a link to send, for example to your family WhatsApp group. It works for 14 days.",
+    "inviteMessage": "Help us plan the wedding on Wedded App. Tap to join our plan: {{link}}",
+    "copied": "Invite copied. Paste it in WhatsApp or a text.",
+    "inviteFailed": "The invite couldn't be made. Check your internet, then try again.",
+    "failed": "That didn't work. Check your internet, then try again.",
+    "saveFailed": "Your last change didn't save. Check your internet, then try again.",
+    "viewerNote": "You can see this plan. Ask whoever set it up to let you help plan it.",
+    "leave": "Leave",
+    "remove": "Remove",
+    "leaveTitle": "Leave this plan?",
+    "leaveBody": "You'll stop seeing it. Someone can invite you again.",
+    "removeTitle": "Remove {{name}}?",
+    "removeBody": "They'll stop seeing this plan. You can invite them again."
+  },
+  "join": {
+    "title": "Join the wedding plan",
+    "pageTitle": "Join our wedding plan · Wedded App",
+    "pageDescription": "You're invited to help plan a wedding on Wedded App.",
+    "invitedBy": "{{name}} invited you to help plan",
+    "invited": "You're invited to help plan",
+    "aWedding": "A family wedding",
+    "plannerExplain": "You'll see the plan and can tick off vendors as they're booked.",
+    "viewerExplain": "You'll be able to see the plan: the events, the date and who's booked.",
+    "join": "Join the plan",
+    "askForNewLink": "Ask the person who sent it for a new link.",
+    "status": {
+      "expired": "This invite has expired",
+      "used_up": "This invite has been used up",
+      "revoked": "This invite was cancelled",
+      "not_found": "This invite doesn't work"
+    },
+    "errors": {
+      "revoked": "This invite was cancelled. Ask for a new link.",
+      "expired": "This invite has expired. Ask for a new link.",
+      "used_up": "This invite has been used up. Ask for a new link.",
+      "not_found": "This invite doesn't work. Ask for a new link.",
+      "full": "This plan already has the most people it can.",
+      "too_many": "You're already part of 10 wedding plans. Leave one to join this.",
+      "failed": "Joining didn't work. Check your internet, then try again."
+    }
   }
 }
