@@ -568,3 +568,31 @@ select ('00000000-0000-4000-8000-000000000' || lpad(m.n::text, 3, '0'))::uuid, u
 from extra_samples m;
 
 drop table extra_samples;
+
+-- Sample menus (vendor_menus) ------------------------------------------------------------
+
+insert into public.vendor_menus (vendor_id, name, description, cuisine, diet, price_from, price_unit, min_guests, sort_order, sections)
+select v.id, m.name, m.description, m.cuisine, m.diet, m.price_from, m.price_unit, m.min_guests, m.sort_order, m.sections::jsonb
+from (values
+  ('saffron-tandoor-catering', 'Classic Punjabi', 'Our most booked reception menu, cooked on site with a live tandoor.', 'Punjabi',
+    array['veg', 'non_veg', 'jhatka'], 28, 'plate', 150, 1,
+    '[{"title": "Appetizers", "items": [{"name": "Paneer tikka", "diet": ["veg"]}, {"name": "Amritsari fish", "diet": ["non_veg"]}, {"name": "Aloo tikki chaat", "diet": ["veg"]}]},
+      {"title": "Mains", "items": [{"name": "Butter chicken", "diet": ["non_veg"]}, {"name": "Shahi paneer", "diet": ["veg"]}, {"name": "Dal makhani", "diet": ["veg"]}, {"name": "Sarson da saag with makki di roti", "diet": ["veg"]}]},
+      {"title": "Breads and rice", "items": [{"name": "Tandoori naan and garlic naan"}, {"name": "Jeera rice"}]},
+      {"title": "Dessert", "items": [{"name": "Gulab jamun"}, {"name": "Kheer"}]}]'),
+  ('saffron-tandoor-catering', 'Vegetarian Thali', 'A full vegetarian spread, eggless kitchen.', 'Punjabi',
+    array['veg', 'eggless'], 22, 'plate', 100, 2,
+    '[{"title": "Thali", "items": [{"name": "Chole", "diet": ["veg"]}, {"name": "Mixed vegetable", "diet": ["veg"]}, {"name": "Raita"}, {"name": "Puri and rice"}, {"name": "Jalebi"}]}]'),
+  ('royal-feast-caterers', 'Gold Package', 'Five appetizers, four mains and a live chaat counter.', 'Punjabi and Indo-Chinese',
+    array['veg', 'non_veg', 'halal'], 38, 'plate', 200, 1,
+    '[{"title": "Live counters", "items": [{"name": "Chaat counter"}, {"name": "Dosa counter"}]},
+      {"title": "Appetizers", "items": [{"name": "Chilli paneer", "diet": ["veg"]}, {"name": "Chicken 65", "diet": ["non_veg"]}, {"name": "Veg spring rolls", "diet": ["veg"]}]},
+      {"title": "Mains", "items": [{"name": "Lamb rogan josh", "diet": ["non_veg"]}, {"name": "Kadhai paneer", "diet": ["veg"]}, {"name": "Hakka noodles", "diet": ["veg"]}]},
+      {"title": "Dessert", "items": [{"name": "Rasmalai"}, {"name": "Kulfi"}]}]'),
+  ('royal-orchard-banquet-hall', 'In-house Reception Menu', 'Food included with the hall. Outside caterers from our approved list are also welcome.', 'Punjabi',
+    array['veg', 'non_veg'], 55, 'plate', 250, 1,
+    '[{"title": "Appetizers", "items": [{"name": "Hara bhara kebab", "diet": ["veg"]}, {"name": "Chicken malai tikka", "diet": ["non_veg"]}]},
+      {"title": "Mains", "items": [{"name": "Butter chicken", "diet": ["non_veg"]}, {"name": "Paneer makhani", "diet": ["veg"]}, {"name": "Dal tadka", "diet": ["veg"]}]},
+      {"title": "Dessert", "items": [{"name": "Gajar halwa"}, {"name": "Wedding cake cutting service"}]}]')
+) as m (slug, name, description, cuisine, diet, price_from, price_unit, min_guests, sort_order, sections)
+join public.vendors v on v.slug = m.slug;

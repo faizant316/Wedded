@@ -120,4 +120,40 @@ describe('parseVendorFile', () => {
       ]),
     );
   });
+
+  it('reads menus and explains mistakes in them', () => {
+    const good = parseVendorFile({
+      ...hall,
+      menus: [
+        {
+          name: 'Gold',
+          price_from: 45,
+          price_unit: 'plate',
+          sections: [{ title: 'Mains', items: [{ name: 'Dal' }] }],
+        },
+      ],
+    });
+    expect(good.errors).toEqual([]);
+    expect(good.vendors[0].menus?.[0].name).toBe('Gold');
+
+    const bad = parseVendorFile({
+      ...hall,
+      menus: [
+        { price_from: 45 },
+        { name: 'Silver', price_from: 30, diet: ['keto'], sections: [{ items: [] }] },
+      ],
+    });
+    expect(bad.errors).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('menus[1] needs a name'),
+        expect.stringContaining('menus[2] with a price needs'),
+        expect.stringContaining('menus[2].diet'),
+        expect.stringContaining('menus[2].sections'),
+      ]),
+    );
+  });
+
+  it('leaves menus alone when the file has none', () => {
+    expect(parseVendorFile(hall).vendors[0].menus).toBeNull();
+  });
 });
