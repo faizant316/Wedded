@@ -20,6 +20,7 @@ const wedding: AccountWedding = {
   events: ['reception', 'jaago'],
   booked: { reception: ['banquet-hall'] },
   guests: { reception: '250_500' },
+  bookedVendors: {},
 };
 
 describe('toAccountWedding', () => {
@@ -36,7 +37,9 @@ describe('toAccountWedding', () => {
             {
               event_slug: 'reception',
               guest_band: '250_500',
-              wedding_bookings: [{ category_slug: 'dj' }],
+              wedding_bookings: [
+                { category_slug: 'dj', vendor: { slug: 'dj-sukh', name: 'DJ Sukh' } },
+              ],
             },
             { event_slug: 'jaago', guest_band: null, wedding_bookings: [] },
           ],
@@ -51,6 +54,7 @@ describe('toAccountWedding', () => {
       events: ['reception', 'jaago'],
       booked: { reception: ['dj'] },
       guests: { reception: '250_500' },
+      bookedVendors: { 'reception/dj': { slug: 'dj-sukh', name: 'DJ Sukh' } },
     });
   });
 

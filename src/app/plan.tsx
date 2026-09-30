@@ -139,6 +139,7 @@ export default function PlanScreen() {
               canEdit={canEdit}
               onToggleBooked={(category) => toggleBooked(event.slug, category)}
               guests={plan.guests?.[event.slug] ?? null}
+              bookedVendors={wedding?.bookedVendors ?? {}}
               onGuests={(band) => setEventGuests(event.slug, band)}
             />
           ))}
@@ -172,6 +173,7 @@ function EventPlan({
   onToggleBooked,
   guests,
   onGuests,
+  bookedVendors,
 }: {
   slug: string;
   name: LocalizedText;
@@ -181,6 +183,7 @@ function EventPlan({
   onToggleBooked: (categorySlug: string) => void;
   guests: string | null;
   onGuests: (band: string | null) => void;
+  bookedVendors: Record<string, { slug: string; name: string }>;
 }) {
   const Colors = useColors();
   const styles = useStyles();
@@ -263,6 +266,13 @@ function EventPlan({
                 <Icon name={groupIcon(need.groupSlug)} size={20} color={Colors.primary} />
                 <View style={styles.grow}>
                   <AppText style={isBooked ? styles.doneText : undefined}>{needName}</AppText>
+                  {isBooked && bookedVendors[`${slug}/${need.categorySlug}`] && (
+                    <AppText variant="caption" color="success" weight={600}>
+                      {t('planner.bookedWith', {
+                        name: bookedVendors[`${slug}/${need.categorySlug}`].name,
+                      })}
+                    </AppText>
+                  )}
                   {section.importance === 'essential' && !isBooked && (
                     <AppText variant="caption" color="kesari" weight={600}>
                       {t('event.essential')}
