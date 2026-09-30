@@ -5,7 +5,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(16);
+select plan(21);
 
 -- Security ----------------------------------------------------------------
 
@@ -36,9 +36,47 @@ select is(
 );
 
 select is(
-  (select count(*)::int from public.events where not (name ? 'pa')),
+  (
+    select count(*)::int
+    from public.events e
+    join public.culture_events ce on ce.event_slug = e.slug
+    join public.cultures c on c.slug = ce.culture_slug
+    where c.is_default and not (e.name ? 'pa')
+  ),
   0,
-  'Every event has a Punjabi name (the November demo flips Home to Punjabi)'
+  'Every event of the default culture has a Punjabi name (the November demo flips Home to Punjabi)'
+);
+
+select is(
+  (select count(*)::int from public.cultures),
+  5,
+  'Five traditions: Punjabi Sikh, Punjabi Hindu, Pakistani, Muslim and Arab'
+);
+
+select is(
+  (
+    select count(*)::int
+    from public.cultures c
+    where not exists (
+      select 1 from public.culture_events ce
+      where ce.culture_slug = c.slug and ce.event_slug = 'whole-wedding' and ce.phase = 'whole_wedding'
+    )
+  ),
+  0,
+  'Every tradition ends with the Whole wedding card'
+);
+
+select is(
+  (
+    select count(*)::int
+    from public.cultures c
+    where not exists (
+      select 1 from public.culture_events ce
+      where ce.culture_slug = c.slug and ce.is_core and ce.phase <> 'whole_wedding'
+    )
+  ),
+  0,
+  'Every tradition has main events for My Wedding to show first'
 );
 
 select is(
@@ -85,6 +123,17 @@ select is(
   'Only places of worship and religious services are marked religious'
 );
 
+select is(
+  (
+    select count(*)::int
+    from public.event_categories ec
+    join public.categories c on c.slug = ec.category_slug
+    where ec.event_slug = 'whole-wedding' and c.is_religious
+  ),
+  0,
+  'Whole wedding, shared by every tradition, lists no religious services'
+);
+
 -- Data rules the database enforces -------------------------------------------
 
 select throws_ok(
@@ -109,13 +158,20 @@ select throws_ok(
   'A guest range with max below min is rejected'
 );
 
+select throws_ok(
+  $$ update public.culture_events set local_name = '{"pa": "x"}' where event_slug = 'mehndi' $$,
+  '23514',
+  null,
+  'A tradition''s own name for an event needs English too'
+);
+
 -- What the app can do --------------------------------------------------------
 
 set local role anon;
 
 select is(
   (select count(*)::int from public.events),
-  19,
+  24,
   'Logged-out users can read events'
 );
 
