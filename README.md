@@ -132,6 +132,7 @@ select vault.create_secret('<service role key>', 'service_role_key');
 - [Project plan and checklist](docs/PROJECT_PLAN.md): every phase and task, with checkboxes
 - [Product vision](docs/PRODUCT_VISION.md): how the app looks and works, screen by screen, and the November prototype plan
 - [Decisions log](docs/DECISIONS.md): what we decided and why
+- [Growth research](docs/RESEARCH_GROWTH.md): what successful apps do and what we're building from it
 - [Putting the app online](docs/HOSTED_SETUP.md): the hosted Supabase project, emails and server code, step by step
 
 ## How we work
