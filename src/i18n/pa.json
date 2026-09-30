@@ -752,5 +752,57 @@
       "saved": "ਸੰਭਾਲਿਆ",
       "replied": "ਜਵਾਬ"
     }
+  },
+  "menus": {
+    "title": "ਮੀਨੂ",
+    "price": "{{amount}} / {{unit}}",
+    "minGuests": "ਘੱਟੋ-ਘੱਟ {{count}} ਮਹਿਮਾਨ",
+    "seeMenu": "ਪੂਰਾ ਮੀਨੂ ਦੇਖੋ",
+    "fromPrice": "ਮੀਨੂ {{amount}} ਤੋਂ",
+    "cardLabel": "{{name}} ਮੀਨੂ, {{details}}",
+    "diet": {
+      "veg": "ਸ਼ਾਕਾਹਾਰੀ",
+      "non_veg": "ਮਾਸਾਹਾਰੀ",
+      "jhatka": "ਝਟਕਾ",
+      "halal": "ਹਲਾਲ",
+      "jain": "ਜੈਨ",
+      "eggless": "ਬਿਨਾਂ ਅੰਡੇ",
+      "vegan": "ਵੀਗਨ",
+      "gluten_free": "ਗਲੂਟਨ-ਮੁਕਤ"
+    }
+  },
+  "chat": {
+    "title": "ਸੁਨੇਹੇ",
+    "placeholder": "ਸੁਨੇਹਾ ਲਿਖੋ",
+    "send": "ਭੇਜੋ",
+    "addPhoto": "ਤਸਵੀਰ ਜੋੜੋ",
+    "seen": "ਦੇਖ ਲਿਆ",
+    "today": "ਅੱਜ",
+    "yesterday": "ਕੱਲ੍ਹ",
+    "photo": "ਤਸਵੀਰ",
+    "photoFrom": "{{name}} ਵੱਲੋਂ ਤਸਵੀਰ",
+    "quote": {
+      "title": "ਕੀਮਤ",
+      "for": "{{event}} ਲਈ",
+      "date": "ਤਾਰੀਖ਼",
+      "guests": "ਮਹਿਮਾਨ",
+      "validUntil": "{{date}} ਤੱਕ ਲਾਗੂ",
+      "accept": "ਕੀਮਤ ਮਨਜ਼ੂਰ ਕਰੋ",
+      "ask": "ਸਵਾਲ ਪੁੱਛੋ"
+    },
+    "booking": {
+      "title": "ਪੁੱਛਗਿੱਛ",
+      "events": "ਸਮਾਗਮ",
+      "date": "ਤਾਰੀਖ਼",
+      "guests": "ਮਹਿਮਾਨ",
+      "where": "ਕਿੱਥੇ",
+      "notSure": "ਹਾਲੇ ਪੱਕਾ ਨਹੀਂ"
+    },
+    "quickReplies": {
+      "available": "ਕੀ ਤੁਸੀਂ ਸਾਡੀ ਤਾਰੀਖ਼ ਨੂੰ ਖਾਲੀ ਹੋ?",
+      "price": "ਕੀ ਤੁਸੀਂ ਆਪਣੀਆਂ ਕੀਮਤਾਂ ਭੇਜ ਸਕਦੇ ਹੋ?",
+      "visit": "ਕੀ ਅਸੀਂ ਆ ਕੇ ਦੇਖ ਸਕਦੇ ਹਾਂ?",
+      "thanks": "ਧੰਨਵਾਦ!"
+    }
   }
 }

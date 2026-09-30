@@ -752,5 +752,57 @@
       "saved": "Saved by",
       "replied": "Replies"
     }
+  },
+  "menus": {
+    "title": "Menus",
+    "price": "{{amount}} / {{unit}}",
+    "minGuests": "Min {{count}} guests",
+    "seeMenu": "See the full menu",
+    "fromPrice": "Menus from {{amount}}",
+    "cardLabel": "{{name}} menu, {{details}}",
+    "diet": {
+      "veg": "Veg",
+      "non_veg": "Non-veg",
+      "jhatka": "Jhatka",
+      "halal": "Halal",
+      "jain": "Jain",
+      "eggless": "Eggless",
+      "vegan": "Vegan",
+      "gluten_free": "Gluten-free"
+    }
+  },
+  "chat": {
+    "title": "Messages",
+    "placeholder": "Write a message",
+    "send": "Send",
+    "addPhoto": "Add a photo",
+    "seen": "Seen",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "photo": "Photo",
+    "photoFrom": "Photo from {{name}}",
+    "quote": {
+      "title": "Quote",
+      "for": "For {{event}}",
+      "date": "Date",
+      "guests": "Guests",
+      "validUntil": "Good until {{date}}",
+      "accept": "Accept quote",
+      "ask": "Ask a question"
+    },
+    "booking": {
+      "title": "Inquiry",
+      "events": "Events",
+      "date": "Date",
+      "guests": "Guests",
+      "where": "Where",
+      "notSure": "Not sure yet"
+    },
+    "quickReplies": {
+      "available": "Are you available on our date?",
+      "price": "Can you send your prices?",
+      "visit": "Can we visit?",
+      "thanks": "Thank you!"
+    }
   }
 }

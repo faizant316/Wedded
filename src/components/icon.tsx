@@ -43,6 +43,7 @@ const SF_SYMBOLS: Partial<Record<IconName, SFSymbol>> = {
   'musical-notes-outline': 'music.note.list',
   'flower-outline': 'camera.macro',
   'camera-outline': 'camera',
+  'arrow-up': 'arrow.up',
   'color-palette-outline': 'paintpalette',
   'brush-outline': 'paintbrush',
   'shirt-outline': 'tshirt',
