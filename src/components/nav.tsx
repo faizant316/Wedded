@@ -77,11 +77,14 @@ type NavBarProps = {
 export function NavBar({ scroll, title, titleLang, back = true, trailing, leading }: NavBarProps) {
   const styles = useStyles();
   const top = useBarTop();
+  // Worklets may capture only the shared values, never the whole scroll
+  // object: its onScroll handler can't be copied to the UI thread (iOS crash).
+  const { scrollY, collapseAt } = scroll;
 
   const collapsed = useAnimatedStyle(() => ({
     opacity: interpolate(
-      scroll.scrollY.value,
-      [scroll.collapseAt.value - 12, scroll.collapseAt.value + 4],
+      scrollY.value,
+      [collapseAt.value - 12, collapseAt.value + 4],
       [0, 1],
       Extrapolation.CLAMP,
     ),
@@ -140,10 +143,11 @@ export function LargeTitle({
   style,
 }: LargeTitleProps) {
   const styles = useStyles();
+  const { scrollY } = scroll;
   const stretch = useAnimatedStyle(() => ({
     transform: [
       {
-        scale: interpolate(scroll.scrollY.value, [-120, 0], [1.08, 1], Extrapolation.CLAMP),
+        scale: interpolate(scrollY.value, [-120, 0], [1.08, 1], Extrapolation.CLAMP),
       },
     ],
   }));

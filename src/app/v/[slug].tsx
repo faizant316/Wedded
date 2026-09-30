@@ -211,8 +211,10 @@ export default function VendorProfileScreen() {
   const heroHeight = Math.round(Math.min(width, 480) * 0.82);
 
   // Pulling down stretches the photo; scrolling up slides it at half speed.
+  // Capture only the shared value: the scroll object's onScroll can't go to the UI thread
+  const { scrollY } = scroll;
   const heroStyle = useAnimatedStyle(() => {
-    const y = scroll.scrollY.value;
+    const y = scrollY.value;
     if (reduceMotion) return {};
     return {
       transform: [
