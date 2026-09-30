@@ -75,6 +75,7 @@
     "vendors:import": "tsx scripts/import-vendors.ts",
     "i18n:review": "tsx scripts/punjabi-review.ts",
     "demo:check": "tsx scripts/demo-check.ts",
+    "report": "tsx scripts/founders-report.ts",
     "db:types": "supabase gen types typescript --local > src/types/database.ts && prettier --write src/types/database.ts",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json}\""
