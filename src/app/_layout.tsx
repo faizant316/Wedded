@@ -107,6 +107,8 @@ function AppShell() {
           <Stack.Screen name="ask" options={{ presentation: 'modal' }} />
           <Stack.Screen name="ask-sent" options={{ presentation: 'modal' }} />
           <Stack.Screen name="delete-account" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="chat-quote" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="chat-menu" options={{ presentation: 'modal' }} />
           <Stack.Screen name="my-inquiries" />
           <Stack.Screen name="settings" />
           <Stack.Screen name="plan" />

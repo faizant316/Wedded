@@ -41,7 +41,9 @@ import { useSavedEventsFor, useSaveVendor } from '@/data/saved';
 import { useVendorLinks, type LinkedVendor } from '@/data/vendor-links';
 import { useRealWeddingsAt, useVendorPhotos, type VendorPhoto } from '@/data/vendor-media';
 import { useVendor } from '@/data/vendors';
+import { useSession } from '@/features/auth/session';
 import { trackVendorActivity, useVendorPublicStats } from '@/data/vendor-stats';
+import { useStartConversation } from '@/data/chat';
 import { ALL_NORCAL_MILES, factLabels, priceLine } from '@/features/vendors/profile-format';
 import { shareVendor } from '@/features/vendors/share';
 import { bilingual, localized, vendorText } from '@/i18n/localized';
@@ -206,6 +208,8 @@ export default function VendorProfileScreen() {
   const vendorId = vendor.data?.id ?? '';
   // "Saved by N families", "Replied to N of M": null until 5+ people are behind them.
   const stats = useVendorPublicStats(vendorId);
+  const { requireSignIn } = useSession();
+  const startChat = useStartConversation();
 
   // One anonymous view per visit (trackVendorActivity de-dupes per session).
   useEffect(() => {
@@ -293,6 +297,21 @@ export default function VendorProfileScreen() {
       spoken: string;
       onPress: () => void;
     }[] = [];
+    // In-app chat first: no phone number to copy, and the inquiry is already in it.
+    actions.push({
+      key: 'message',
+      icon: 'chatbubbles-outline',
+      label: t('chat.message'),
+      spoken: t('chat.messageSpoken', { name }),
+      onPress: () =>
+        requireSignIn(() =>
+          startChat.mutate(v.id, {
+            onSuccess: (conversationId) =>
+              router.push({ pathname: '/chat/[id]', params: { id: conversationId } }),
+            onError: () => notify(t('chat.startFailed')),
+          }),
+        ),
+    });
     if (v.callPhone) {
       const phone = v.callPhone;
       actions.push({
