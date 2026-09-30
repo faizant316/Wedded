@@ -200,6 +200,7 @@ export default function VendorProfileScreen() {
   // Side by side, a Punjabi "Save" breaks mid-word at very large text sizes.
   const stackButtons = useFontScale('button') >= 1.5;
   const [barHeight, setBarHeight] = useState(0);
+  const [showMore, setShowMore] = useState(false);
   const vendor = useVendor(slug);
   const links = useVendorLinks(vendor.data?.id ?? '');
   const photos = useVendorPhotos(vendor.data?.id ?? '');
@@ -345,6 +346,10 @@ export default function VendorProfileScreen() {
       });
     }
 
+    const MORE = ['whatsapp', 'instagram'];
+    const mainActions = actions.filter((action) => !MORE.includes(action.key));
+    const moreActions = actions.filter((action) => MORE.includes(action.key));
+
     // Printed out as well as behind buttons: elders often read a number aloud
     // to someone else (vision S9 item 12).
     const contacts: { label: string; value: string }[] = [];
@@ -446,9 +451,9 @@ export default function VendorProfileScreen() {
           />
         )}
 
-        {actions.length > 0 && (
+        {mainActions.length > 0 && (
           <View style={styles.actions}>
-            {actions.map((action) => (
+            {mainActions.map((action) => (
               <ActionButton
                 key={action.key}
                 icon={action.icon}
@@ -459,6 +464,29 @@ export default function VendorProfileScreen() {
             ))}
           </View>
         )}
+        {/* WhatsApp and Instagram wait behind one button, so the page opens
+            with three big choices instead of five (DECISIONS 2026-09-30). */}
+        {moreActions.length > 0 &&
+          (showMore ? (
+            <View style={styles.actions}>
+              {moreActions.map((action) => (
+                <ActionButton
+                  key={action.key}
+                  icon={action.icon}
+                  label={action.label}
+                  accessibilityLabel={action.spoken}
+                  onPress={action.onPress}
+                />
+              ))}
+            </View>
+          ) : (
+            <Button
+              variant="text"
+              icon="chevron-down"
+              label={t('vendor.moreContact')}
+              onPress={() => setShowMore(true)}
+            />
+          ))}
 
         {isVenue && (
           <Button

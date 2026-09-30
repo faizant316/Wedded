@@ -11,6 +11,7 @@ import {
 import { AppText } from '@/components/app-text';
 import { Button } from '@/components/button';
 import { Icon, type IconName } from '@/components/icon';
+import { SkeletonRows } from '@/components/skeleton';
 import { Sizes, Spacing, useColors } from '@/constants/theme';
 import { useLocale } from '@/i18n/locale-context';
 
@@ -21,7 +22,12 @@ type Common = {
 };
 
 export type StateViewProps =
-  | (Common & { state: 'loading' })
+  | (Common & {
+      state: 'loading';
+      /** rows (default): pulsing grouped-row placeholders. spinner: for dark
+       * screens (the photo and story viewers) and waits that aren't a list. */
+      look?: 'rows' | 'spinner';
+    })
   | (Common & {
       state: 'empty';
       message: string;
@@ -58,12 +64,18 @@ export function StateView(props: StateViewProps) {
         accessibilityRole="progressbar"
         accessibilityLabel={message}
         accessibilityState={{ busy: true }}
-        style={[styles.container, style]}
+        style={[props.look === 'spinner' ? styles.container : styles.skeleton, style]}
       >
-        <ActivityIndicator size="large" color={Colors.chevron} />
-        <AppText color="text2" style={styles.message}>
-          {message}
-        </AppText>
+        {props.look === 'spinner' ? (
+          <>
+            <ActivityIndicator size="large" color={Colors.chevron} />
+            <AppText color="text2" style={styles.message}>
+              {message}
+            </AppText>
+          </>
+        ) : (
+          <SkeletonRows />
+        )}
       </View>
     );
   }
@@ -94,6 +106,9 @@ export function StateView(props: StateViewProps) {
 }
 
 const styles = StyleSheet.create({
+  skeleton: {
+    paddingVertical: Spacing.xs,
+  },
   container: {
     alignItems: 'center',
     justifyContent: 'center',

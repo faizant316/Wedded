@@ -25,7 +25,9 @@
     "forVendors": "Are you a vendor? Get listed",
     "featured": "Founding vendors",
     "seeAll": "See all",
-    "watchStories": "Watch real weddings"
+    "watchStories": "Watch real weddings",
+    "whatDoYouNeed": "What do you need?",
+    "allTypes": "All vendor types"
   },
   "event": {
     "needsTitle": "Vendors you'll need",
@@ -112,7 +114,8 @@
     "pageTitle": "{{name}}, {{category}} in {{city}}",
     "openInApp": "Have the app? Open this page in it",
     "allPhotos": "All photos",
-    "highlightSpoken": "{{name}}, photos from the {{event}}"
+    "highlightSpoken": "{{name}}, photos from the {{event}}",
+    "moreContact": "More ways to contact"
   },
   "gallery": {
     "close": "Close",
@@ -515,7 +518,8 @@
     "photoOf": "Photo {{number}} of {{total}}, {{name}}",
     "doubleTapHint": "Double-tap to save",
     "askLabel": "Ask {{name}} about price and date",
-    "shareLabel": "Share {{name}}"
+    "shareLabel": "Share {{name}}",
+    "andMore": "{{names}} and {{count}} more"
   },
   "story": {
     "previous": "Previous photo",

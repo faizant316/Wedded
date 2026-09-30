@@ -178,7 +178,7 @@ export default function StoryScreen() {
       <View style={styles.screen}>
         <StatusBar style="light" />
         {feed.isPending ? (
-          <StateView state="loading" />
+          <StateView state="loading" look="spinner" />
         ) : (
           <StateView state="error" onRetry={() => void feed.refetch()} />
         )}

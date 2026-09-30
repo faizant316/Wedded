@@ -12,7 +12,6 @@ import { useLocale } from '@/i18n/locale-context';
 const TABS: (Omit<TabSpec, 'label'> & { labelKey: string })[] = [
   { name: '(home)', labelKey: 'tabs.home', icon: 'home-outline', iconFilled: 'home' },
   { name: 'discover', labelKey: 'tabs.discover', icon: 'compass-outline', iconFilled: 'compass' },
-  { name: '(search)', labelKey: 'tabs.search', icon: 'search-outline', iconFilled: 'search' },
   { name: 'saved', labelKey: 'tabs.saved', icon: 'heart-outline', iconFilled: 'heart' },
   {
     name: 'profile',
@@ -23,7 +22,8 @@ const TABS: (Omit<TabSpec, 'label'> & { labelKey: string })[] = [
 ];
 
 /**
- * Bottom tabs: Home, Discover, Search, Saved, Profile, in a floating glass bar (the iOS
+ * Bottom tabs: Home, Discover, Saved, Profile (four, to keep it simple:
+ * Search opens from the search bar at the top of Home), in a floating glass bar (the iOS
  * 26 tab bar) that content scrolls under. Labels are always visible and
  * bilingual through i18n. Expo Router's JS tabs draw it the same on iPhone,
  * Android and the web; the glass itself is the system material on iOS 26.
