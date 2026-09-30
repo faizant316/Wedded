@@ -11,11 +11,14 @@ import { QrCode } from '@/components/qr-code';
 import { Screen } from '@/components/screen';
 import { StateView } from '@/components/state-view';
 import { SITE_URL_IS_PLACEHOLDER, siteLink } from '@/constants/links';
-import { BorderWidth, Colors, Radius, Spacing } from '@/constants/theme';
+import { BorderWidth, Palettes, Radius, Spacing } from '@/constants/theme';
 import { useVendor } from '@/data/vendors';
 import { tableTentHtml, type TableTent } from '@/features/tent/table-tent';
 import { i18n } from '@/i18n';
 import { useLocale } from '@/i18n/locale-context';
+
+// The preview is the printed page: white paper whatever the phone's appearance.
+const Colors = Palettes.light;
 
 const QR_SIZE = 200;
 

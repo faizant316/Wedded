@@ -2,10 +2,11 @@ import { StyleSheet, View } from 'react-native';
 
 import { AppText, useFontScale, useTypeStyle } from '@/components/app-text';
 import { Icon } from '@/components/icon';
-import { Colors, Sizes, Spacing } from '@/constants/theme';
+import { Sizes, Spacing, useColors } from '@/constants/theme';
 
 /** Red error line under a form control, with an icon so colour isn't the only signal. */
 export function FieldError({ message }: { message: string }) {
+  const Colors = useColors();
   const scale = useFontScale('body');
   const { lineHeight } = useTypeStyle({ text: message });
 

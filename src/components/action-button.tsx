@@ -1,8 +1,8 @@
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable } from 'react-native';
 
 import { AppText, useFontScale } from '@/components/app-text';
 import { Icon, type IconName } from '@/components/icon';
-import { Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { makeStyles, Radius, Sizes, Spacing, useColors } from '@/constants/theme';
 
 export type ActionButtonProps = {
   icon: IconName;
@@ -20,6 +20,8 @@ export type ActionButtonProps = {
  * Several share a row equally.
  */
 export function ActionButton({ icon, label, accessibilityLabel, onPress }: ActionButtonProps) {
+  const Colors = useColors();
+  const styles = useStyles();
   const scale = Math.min(useFontScale('label'), 1.4);
 
   return (
@@ -37,7 +39,7 @@ export function ActionButton({ icon, label, accessibilityLabel, onPress }: Actio
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   tile: {
     flexGrow: 1,
     flexBasis: 72,
@@ -57,4 +59,4 @@ const styles = StyleSheet.create({
   label: {
     textAlign: 'center',
   },
-});
+}));

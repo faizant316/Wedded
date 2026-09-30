@@ -4,7 +4,7 @@ import { Pressable, StyleSheet } from 'react-native';
 import { AppText, useFontScale } from '@/components/app-text';
 import { Glass } from '@/components/glass';
 import { Icon } from '@/components/icon';
-import { Colors, Sizes, Spacing } from '@/constants/theme';
+import { Sizes, Spacing, useColors } from '@/constants/theme';
 import { useLocale } from '@/i18n/locale-context';
 
 /**
@@ -14,6 +14,7 @@ import { useLocale } from '@/i18n/locale-context';
  * Home and goes there.
  */
 export function BackButton() {
+  const Colors = useColors();
   const router = useRouter();
   const { t } = useLocale();
   const scale = Math.min(useFontScale('button'), 1.3);

@@ -1,6 +1,6 @@
 import type { Tabs } from 'expo-router';
 import { createContext, useContext, useEffect, useState, type ComponentProps } from 'react';
-import { Keyboard, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Keyboard, Platform, Pressable, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useReducedMotion,
@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/app-text';
 import { Glass } from '@/components/glass';
 import { Icon, type IconName } from '@/components/icon';
-import { Colors, Sizes, Spacing, Springs } from '@/constants/theme';
+import { makeStyles, Sizes, Spacing, Springs, useColors } from '@/constants/theme';
 
 export type TabBarProps = Parameters<NonNullable<ComponentProps<typeof Tabs>['tabBar']>>[0];
 
@@ -52,6 +52,8 @@ export function GlassTabBar({
   navigation,
   tabs,
 }: TabBarProps & { tabs: TabSpec[] }) {
+  const Colors = useColors();
+  const styles = useStyles();
   const bottom = useTabBarOffset();
   const reduceMotion = useReducedMotion();
   const [width, setWidth] = useState(0);
@@ -147,7 +149,7 @@ function useKeyboardShown() {
   return shown;
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   wrap: {
     pointerEvents: 'box-none',
     position: 'absolute',
@@ -179,4 +181,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 1,
   },
-});
+}));

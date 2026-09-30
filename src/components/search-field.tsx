@@ -1,9 +1,9 @@
 import { type Ref } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, TextInput, View } from 'react-native';
 
 import { useFontScale, useTypeStyle } from '@/components/app-text';
 import { Icon } from '@/components/icon';
-import { Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { makeStyles, Radius, Sizes, Spacing, useColors } from '@/constants/theme';
 import { useLocale } from '@/i18n/locale-context';
 
 export type SearchFieldProps = {
@@ -14,6 +14,8 @@ export type SearchFieldProps = {
 
 /** The Search tab's text box: the iOS search field, with a clear button once there's text. */
 export function SearchField({ value, onChangeText, ref }: SearchFieldProps) {
+  const Colors = useColors();
+  const styles = useStyles();
   const { t } = useLocale();
   const scale = useFontScale('body');
   const { script, lineHeight, maxFontSizeMultiplier, ...font } = useTypeStyle({ text: value });
@@ -51,7 +53,7 @@ export function SearchField({ value, onChangeText, ref }: SearchFieldProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   field: {
     minHeight: Sizes.search,
     flexDirection: 'row',
@@ -75,4 +77,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-});
+}));

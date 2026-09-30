@@ -11,7 +11,7 @@ import { ListRow, ListSection } from '@/components/list';
 import { Screen } from '@/components/screen';
 import { SheetHeader } from '@/components/sheet-header';
 import { TextField } from '@/components/text-field';
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing, useColors } from '@/constants/theme';
 import { findZip, matchCities, useAreaCodes, useCities, type City } from '@/data/places';
 import { hasLocationPermission, locateNearestCity } from '@/features/location/current-location';
 import { DISTANCE_CHOICES, useSearchLocation } from '@/features/location/search-location';
@@ -26,6 +26,7 @@ import { useLocale } from '@/i18n/locale-context';
  * position.
  */
 export default function LocationScreen() {
+  const Colors = useColors();
   const { t, locale } = useLocale();
   const { place, maxMiles, setPlace, setMaxMiles, clearPlace } = useSearchLocation();
   const cities = useCities();

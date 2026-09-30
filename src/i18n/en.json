@@ -6,7 +6,8 @@
     "home": "Home",
     "search": "Search",
     "saved": "Saved",
-    "profile": "Profile"
+    "profile": "Profile",
+    "discover": "Discover"
   },
   "home": {
     "headline": "Every vendor for every event of your wedding",
@@ -21,7 +22,10 @@
     "foundingWall": "Meet our founding vendors",
     "browseByType": "Browse by vendor type",
     "planByEvent": "Plan by event",
-    "forVendors": "Are you a vendor? Get listed"
+    "forVendors": "Are you a vendor? Get listed",
+    "featured": "Founding vendors",
+    "seeAll": "See all",
+    "watchStories": "Watch real weddings"
   },
   "event": {
     "needsTitle": "Vendors you'll need",
@@ -106,7 +110,9 @@
     "photoBy": "Photo by {{name}}",
     "bookTour": "Book a tour",
     "pageTitle": "{{name}}, {{category}} in {{city}}",
-    "openInApp": "Have the app? Open this page in it"
+    "openInApp": "Have the app? Open this page in it",
+    "allPhotos": "All photos",
+    "highlightSpoken": "{{name}}, photos from the {{event}}"
   },
   "gallery": {
     "close": "Close",
@@ -193,7 +199,15 @@
       "deleteAccount": "Delete my account",
       "myInquiries": "My inquiries",
       "myInquiriesCount": "My inquiries ({{count}})"
-    }
+    },
+    "editShort": "Edit details",
+    "stats": {
+      "saved": "Saved",
+      "asked": "Asked",
+      "booked": "Booked"
+    },
+    "savedGrid": "Your saved vendors",
+    "savedGridEmpty": "Vendors you save show up here. Tap the heart on any vendor."
   },
   "common": {
     "comingSoon": "Coming soon",
@@ -490,6 +504,95 @@
       "change": "Change",
       "failed": "That didn't save. Check your internet, then try again.",
       "hint": "Your answer helps us see which vendors reply. Vendors never see it."
+    }
+  },
+  "discover": {
+    "title": "Discover",
+    "eyebrow": "Real work from NorCal vendors",
+    "stories": "Vendor stories",
+    "openStory": "Watch {{name}}'s photos",
+    "empty": "No photos yet. Check back soon.",
+    "photoOf": "Photo {{number}} of {{total}}, {{name}}",
+    "doubleTapHint": "Double-tap to save",
+    "askLabel": "Ask {{name}} about price and date",
+    "shareLabel": "Share {{name}}"
+  },
+  "story": {
+    "previous": "Previous photo",
+    "next": "Next photo",
+    "close": "Close",
+    "viewProfile": "Open {{name}}'s profile"
+  },
+  "share": {
+    "vendor": "{{name}}, {{category}} in {{city}}. Found on the Wedding Vendor App.",
+    "vendorNoCategory": "{{name}} in {{city}}. Found on the Wedding Vendor App.",
+    "copied": "Copied. Paste it into WhatsApp or a text."
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "light": "Light",
+    "dark": "Dark",
+    "automatic": "Automatic",
+    "automaticHint": "Match the phone's light or dark setting",
+    "textSize": "Text size",
+    "textSizeHint": "Makes every screen's text bigger, on top of the phone's own text size.",
+    "textSizes": {
+      "default": "Default",
+      "large": "Large",
+      "xlarge": "Extra large"
+    },
+    "textSample": "Sat Sri Akal! This is how text will look.",
+    "general": "General",
+    "haptics": "Haptics",
+    "hapticsHint": "A small tap you can feel when you save or pick",
+    "searchArea": "Search near",
+    "searchAreaValue": "{{place}}, {{miles}} mi",
+    "notSet": "Not set",
+    "notifications": "Notifications",
+    "planning": "Planning",
+    "about": "About",
+    "version": "Version",
+    "account": "Account",
+    "madeIn": "Made in Northern California for Punjabi families"
+  },
+  "planner": {
+    "title": "My Wedding",
+    "subtitle": "Your date, your events and who's booked",
+    "countdownLabel": "Counting down to the Anand Karaj",
+    "married": "Congratulations on the wedding!",
+    "days": {
+      "one": "day to go",
+      "other": "days to go"
+    },
+    "daysToGo": {
+      "one": "{{count}} day to go",
+      "other": "{{count}} days to go"
+    },
+    "whenTitle": "When is the wedding?",
+    "whenBody": "Set the Anand Karaj date to start the countdown.",
+    "pickDate": "Pick the date",
+    "changeDate": "Change the date",
+    "bookedStat": {
+      "one": "booked",
+      "other": "booked"
+    },
+    "eventsStat": {
+      "one": "event",
+      "other": "events"
+    },
+    "eventsTitle": "Your events",
+    "eventsHint": "Tap the events you're having.",
+    "checklistTitle": "What to book",
+    "progress": "{{done}} of {{total}} booked",
+    "markBooked": "{{name}} booked",
+    "find": "Find a {{name}}",
+    "findShort": "Find",
+    "cardTitle": "Plan your wedding",
+    "cardBody": "Set the date and tick off vendors as you book them",
+    "bookedShort": {
+      "one": "{{count}} booked",
+      "other": "{{count}} booked"
     }
   }
 }

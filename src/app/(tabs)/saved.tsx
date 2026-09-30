@@ -8,7 +8,7 @@ import { SectionTitle } from '@/components/list';
 import { NavScreen } from '@/components/nav';
 import { StateView } from '@/components/state-view';
 import { VendorCard } from '@/components/vendor-card';
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing, useColors } from '@/constants/theme';
 import { useHomeEvents } from '@/data/reference';
 import { useSavedVendors, useSaveVendor, type SavedVendor } from '@/data/saved';
 import { useSession } from '@/features/auth/session';
@@ -23,6 +23,7 @@ type Section = { key: string; title: LocalizedText; data: SavedVendor[] };
  * this tab explains that and offers sign-in.
  */
 export default function SavedScreen() {
+  const Colors = useColors();
   const { t, locale } = useLocale();
   const { status, requireSignIn } = useSession();
   const saved = useSavedVendors();

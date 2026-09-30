@@ -1,7 +1,8 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { RefreshControl, StyleSheet, View } from 'react-native';
+import { Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 
+import { AppText } from '@/components/app-text';
 import { CategoryRow } from '@/components/category-row';
 import { groupIcon } from '@/components/group-icon';
 import { LanguageToggle } from '@/components/language-toggle';
@@ -9,7 +10,11 @@ import { ListRow, ListSection, SectionTitle } from '@/components/list';
 import { NavScreen } from '@/components/nav';
 import { SearchButton } from '@/components/search-button';
 import { StateView } from '@/components/state-view';
-import { Colors, Spacing } from '@/constants/theme';
+import { StoriesRow } from '@/components/stories-row';
+import { VendorShelf } from '@/components/vendor-shelf';
+import { WeddingCard } from '@/components/wedding-card';
+import { Spacing, useColors } from '@/constants/theme';
+import { useFeed } from '@/data/feed';
 import { useCategoryGroups, useHomeEvents } from '@/data/reference';
 import { LocationChip } from '@/features/location/location-chip';
 import { useLocale } from '@/i18n/locale-context';
@@ -30,16 +35,20 @@ const PHASE_HEADINGS: Partial<Record<string, string>> = {
  * switch in the bar, then inset-grouped lists.
  */
 export default function HomeScreen() {
+  const Colors = useColors();
   const { t } = useLocale();
   const router = useRouter();
   const groups = useCategoryGroups();
   const { data: sections, status, refetch } = useHomeEvents();
+  const feed = useFeed();
   const [refreshing, setRefreshing] = useState(false);
+  const posts = feed.data ?? [];
+  const founding = posts.filter((post) => post.foundingNumber != null);
 
   // Pull to refresh fetches again even though events are cached for a day.
   async function onRefresh() {
     setRefreshing(true);
-    await Promise.all([groups.refetch(), refetch()]);
+    await Promise.all([groups.refetch(), refetch(), feed.refetch()]);
     setRefreshing(false);
   }
 
@@ -64,6 +73,15 @@ export default function HomeScreen() {
         <SearchButton onPress={startTyping} />
         <LocationChip />
       </View>
+
+      <WeddingCard />
+
+      {posts.length > 0 && (
+        <View style={styles.block}>
+          <SectionTitle>{t('home.watchStories')}</SectionTitle>
+          <StoriesRow posts={posts} />
+        </View>
+      )}
 
       <View style={styles.block}>
         <SectionTitle>{t('home.browseByType')}</SectionTitle>
@@ -91,6 +109,25 @@ export default function HomeScreen() {
           </ListSection>
         )}
       </View>
+
+      {founding.length > 0 && (
+        <View style={styles.block}>
+          <View style={styles.titleRow}>
+            <SectionTitle>{t('home.featured')}</SectionTitle>
+            <Pressable
+              accessibilityRole="link"
+              onPress={() => router.push('/founding')}
+              hitSlop={8}
+              style={({ pressed }) => pressed && styles.pressed}
+            >
+              <AppText weight={500} color="primary">
+                {t('home.seeAll')}
+              </AppText>
+            </Pressable>
+          </View>
+          <VendorShelf posts={founding} />
+        </View>
+      )}
 
       <View style={styles.block}>
         <SectionTitle>{t('home.planByEvent')}</SectionTitle>
@@ -147,5 +184,15 @@ const styles = StyleSheet.create({
   },
   block: {
     gap: Spacing.lg,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.md,
+    paddingRight: Spacing.xs,
+  },
+  pressed: {
+    opacity: 0.5,
   },
 });

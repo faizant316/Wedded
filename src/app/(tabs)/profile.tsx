@@ -1,98 +1,87 @@
-import { router } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { Image } from 'expo-image';
+import { router, type Href } from 'expo-router';
+import { Pressable, View } from 'react-native';
 
 import { AppText } from '@/components/app-text';
+import { Button } from '@/components/button';
+import { GlassButton } from '@/components/glass-button';
 import { Icon } from '@/components/icon';
-import { ListRow, ListSection } from '@/components/list';
+import { ListRow, ListSection, SectionTitle } from '@/components/list';
 import { NavScreen } from '@/components/nav';
-import { PressableScale } from '@/components/pressable-scale';
 import { StateView } from '@/components/state-view';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { WeddingCard } from '@/components/wedding-card';
+import { makeStyles, Radius, Spacing, useColors } from '@/constants/theme';
 import { useMyInquiries } from '@/data/inquiries';
+import { useSavedVendors, type SavedVendor } from '@/data/saved';
 import { useSession } from '@/features/auth/session';
-import type { Locale } from '@/i18n';
+import { bookedCount, usePlan } from '@/features/planner/plan';
+import { localized } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
 import { formatPhone } from '@/lib/phone';
-import { selectionHaptic } from '@/lib/haptics';
-
-const LANGUAGES: { locale: Locale; labelKey: string }[] = [
-  { locale: 'en', labelKey: 'profile.english' },
-  { locale: 'pa', labelKey: 'profile.punjabi' },
-];
 
 /**
- * S16 Profile, laid out like iOS Settings: the account card at the top (the
- * Apple Account row), then grouped rows for inquiries, language and the
- * account actions.
+ * S16 Profile, shaped like an Instagram profile: the person, three counts
+ * (saved, asked, booked), two buttons, the wedding countdown and a grid of
+ * the vendors they've saved. Settings sit behind the gear, as in most apps.
  */
 export default function ProfileScreen() {
-  const { locale, setLocale, t } = useLocale();
+  const { t } = useLocale();
 
   return (
-    <NavScreen title={t('tabs.profile')} back={false}>
-      <AccountSection />
-
-      <ListSection header={t('profile.language')}>
-        {LANGUAGES.map((language) => (
-          <ListRow
-            key={language.locale}
-            title={t(language.labelKey)}
-            titleLang={language.locale}
-            accessibilityRole="radio"
-            checked={language.locale === locale}
-            onPress={() => {
-              if (language.locale !== locale) selectionHaptic();
-              setLocale(language.locale);
-            }}
-          />
-        ))}
-      </ListSection>
-
-      <ListSection>
-        <ListRow title={t('profile.textSize')} value={t('common.comingSoon')} />
+    <NavScreen
+      title={t('tabs.profile')}
+      back={false}
+      trailing={
+        <GlassButton
+          icon="settings-outline"
+          accessibilityLabel={t('settings.title')}
+          onPress={() => router.push('/settings')}
+          size={44}
+        />
+      }
+    >
+      <Header />
+      <WeddingCard />
+      <SavedGrid />
+      <ListSection inset>
+        <ListRow
+          icon="settings-outline"
+          title={t('settings.title')}
+          onPress={() => router.push('/settings')}
+        />
+        <ListRow
+          icon="ribbon-outline"
+          iconColor="kesari"
+          title={t('home.foundingWall')}
+          onPress={() => router.push('/founding')}
+        />
+        <ListRow
+          icon="storefront-outline"
+          title={t('home.forVendors')}
+          onPress={() => router.push('/for-vendors')}
+        />
       </ListSection>
     </NavScreen>
   );
 }
 
-/** Sign in, finish setting up, or the signed-in person's details. */
-function AccountSection() {
+/** The person (or a sign-in prompt), their counts and the two buttons. */
+function Header() {
+  const Colors = useColors();
+  const styles = useStyles();
   const { t } = useLocale();
-  const { status, profile, email, reloadProfile, signOut } = useSession();
+  const { status, profile, email, reloadProfile } = useSession();
+  const saves = useSavedVendors();
   const inquiries = useMyInquiries();
+  const plan = usePlan();
+  const signedIn = status === 'signedIn' && !!profile;
 
-  if (status === 'loading') {
-    return <StateView state="loading" style={styles.state} />;
-  }
-  if (status === 'error') {
-    return <StateView state="error" onRetry={reloadProfile} style={styles.state} />;
-  }
-  if (status === 'signedOut' || status === 'needsProfile' || !profile) {
-    const signedOut = status === 'signedOut';
-    return (
-      <PressableScale
-        accessibilityRole="button"
-        accessibilityLabel={signedOut ? t('profile.account.signIn') : t('profile.account.finish')}
-        onPress={() => router.push('/sign-in')}
-        style={styles.accountCard}
-      >
-        <View style={[styles.avatar, styles.avatarEmpty]}>
-          <Icon name="person" size={30} color={Colors.onPrimary} />
-        </View>
-        <View style={styles.accountText}>
-          <AppText variant="heading" weight={600} color="primary">
-            {signedOut ? t('profile.account.signInTitle') : t('profile.account.finishTitle')}
-          </AppText>
-          <AppText variant="label" weight={400} color="text2">
-            {signedOut ? t('profile.account.signInBody') : t('profile.account.finishBody')}
-          </AppText>
-        </View>
-        <Icon name="chevron-forward" size={17} color={Colors.chevron} weight="semibold" />
-      </PressableScale>
-    );
-  }
+  if (status === 'loading') return <StateView state="loading" />;
+  if (status === 'error') return <StateView state="error" onRetry={reloadProfile} />;
 
-  const initials = profile.full_name
+  const savedCount = signedIn ? new Set((saves.data ?? []).map((s) => s.vendorId)).size : 0;
+  const askedCount = signedIn ? (inquiries.data?.length ?? 0) : 0;
+  const initials = (profile?.full_name ?? '')
     .split(/\s+/)
     .filter(Boolean)
     .slice(0, 2)
@@ -100,85 +89,258 @@ function AccountSection() {
     .join('');
 
   return (
-    <>
-      <View style={styles.accountCard}>
-        <View style={styles.avatar}>
-          <AppText variant="section" color="onPrimary">
-            {initials}
-          </AppText>
+    <View style={styles.header}>
+      <View style={styles.topRow}>
+        <View style={[styles.avatar, !signedIn && styles.avatarEmpty]}>
+          {signedIn ? (
+            <AppText variant="title" color="onPrimary">
+              {initials}
+            </AppText>
+          ) : (
+            <Icon name="person" size={40} color={Colors.onPrimary} />
+          )}
         </View>
-        <View style={styles.accountText}>
-          <AppText variant="heading" weight={600}>
+        <View style={styles.stats}>
+          <Stat
+            value={savedCount}
+            label={t('profile.stats.saved')}
+            onPress={() => router.navigate('/saved')}
+          />
+          <Stat
+            value={askedCount}
+            label={t('profile.stats.asked')}
+            onPress={() => (signedIn ? router.push('/my-inquiries') : router.push('/sign-in'))}
+          />
+          <Stat
+            value={bookedCount(plan)}
+            label={t('profile.stats.booked')}
+            onPress={() => router.push('/plan')}
+          />
+        </View>
+      </View>
+
+      {signedIn && profile ? (
+        <View style={styles.who}>
+          <AppText variant="heading" weight={700}>
             {profile.full_name}
+          </AppText>
+          <AppText variant="label" weight={400} color="text2">
+            {[profile.city, formatPhone(profile.phone)].join(' · ')}
           </AppText>
           {email && (
             <AppText variant="label" weight={400} color="text2">
               {email}
             </AppText>
           )}
-          <AppText variant="label" weight={400} color="text2">
-            {[formatPhone(profile.phone), profile.city].join(' · ')}
+        </View>
+      ) : (
+        <View style={styles.who}>
+          <AppText variant="heading" weight={700}>
+            {status === 'needsProfile'
+              ? t('profile.account.finishTitle')
+              : t('profile.account.signInTitle')}
+          </AppText>
+          <AppText color="text2">
+            {status === 'needsProfile'
+              ? t('profile.account.finishBody')
+              : t('profile.account.signInBody')}
           </AppText>
         </View>
+      )}
+
+      <View style={styles.buttons}>
+        {signedIn ? (
+          <>
+            <Button
+              variant="secondary"
+              label={t('profile.editShort')}
+              onPress={() => router.push({ pathname: '/sign-in', params: { mode: 'edit' } })}
+              style={styles.half}
+            />
+            <Button
+              variant="secondary"
+              label={t('planner.title')}
+              onPress={() => router.push('/plan')}
+              style={styles.half}
+            />
+          </>
+        ) : (
+          <Button
+            icon="mail-outline"
+            label={
+              status === 'needsProfile' ? t('profile.account.finish') : t('profile.account.signIn')
+            }
+            onPress={() => router.push('/sign-in')}
+            style={styles.full}
+          />
+        )}
       </View>
-
-      <ListSection inset>
-        <ListRow
-          title={t('profile.account.myInquiries')}
-          icon="chatbubbles-outline"
-          value={inquiries.data ? String(inquiries.data.length) : undefined}
-          accessibilityLabel={
-            inquiries.data
-              ? t('profile.account.myInquiriesCount', { count: inquiries.data.length })
-              : t('profile.account.myInquiries')
-          }
-          onPress={() => router.push('/my-inquiries')}
-        />
-        <ListRow
-          title={t('profile.account.edit')}
-          icon="person-circle-outline"
-          onPress={() => router.push({ pathname: '/sign-in', params: { mode: 'edit' } })}
-        />
-      </ListSection>
-
-      <ListSection>
-        <ListRow title={t('profile.account.signOut')} tone="primary" onPress={signOut} />
-        <ListRow
-          title={t('profile.account.deleteAccount')}
-          tone="error"
-          onPress={() => router.push('/delete-account')}
-        />
-      </ListSection>
-    </>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  state: {
-    paddingVertical: Spacing.xl,
+function Stat({ value, label, onPress }: { value: number; label: string; onPress: () => void }) {
+  const styles = useStyles();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`${value} ${label}`}
+      onPress={onPress}
+      style={({ pressed }) => [styles.stat, pressed && styles.pressed]}
+    >
+      <AppText variant="section" style={styles.tabular}>
+        {String(value)}
+      </AppText>
+      <AppText variant="label" weight={400} color="text2">
+        {label}
+      </AppText>
+    </Pressable>
+  );
+}
+
+/** The saved vendors as a three-column photo grid, like a profile's posts. */
+function SavedGrid() {
+  const Colors = useColors();
+  const styles = useStyles();
+  const { t, locale } = useLocale();
+  const { status } = useSession();
+  const saves = useSavedVendors();
+  if (status !== 'signedIn') return null;
+
+  const vendors = new Map<string, NonNullable<SavedVendor['vendor']>>();
+  for (const save of saves.data ?? []) {
+    if (save.vendor && !vendors.has(save.vendorId)) vendors.set(save.vendorId, save.vendor);
+  }
+  const list = [...vendors.values()];
+
+  return (
+    <View style={styles.block}>
+      <SectionTitle>{t('profile.savedGrid')}</SectionTitle>
+      {list.length === 0 ? (
+        <View style={styles.emptyGrid}>
+          <Icon name="images-outline" size={36} color={Colors.chevron} />
+          <AppText color="text2" style={styles.center}>
+            {t('profile.savedGridEmpty')}
+          </AppText>
+        </View>
+      ) : (
+        <View style={styles.grid}>
+          {list.map((vendor) => (
+            <Pressable
+              key={vendor.slug}
+              accessibilityRole="button"
+              accessibilityLabel={localized(vendor.name, locale)}
+              onPress={() => router.push(`/v/${vendor.slug}` as Href)}
+              style={({ pressed }) => [styles.tile, pressed && styles.pressed]}
+            >
+              {vendor.photoUrl ? (
+                <Image
+                  source={{ uri: vendor.photoUrl }}
+                  contentFit="cover"
+                  transition={150}
+                  accessible={false}
+                  style={styles.tileImage}
+                />
+              ) : (
+                <View style={[styles.tileImage, styles.tileEmpty]}>
+                  <Icon name="storefront-outline" size={28} color={Colors.primary} />
+                </View>
+              )}
+            </Pressable>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
+
+const useStyles = makeStyles((Colors) => ({
+  header: {
+    gap: Spacing.lg,
   },
-  accountCard: {
+  topRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.lg,
-    padding: Spacing.lg,
-    borderRadius: Radius.card,
-    borderCurve: 'continuous',
-    backgroundColor: Colors.surface,
   },
   avatar: {
-    width: 64,
-    height: 64,
+    width: 88,
+    height: 88,
+    borderRadius: 44,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: Radius.circle,
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.primaryFill,
   },
   avatarEmpty: {
     backgroundColor: Colors.textDisabled,
   },
-  accountText: {
+  stats: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  stat: {
+    alignItems: 'center',
+    minWidth: 64,
+    paddingVertical: Spacing.xs,
+  },
+  pressed: {
+    opacity: 0.6,
+  },
+  tabular: {
+    fontVariant: ['tabular-nums'],
+  },
+  who: {
+    gap: 2,
+  },
+  buttons: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  half: {
+    flex: 1,
+    paddingHorizontal: Spacing.md,
+  },
+  full: {
+    flex: 1,
+  },
+  grow: {
     flex: 1,
     gap: 2,
   },
-});
+  block: {
+    gap: Spacing.lg,
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 3,
+    borderRadius: Radius.photo,
+    overflow: 'hidden',
+  },
+  tile: {
+    width: '32.8%',
+    aspectRatio: 1,
+  },
+  tileImage: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: Colors.skeleton,
+  },
+  tileEmpty: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.primaryTint,
+  },
+  emptyGrid: {
+    alignItems: 'center',
+    gap: Spacing.sm,
+    paddingVertical: Spacing.xl,
+    borderRadius: Radius.card,
+    backgroundColor: Colors.surface,
+  },
+  center: {
+    textAlign: 'center',
+    paddingHorizontal: Spacing.lg,
+  },
+}));

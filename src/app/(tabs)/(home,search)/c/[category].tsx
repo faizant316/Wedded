@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { AccessibilityInfo, RefreshControl, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, RefreshControl, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { AppText } from '@/components/app-text';
@@ -9,7 +9,7 @@ import { LargeTitle, NavBar, useNavScroll, useNavTop } from '@/components/nav';
 import { StateView } from '@/components/state-view';
 import { useBottomSpace } from '@/components/tab-bar';
 import { VendorCard } from '@/components/vendor-card';
-import { Colors, Sizes, Spacing } from '@/constants/theme';
+import { makeStyles, Sizes, Spacing, useColors } from '@/constants/theme';
 import { useCategories, useEvent } from '@/data/reference';
 import { useSavedVendors, useSaveVendor } from '@/data/saved';
 import { useVendorSearch } from '@/data/search';
@@ -27,6 +27,8 @@ const WIDER_MILES = 50;
  * /c/{category}?event={slug}.
  */
 export default function ResultsScreen() {
+  const Colors = useColors();
+  const styles = useStyles();
   const { category: categorySlug = '', event: eventSlug } = useLocalSearchParams<{
     category: string;
     event?: string;
@@ -190,7 +192,7 @@ export default function ResultsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   screen: {
     flex: 1,
     backgroundColor: Colors.bg,
@@ -205,4 +207,4 @@ const styles = StyleSheet.create({
   count: {
     paddingHorizontal: Spacing.xs,
   },
-});
+}));

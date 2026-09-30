@@ -9,7 +9,7 @@ import { ListRow, ListSection } from '@/components/list';
 import { Screen } from '@/components/screen';
 import { SheetHeader } from '@/components/sheet-header';
 import { StateView } from '@/components/state-view';
-import { Colors, Sizes, Spacing } from '@/constants/theme';
+import { Sizes, Spacing, useColors } from '@/constants/theme';
 import { useHomeEvents } from '@/data/reference';
 import { useSavedEventsFor, useSaveVendor } from '@/data/saved';
 import { bilingual, type LocalizedText } from '@/i18n/localized';
@@ -22,6 +22,7 @@ import { saveHaptic } from '@/lib/haptics';
  * context, e.g. from Search or a vendor profile. `?vendorId=` is required.
  */
 export default function SaveVendorScreen() {
+  const Colors = useColors();
   const { t, locale } = useLocale();
   const { vendorId = '' } = useLocalSearchParams<{ vendorId?: string }>();
   const events = useHomeEvents();

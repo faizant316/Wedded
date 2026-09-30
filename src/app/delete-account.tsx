@@ -11,7 +11,7 @@ import { Icon } from '@/components/icon';
 import { Screen } from '@/components/screen';
 import { SheetHeader } from '@/components/sheet-header';
 import { TextField } from '@/components/text-field';
-import { Colors, Sizes, Spacing } from '@/constants/theme';
+import { Sizes, Spacing, useColors } from '@/constants/theme';
 import { toLatinDigits } from '@/features/auth/about-you-validation';
 import { useSession } from '@/features/auth/session';
 import { useLocale } from '@/i18n/locale-context';
@@ -26,6 +26,7 @@ const CODE_LENGTH = 6;
  * The delete-account Edge Function checks the code is fresh, then deletes.
  */
 export default function DeleteAccountScreen() {
+  const Colors = useColors();
   const { t } = useLocale();
   const { email, signOut } = useSession();
   const queryClient = useQueryClient();

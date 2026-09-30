@@ -14,17 +14,18 @@ import {
   useFonts,
 } from '@expo-google-fonts/mukta-mahee';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { Stack } from 'expo-router';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
 
 import { WebFrame } from '@/components/web-frame';
-import { Colors } from '@/constants/theme';
+import { useColors, useScheme } from '@/constants/theme';
 import { queryClient } from '@/data/query-client';
 import { SessionProvider } from '@/features/auth/session';
 import { SearchLocationProvider } from '@/features/location/search-location';
+import { SettingsProvider } from '@/features/settings/settings';
 import { LocaleProvider } from '@/i18n/locale-context';
 
 SplashScreen.preventAutoHideAsync();
@@ -61,30 +62,61 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <LocaleProvider>
-        <SessionProvider>
-          <SearchLocationProvider>
-            <StatusBar style="dark" />
-            <WebFrame>
-              <Stack
-                screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Colors.bg } }}
-              >
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen name="sign-in" options={{ presentation: 'modal' }} />
-                <Stack.Screen name="save-vendor" options={{ presentation: 'modal' }} />
-                <Stack.Screen name="location" options={{ presentation: 'modal' }} />
-                <Stack.Screen name="ask" options={{ presentation: 'modal' }} />
-                <Stack.Screen name="ask-sent" options={{ presentation: 'modal' }} />
-                <Stack.Screen name="delete-account" options={{ presentation: 'modal' }} />
-                <Stack.Screen name="my-inquiries" />
-                <Stack.Screen
-                  name="gallery"
-                  options={{ presentation: 'fullScreenModal', animation: 'fade' }}
-                />
-              </Stack>
-            </WebFrame>
-          </SearchLocationProvider>
-        </SessionProvider>
+        <SettingsProvider>
+          <SessionProvider>
+            <SearchLocationProvider>
+              <AppShell />
+            </SearchLocationProvider>
+          </SessionProvider>
+        </SettingsProvider>
       </LocaleProvider>
     </QueryClientProvider>
+  );
+}
+
+/** The screens, drawn in the colour scheme from Settings > Appearance. */
+function AppShell() {
+  const Colors = useColors();
+  const scheme = useScheme();
+  const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
+  // Navigation's own colours (behind screens during transitions) match ours.
+  const theme = {
+    ...base,
+    colors: {
+      ...base.colors,
+      primary: Colors.primary,
+      background: Colors.bg,
+      card: Colors.surface,
+      text: Colors.text,
+      border: Colors.separator,
+    },
+  };
+
+  return (
+    <ThemeProvider value={theme}>
+      <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+      <WebFrame>
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Colors.bg } }}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="sign-in" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="save-vendor" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="location" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="ask" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="ask-sent" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="delete-account" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="my-inquiries" />
+          <Stack.Screen name="settings" />
+          <Stack.Screen name="plan" />
+          <Stack.Screen
+            name="gallery"
+            options={{ presentation: 'fullScreenModal', animation: 'fade' }}
+          />
+          <Stack.Screen
+            name="story"
+            options={{ presentation: 'fullScreenModal', animation: 'fade' }}
+          />
+        </Stack>
+      </WebFrame>
+    </ThemeProvider>
   );
 }

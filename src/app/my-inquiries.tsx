@@ -1,6 +1,6 @@
 import { router, type Href } from 'expo-router';
 import { useState } from 'react';
-import { RefreshControl, StyleSheet, View } from 'react-native';
+import { RefreshControl, View } from 'react-native';
 
 import { AppText } from '@/components/app-text';
 import { Button } from '@/components/button';
@@ -9,7 +9,7 @@ import { FieldError } from '@/components/field-error';
 import { Icon, type IconName } from '@/components/icon';
 import { NavScreen } from '@/components/nav';
 import { StateView } from '@/components/state-view';
-import { Colors, Radius, Sizes, Spacing, type ColorToken } from '@/constants/theme';
+import { type ColorToken, makeStyles, Radius, Sizes, Spacing, useColors } from '@/constants/theme';
 import {
   REPLY_ANSWERS,
   useAnswerFollowUp,
@@ -50,6 +50,8 @@ function FollowUp({
   answer: ReplyAnswer | null;
   due: boolean;
 }) {
+  const Colors = useColors();
+  const styles = useStyles();
   const { t } = useLocale();
   const answering = useAnswerFollowUp();
   const [changing, setChanging] = useState(false);
@@ -102,6 +104,8 @@ function FollowUp({
  * you?" two days after sending.
  */
 export default function MyInquiriesScreen() {
+  const Colors = useColors();
+  const styles = useStyles();
   const { t, locale } = useLocale();
   const inquiries = useMyInquiries();
   const events = useHomeEvents();
@@ -217,7 +221,7 @@ export default function MyInquiriesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   list: {
     gap: Spacing.lg,
   },
@@ -254,4 +258,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.sm,
   },
-});
+}));
