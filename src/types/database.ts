@@ -79,6 +79,30 @@ export type Database = {
           },
         ];
       };
+      backgrounds: {
+        Row: {
+          created_at: string;
+          name: NonNullable<Json>;
+          slug: string;
+          sort_order: number;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          name: NonNullable<Json>;
+          slug: string;
+          sort_order: number;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          name?: NonNullable<Json>;
+          slug?: string;
+          sort_order?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       categories: {
         Row: {
           aliases: string[];
@@ -283,7 +307,9 @@ export type Database = {
       };
       cultures: {
         Row: {
+          background_slug: string | null;
           created_at: string;
+          faith_slug: string | null;
           is_default: boolean;
           name: NonNullable<Json>;
           script: string;
@@ -293,7 +319,9 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          background_slug?: string | null;
           created_at?: string;
+          faith_slug?: string | null;
           is_default?: boolean;
           name: NonNullable<Json>;
           script: string;
@@ -303,7 +331,9 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          background_slug?: string | null;
           created_at?: string;
+          faith_slug?: string | null;
           is_default?: boolean;
           name?: NonNullable<Json>;
           script?: string;
@@ -312,7 +342,22 @@ export type Database = {
           sort_order?: number;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'cultures_background_slug_fkey';
+            columns: ['background_slug'];
+            isOneToOne: false;
+            referencedRelation: 'backgrounds';
+            referencedColumns: ['slug'];
+          },
+          {
+            foreignKeyName: 'cultures_faith_slug_fkey';
+            columns: ['faith_slug'];
+            isOneToOne: false;
+            referencedRelation: 'faiths';
+            referencedColumns: ['slug'];
+          },
+        ];
       };
       event_categories: {
         Row: {
@@ -391,6 +436,30 @@ export type Database = {
           timing?: Json | null;
           typical_guests_max?: number | null;
           typical_guests_min?: number | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      faiths: {
+        Row: {
+          created_at: string;
+          name: NonNullable<Json>;
+          slug: string;
+          sort_order: number;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          name: NonNullable<Json>;
+          slug: string;
+          sort_order: number;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          name?: NonNullable<Json>;
+          slug?: string;
+          sort_order?: number;
           updated_at?: string;
         };
         Relationships: [];
