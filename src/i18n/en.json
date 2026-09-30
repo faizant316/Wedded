@@ -421,7 +421,10 @@
       "textNow": "Text now",
       "savedTo": "Saved to {{event}} in your Saved list.",
       "savedNotSure": "Saved to your Saved list.",
-      "viewSaved": "View saved"
+      "viewSaved": "View saved",
+      "chatTitle": "Keep talking here",
+      "chatBody": "Your inquiry is now a chat with {{vendor}}. Their reply shows up in Messages, and we'll email you too.",
+      "chatButton": "Continue in chat"
     },
     "tourTitle": "Book a tour",
     "questions": {

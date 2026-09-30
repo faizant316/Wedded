@@ -122,6 +122,8 @@ export function useSendInquiry() {
     onSuccess: (outcome) => {
       if (outcome.kind === 'sent' || outcome.kind === 'queued') {
         void queryClient.invalidateQueries({ queryKey: inquiryKeys.all });
+        // The inquiry also started a chat with the vendor
+        void queryClient.invalidateQueries({ queryKey: ['chat'] });
         void queryClient.invalidateQueries({ queryKey: savedKeys.all });
       }
     },
