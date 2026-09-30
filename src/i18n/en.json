@@ -706,5 +706,8 @@
       "maybe": "Maybe",
       "no": "Not for us"
     }
+  },
+  "meta": {
+    "description": "Find every wedding vendor for every event: venues, caterers, DJs, decor and more, with prices and photos. Ask about your date in one tap."
   }
 }
