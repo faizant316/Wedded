@@ -11,7 +11,7 @@ import {
 import { AppText } from '@/components/app-text';
 import { Button } from '@/components/button';
 import { Icon, type IconName } from '@/components/icon';
-import { Colors, Sizes, Spacing } from '@/constants/theme';
+import { Sizes, Spacing, useColors } from '@/constants/theme';
 import { useLocale } from '@/i18n/locale-context';
 
 type Common = {
@@ -39,6 +39,7 @@ export type StateViewProps =
  * For lists, prefer a skeleton shaped like the content over the loading state.
  */
 export function StateView(props: StateViewProps) {
+  const Colors = useColors();
   const { t } = useLocale();
   const { state, style } = props;
   const message = props.message ?? (state === 'error' ? t('states.error') : t('states.loading'));

@@ -6,7 +6,8 @@
     "home": "ਘਰ",
     "search": "ਖੋਜ",
     "saved": "ਸੰਭਾਲੇ",
-    "profile": "ਪ੍ਰੋਫ਼ਾਈਲ"
+    "profile": "ਪ੍ਰੋਫ਼ਾਈਲ",
+    "discover": "ਵੇਖੋ"
   },
   "home": {
     "headline": "ਤੁਹਾਡੇ ਵਿਆਹ ਦੇ ਹਰ ਸਮਾਗਮ ਲਈ ਹਰ ਵੈਂਡਰ",
@@ -21,7 +22,10 @@
     "foundingWall": "ਸਾਡੇ ਮੋਢੀ ਵੈਂਡਰ ਦੇਖੋ",
     "browseByType": "ਵੈਂਡਰ ਦੀ ਕਿਸਮ ਅਨੁਸਾਰ ਦੇਖੋ",
     "planByEvent": "ਸਮਾਗਮ ਅਨੁਸਾਰ ਤਿਆਰੀ",
-    "forVendors": "ਕੀ ਤੁਸੀਂ ਵੈਂਡਰ ਹੋ? ਆਪਣਾ ਕਾਰੋਬਾਰ ਜੋੜੋ"
+    "forVendors": "ਕੀ ਤੁਸੀਂ ਵੈਂਡਰ ਹੋ? ਆਪਣਾ ਕਾਰੋਬਾਰ ਜੋੜੋ",
+    "featured": "ਮੋਢੀ ਵੈਂਡਰ",
+    "seeAll": "ਸਾਰੇ ਵੇਖੋ",
+    "watchStories": "ਅਸਲ ਵਿਆਹ ਵੇਖੋ"
   },
   "event": {
     "needsTitle": "ਤੁਹਾਨੂੰ ਲੋੜੀਂਦੇ ਵੈਂਡਰ",
@@ -106,7 +110,9 @@
     "photoBy": "{{name}} ਦੀ ਤਸਵੀਰ",
     "bookTour": "ਥਾਂ ਦੇਖਣ ਲਈ ਸਮਾਂ ਲਓ",
     "pageTitle": "{{name}}, {{city}} ਵਿੱਚ {{category}}",
-    "openInApp": "ਐਪ ਹੈ? ਇਹ ਪੰਨਾ ਐਪ ਵਿੱਚ ਖੋਲ੍ਹੋ"
+    "openInApp": "ਐਪ ਹੈ? ਇਹ ਪੰਨਾ ਐਪ ਵਿੱਚ ਖੋਲ੍ਹੋ",
+    "allPhotos": "ਸਾਰੀਆਂ ਫ਼ੋਟੋਆਂ",
+    "highlightSpoken": "{{name}}, {{event}} ਦੀਆਂ ਫ਼ੋਟੋਆਂ"
   },
   "gallery": {
     "close": "ਬੰਦ ਕਰੋ",
@@ -193,7 +199,15 @@
       "deleteAccount": "ਮੇਰਾ ਖਾਤਾ ਮਿਟਾਓ",
       "myInquiries": "ਮੇਰੇ ਸਵਾਲ",
       "myInquiriesCount": "ਮੇਰੇ ਸਵਾਲ ({{count}})"
-    }
+    },
+    "editShort": "ਵੇਰਵੇ ਬਦਲੋ",
+    "stats": {
+      "saved": "ਸੰਭਾਲੇ",
+      "asked": "ਪੁੱਛੇ",
+      "booked": "ਬੁੱਕ"
+    },
+    "savedGrid": "ਤੁਹਾਡੇ ਸੰਭਾਲੇ ਵੈਂਡਰ",
+    "savedGridEmpty": "ਜੋ ਵੈਂਡਰ ਤੁਸੀਂ ਸੰਭਾਲੋਗੇ, ਉਹ ਇੱਥੇ ਦਿਸਣਗੇ। ਕਿਸੇ ਵੀ ਵੈਂਡਰ ਦੇ ਦਿਲ ਨੂੰ ਛੂਹੋ।"
   },
   "common": {
     "comingSoon": "ਜਲਦੀ ਆ ਰਿਹਾ ਹੈ",
@@ -490,6 +504,95 @@
       "change": "ਬਦਲੋ",
       "failed": "ਸੇਵ ਨਹੀਂ ਹੋਇਆ। ਇੰਟਰਨੈੱਟ ਚੈੱਕ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
       "hint": "ਤੁਹਾਡੇ ਜਵਾਬ ਨਾਲ ਸਾਨੂੰ ਪਤਾ ਲੱਗਦਾ ਹੈ ਕਿ ਕਿਹੜੇ ਵੈਂਡਰ ਜਵਾਬ ਦਿੰਦੇ ਹਨ। ਵੈਂਡਰ ਇਹ ਕਦੇ ਨਹੀਂ ਦੇਖਦੇ।"
+    }
+  },
+  "discover": {
+    "title": "ਵੇਖੋ",
+    "eyebrow": "ਨੌਰਕੈਲ ਵੈਂਡਰਾਂ ਦਾ ਅਸਲ ਕੰਮ",
+    "stories": "ਵੈਂਡਰਾਂ ਦੀਆਂ ਕਹਾਣੀਆਂ",
+    "openStory": "{{name}} ਦੀਆਂ ਫ਼ੋਟੋਆਂ ਵੇਖੋ",
+    "empty": "ਅਜੇ ਕੋਈ ਫ਼ੋਟੋ ਨਹੀਂ। ਜਲਦੀ ਫਿਰ ਵੇਖਣਾ।",
+    "photoOf": "{{total}} ਵਿੱਚੋਂ ਫ਼ੋਟੋ {{number}}, {{name}}",
+    "doubleTapHint": "ਸੰਭਾਲਣ ਲਈ ਦੋ ਵਾਰ ਛੂਹੋ",
+    "askLabel": "{{name}} ਨੂੰ ਕੀਮਤ ਅਤੇ ਤਾਰੀਖ਼ ਬਾਰੇ ਪੁੱਛੋ",
+    "shareLabel": "{{name}} ਭੇਜੋ"
+  },
+  "story": {
+    "previous": "ਪਿਛਲੀ ਫ਼ੋਟੋ",
+    "next": "ਅਗਲੀ ਫ਼ੋਟੋ",
+    "close": "ਬੰਦ ਕਰੋ",
+    "viewProfile": "{{name}} ਦੀ ਪ੍ਰੋਫ਼ਾਈਲ ਖੋਲ੍ਹੋ"
+  },
+  "share": {
+    "vendor": "{{name}}, {{city}} ਵਿੱਚ {{category}}। ਵੈਡਿੰਗ ਵੈਂਡਰ ਐਪ 'ਤੇ ਲੱਭਿਆ।",
+    "vendorNoCategory": "{{name}}, {{city}}। ਵੈਡਿੰਗ ਵੈਂਡਰ ਐਪ 'ਤੇ ਲੱਭਿਆ।",
+    "copied": "ਕਾਪੀ ਹੋ ਗਿਆ। ਇਸਨੂੰ WhatsApp ਜਾਂ ਮੈਸੇਜ ਵਿੱਚ ਪੇਸਟ ਕਰੋ।"
+  },
+  "settings": {
+    "title": "ਸੈਟਿੰਗਾਂ",
+    "appearance": "ਦਿੱਖ",
+    "light": "ਲਾਈਟ",
+    "dark": "ਡਾਰਕ",
+    "automatic": "ਆਪਣੇ ਆਪ",
+    "automaticHint": "ਫ਼ੋਨ ਦੀ ਲਾਈਟ ਜਾਂ ਡਾਰਕ ਸੈਟਿੰਗ ਵਾਂਗ",
+    "textSize": "ਅੱਖਰਾਂ ਦਾ ਆਕਾਰ",
+    "textSizeHint": "ਹਰ ਸਕ੍ਰੀਨ ਦੇ ਅੱਖਰ ਵੱਡੇ ਕਰਦਾ ਹੈ, ਫ਼ੋਨ ਦੀ ਆਪਣੀ ਸੈਟਿੰਗ ਤੋਂ ਵੀ ਵੱਧ।",
+    "textSizes": {
+      "default": "ਆਮ",
+      "large": "ਵੱਡਾ",
+      "xlarge": "ਹੋਰ ਵੱਡਾ"
+    },
+    "textSample": "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ! ਅੱਖਰ ਇੰਝ ਦਿਸਣਗੇ।",
+    "general": "ਆਮ",
+    "haptics": "ਹਲਕੀ ਥਰਥਰਾਹਟ",
+    "hapticsHint": "ਸੰਭਾਲਣ ਜਾਂ ਚੁਣਨ ਵੇਲੇ ਹਲਕਾ ਜਿਹਾ ਝਟਕਾ",
+    "searchArea": "ਇੱਥੇ ਨੇੜੇ ਲੱਭੋ",
+    "searchAreaValue": "{{place}}, {{miles}} ਮੀਲ",
+    "notSet": "ਨਹੀਂ ਚੁਣਿਆ",
+    "notifications": "ਸੂਚਨਾਵਾਂ",
+    "planning": "ਤਿਆਰੀ",
+    "about": "ਬਾਰੇ",
+    "version": "ਵਰਜ਼ਨ",
+    "account": "ਖਾਤਾ",
+    "madeIn": "ਉੱਤਰੀ ਕੈਲੀਫ਼ੋਰਨੀਆ ਵਿੱਚ ਪੰਜਾਬੀ ਪਰਿਵਾਰਾਂ ਲਈ ਬਣਾਇਆ"
+  },
+  "planner": {
+    "title": "ਮੇਰਾ ਵਿਆਹ",
+    "subtitle": "ਤੁਹਾਡੀ ਤਾਰੀਖ਼, ਤੁਹਾਡੇ ਸਮਾਗਮ ਅਤੇ ਕੌਣ ਬੁੱਕ ਹੈ",
+    "countdownLabel": "ਅਨੰਦ ਕਾਰਜ ਵਿੱਚ ਬਾਕੀ",
+    "married": "ਵਿਆਹ ਦੀਆਂ ਬਹੁਤ ਵਧਾਈਆਂ!",
+    "days": {
+      "one": "ਦਿਨ ਬਾਕੀ",
+      "other": "ਦਿਨ ਬਾਕੀ"
+    },
+    "daysToGo": {
+      "one": "{{count}} ਦਿਨ ਬਾਕੀ",
+      "other": "{{count}} ਦਿਨ ਬਾਕੀ"
+    },
+    "whenTitle": "ਵਿਆਹ ਕਦੋਂ ਹੈ?",
+    "whenBody": "ਗਿਣਤੀ ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਅਨੰਦ ਕਾਰਜ ਦੀ ਤਾਰੀਖ਼ ਚੁਣੋ।",
+    "pickDate": "ਤਾਰੀਖ਼ ਚੁਣੋ",
+    "changeDate": "ਤਾਰੀਖ਼ ਬਦਲੋ",
+    "bookedStat": {
+      "one": "ਬੁੱਕ",
+      "other": "ਬੁੱਕ"
+    },
+    "eventsStat": {
+      "one": "ਸਮਾਗਮ",
+      "other": "ਸਮਾਗਮ"
+    },
+    "eventsTitle": "ਤੁਹਾਡੇ ਸਮਾਗਮ",
+    "eventsHint": "ਜੋ ਸਮਾਗਮ ਤੁਸੀਂ ਕਰ ਰਹੇ ਹੋ, ਉਹਨਾਂ ਨੂੰ ਛੂਹੋ।",
+    "checklistTitle": "ਕੀ ਬੁੱਕ ਕਰਨਾ ਹੈ",
+    "progress": "{{total}} ਵਿੱਚੋਂ {{done}} ਬੁੱਕ",
+    "markBooked": "{{name}} ਬੁੱਕ",
+    "find": "{{name}} ਲੱਭੋ",
+    "findShort": "ਲੱਭੋ",
+    "cardTitle": "ਆਪਣੇ ਵਿਆਹ ਦੀ ਤਿਆਰੀ ਕਰੋ",
+    "cardBody": "ਤਾਰੀਖ਼ ਚੁਣੋ ਅਤੇ ਬੁੱਕ ਹੁੰਦੇ ਵੈਂਡਰਾਂ 'ਤੇ ਨਿਸ਼ਾਨ ਲਾਓ",
+    "bookedShort": {
+      "one": "{{count}} ਬੁੱਕ",
+      "other": "{{count}} ਬੁੱਕ"
     }
   }
 }

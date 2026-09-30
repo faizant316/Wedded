@@ -1,6 +1,9 @@
 import QRCode from 'qrcode';
 
-import { Colors } from '@/constants/theme';
+import { Palettes } from '@/constants/theme';
+
+// A printed page is white paper whatever the phone's appearance.
+const Colors = Palettes.light;
 
 /** Light squares around the code; scanners need 4 modules of it. */
 export const QR_QUIET_ZONE = 4;

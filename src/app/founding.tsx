@@ -1,12 +1,12 @@
 import { useRouter } from 'expo-router';
 import Head from 'expo-router/head';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
 import { AppText } from '@/components/app-text';
 import { ListRow, ListSection } from '@/components/list';
 import { NavScreen } from '@/components/nav';
 import { StateView } from '@/components/state-view';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { makeStyles, Radius, Spacing } from '@/constants/theme';
 import { useFoundingVendors } from '@/data/vendors';
 import { localized } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
@@ -16,6 +16,7 @@ import { useLocale } from '@/i18n/locale-context';
  * order they joined, each opening their profile. Deep link: /founding.
  */
 export default function FoundingWallScreen() {
+  const styles = useStyles();
   const router = useRouter();
   const { locale, t } = useLocale();
   const vendors = useFoundingVendors();
@@ -71,7 +72,7 @@ export default function FoundingWallScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   number: {
     minWidth: 48,
     height: 48,
@@ -84,4 +85,4 @@ const styles = StyleSheet.create({
   tabular: {
     fontVariant: ['tabular-nums'],
   },
-});
+}));

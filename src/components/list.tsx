@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'rea
 
 import { AppText, useFontScale, type AppTextProps } from '@/components/app-text';
 import { Icon, type IconName } from '@/components/icon';
-import { Colors, Radius, Sizes, Spacing, type ColorToken } from '@/constants/theme';
+import { type ColorToken, makeStyles, Radius, Sizes, Spacing, useColors } from '@/constants/theme';
 import type { Locale } from '@/i18n';
 
 // Where a row's text starts when it has an icon: the separator lines up with it.
@@ -15,6 +15,7 @@ const TEXT_INSET = Spacing.lg + Sizes.rowIcon + Spacing.md;
  * ListSection's `header`.
  */
 export function SectionTitle({ children, lang }: { children: string; lang?: Locale }) {
+  const styles = useStyles();
   return (
     <AppText variant="section" lang={lang} accessibilityRole="header" style={styles.sectionTitle}>
       {children}
@@ -38,6 +39,7 @@ export type ListSectionProps = {
  * hairlines between them, like Settings. Put ListRows (or any view) inside.
  */
 export function ListSection({ header, footer, inset = false, children, style }: ListSectionProps) {
+  const styles = useStyles();
   const rows = Children.toArray(children).filter(isValidElement);
 
   return (
@@ -120,6 +122,8 @@ export function ListRow({
   leading,
   titleVariant = 'body',
 }: ListRowProps) {
+  const Colors = useColors();
+  const styles = useStyles();
   const scale = useFontScale('body');
   const showChevron = chevron ?? (!!onPress && tone === 'default' && checked === undefined);
   const titleColor: ColorToken =
@@ -198,7 +202,7 @@ export function ListRow({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   sectionTitle: {
     paddingHorizontal: Spacing.xs,
     marginBottom: -Spacing.sm,
@@ -253,4 +257,4 @@ const styles = StyleSheet.create({
     width: Sizes.iconSmall,
     alignItems: 'center',
   },
-});
+}));

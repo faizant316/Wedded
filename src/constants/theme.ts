@@ -1,4 +1,11 @@
-import { Platform } from 'react-native';
+import { createContext, useContext } from 'react';
+import {
+  Platform,
+  StyleSheet,
+  type ImageStyle,
+  type TextStyle,
+  type ViewStyle,
+} from 'react-native';
 
 /**
  * Design tokens. The look follows Apple's iOS 26 system design (see
@@ -6,14 +13,16 @@ import { Platform } from 'react-native';
  * rows and cards, system type, and one tint colour (maroon), the way an Apple
  * app has one accent. Glass is only for floating chrome (tab bar, bars over
  * photos, sheet buttons), never for content.
- * Light theme only for now; dark mode is a Phase 8 item.
- * Contrast ratios noted next to text colours were computed against `surface`
- * (white) and, where it matters, `bg` (grouped grey).
+ * Light and dark palettes share every key. Contrast ratios next to text
+ * colours were computed against `surface` and, where it matters, `bg`.
+ * Components read colours with useColors() and build styles with makeStyles(),
+ * so everything follows Settings > Appearance.
  */
 
-export const Colors = {
+const light = {
   bg: '#F2F2F7', // iOS systemGroupedBackground: the page behind grouped rows and cards
   surface: '#FFFFFF', // secondarySystemGroupedBackground: rows, cards, sheets
+  surface2: '#F2F2F7', // a panel inside a card
   text: '#000000', // label, 21:1
   // secondaryLabel as iOS draws it with Increase Contrast on: Apple's default
   // (#8A8A8E) is 3.4:1, too faint for elders. 5.1:1 on white, 4.6:1 on bg.
@@ -26,8 +35,9 @@ export const Colors = {
   fill: 'rgba(118, 118, 128, 0.12)', // tertiarySystemFill: search field, chips, segmented track
   fillPressed: 'rgba(118, 118, 128, 0.24)',
   rowPressed: '#E5E5EA', // a grouped row's highlight while held
-  primary: '#8A1C30', // maroon, the app's tint: buttons, active tab, links. White on it 9.2:1
-  primaryPressed: '#6E1526',
+  primary: '#8A1C30', // maroon, the tint for text and icons: links, active tab. 9.2:1
+  primaryFill: '#8A1C30', // behind white text: filled buttons, selected chips. White on it 9.2:1
+  primaryFillPressed: '#6E1526',
   primaryTint: '#F5E8EB', // maroon at about 10 percent: tinted buttons, selected rows
   accent: '#F0A030', // marigold: fills only, never text
   kesari: '#A8500A', // text-safe saffron, "Founding vendor" text
@@ -36,7 +46,8 @@ export const Colors = {
   pink: '#B4335C',
   verified: '#1F6F5F',
   error: '#D70015', // systemRed with Increase Contrast, 5.1:1 (the default #FF3B30 is 3.6:1)
-  errorPressed: '#A50010',
+  errorFill: '#D70015', // behind white text: 5.4:1
+  errorFillPressed: '#A50010',
   skeleton: '#E5E5EA',
   scrim: 'rgba(0, 0, 0, 0.4)',
   onPrimary: '#FFFFFF',
@@ -46,14 +57,115 @@ export const Colors = {
   glassWeb: 'rgba(255, 255, 255, 0.62)',
   glassEdge: 'rgba(255, 255, 255, 0.7)',
   glassShadow: 'rgba(0, 0, 0, 0.12)',
+  // iOS 26's scroll edge effect behind the nav bar: the page colour fading out.
+  scrollEdge:
+    'linear-gradient(to bottom, rgba(242, 242, 247, 0.97) 0%, rgba(242, 242, 247, 0.9) 72%, rgba(242, 242, 247, 0) 100%)',
   onPhoto: '#FFFFFF', // text and glyphs on photos, over a scrim
   photoScrim: 'rgba(0, 0, 0, 0.45)',
   viewer: '#000000', // full-screen photo viewer background (vision S10)
   qrDark: '#000000', // QR codes: scanners need true black on white
   qrLight: '#FFFFFF',
-} as const;
+  desk: '#E8E8ED', // around the phone frame in a computer's browser
+  thumb: '#FFFFFF', // the selected half of a segmented control, and a switch's knob
+};
 
-export type ColorToken = keyof typeof Colors;
+export type Palette = Record<keyof typeof light, string>;
+export type ColorToken = keyof Palette;
+
+/** iOS dark mode: true black page, raised grey surfaces, a lighter tint. */
+const dark: Palette = {
+  bg: '#000000',
+  surface: '#1C1C1E',
+  surface2: '#2C2C2E',
+  text: '#FFFFFF',
+  text2: '#A1A1A6', // 6.6:1 on surface, 8.2:1 on bg
+  textDisabled: '#636366',
+  chevron: '#6E6E73', // 3.4:1, non-text
+  separator: '#38383A',
+  border: '#2C2C2E',
+  borderInput: '#6E6E73', // 3.4:1
+  fill: 'rgba(118, 118, 128, 0.24)',
+  fillPressed: 'rgba(118, 118, 128, 0.36)',
+  rowPressed: '#2C2C2E',
+  // Maroon is too dark to read on black, so text and icons use a lighter rose
+  // (6.1:1 on surface) and filled buttons a deeper one (white on it 5.7:1).
+  primary: '#F2718A',
+  primaryFill: '#B8354E',
+  primaryFillPressed: '#9C2A41',
+  primaryTint: '#33161D', // primary on it 5.9:1
+  accent: '#F2B04A',
+  kesari: '#F0A04B', // 8:1
+  kesariTint: '#3A2A14',
+  success: '#30D158',
+  pink: '#FF6B9A',
+  verified: '#4FC3A9',
+  error: '#FF6961', // 6:1
+  errorFill: '#C4302B', // white on it 5.5:1
+  errorFillPressed: '#A32520',
+  skeleton: '#2C2C2E',
+  scrim: 'rgba(0, 0, 0, 0.6)',
+  onPrimary: '#FFFFFF',
+  glassFallback: 'rgba(44, 44, 46, 0.94)',
+  glassWeb: 'rgba(40, 40, 42, 0.55)',
+  glassEdge: 'rgba(255, 255, 255, 0.12)',
+  glassShadow: 'rgba(0, 0, 0, 0.5)',
+  scrollEdge:
+    'linear-gradient(to bottom, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.85) 72%, rgba(0, 0, 0, 0) 100%)',
+  onPhoto: '#FFFFFF',
+  photoScrim: 'rgba(0, 0, 0, 0.5)',
+  viewer: '#000000',
+  qrDark: '#000000',
+  qrLight: '#FFFFFF',
+  desk: '#101012',
+  thumb: '#636366',
+};
+
+export type Scheme = 'light' | 'dark';
+export const Palettes: Record<Scheme, Palette> = { light, dark };
+
+// The scheme in use (Settings > Appearance, or the phone's own setting).
+// SettingsProvider fills it in; light until then.
+export const SchemeContext = createContext<Scheme>('light');
+
+export function useScheme(): Scheme {
+  return useContext(SchemeContext);
+}
+
+/** The palette for the scheme in use. */
+export function useColors(): Palette {
+  return Palettes[useScheme()];
+}
+
+type NamedStyles<T> = { [P in keyof T]: ViewStyle | TextStyle | ImageStyle };
+
+/**
+ * StyleSheet.create for both schemes at once: pass a function of the palette,
+ * get a hook that returns the sheet for the scheme in use.
+ *   const useStyles = makeStyles((Colors) => ({ card: { backgroundColor: Colors.surface } }));
+ *   const styles = useStyles();
+ */
+export function makeStyles<T extends NamedStyles<T> | NamedStyles<any>>(
+  factory: (colors: Palette) => T & NamedStyles<any>,
+) {
+  const sheets = {
+    light: StyleSheet.create(factory(light)),
+    dark: StyleSheet.create(factory(dark)),
+  };
+  return function useStyles(): T {
+    return sheets[useScheme()];
+  };
+}
+
+/**
+ * The in-app text size (Settings > Text size, vision §4: elders rarely find
+ * the phone's own setting). AppText multiplies every size by it, on top of
+ * the phone's Dynamic Type.
+ */
+export const TextScaleContext = createContext(1);
+
+export function useTextScale(): number {
+  return useContext(TextScaleContext);
+}
 
 /** The 8-point grid, with 4 for tight gaps. */
 export const Spacing = {

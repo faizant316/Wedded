@@ -1,7 +1,7 @@
-import { StyleSheet, View, type ViewProps } from 'react-native';
+import { View, type ViewProps } from 'react-native';
 import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
 
-import { Colors, Sizes } from '@/constants/theme';
+import { makeStyles, Sizes } from '@/constants/theme';
 
 type ScreenProps = ViewProps & {
   edges?: readonly Edge[];
@@ -13,6 +13,7 @@ type ScreenProps = ViewProps & {
  * instead, which scrolls under a floating bar.
  */
 export function Screen({ edges = ['top'], style, children, ...rest }: ScreenProps) {
+  const styles = useStyles();
   return (
     <SafeAreaView edges={edges} style={styles.safeArea}>
       <View style={[styles.content, style]} {...rest}>
@@ -22,7 +23,7 @@ export function Screen({ edges = ['top'], style, children, ...rest }: ScreenProp
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   safeArea: {
     flex: 1,
     backgroundColor: Colors.bg,
@@ -31,4 +32,4 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: Sizes.pageGutter,
   },
-});
+}));

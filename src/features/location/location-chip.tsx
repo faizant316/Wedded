@@ -1,8 +1,8 @@
-import { Pressable, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+import { Pressable, type StyleProp, type ViewStyle } from 'react-native';
 
 import { AppText, useFontScale } from '@/components/app-text';
 import { Icon } from '@/components/icon';
-import { Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { makeStyles, Radius, Sizes, Spacing, useColors } from '@/constants/theme';
 import { useLocale } from '@/i18n/locale-context';
 
 import { useSearchLocation } from './search-location';
@@ -14,6 +14,8 @@ import { useSearchLocation } from './search-location';
  * location sheet.
  */
 export function LocationChip({ style }: { style?: StyleProp<ViewStyle> }) {
+  const Colors = useColors();
+  const styles = useStyles();
   const { t } = useLocale();
   const { place, maxMiles, openLocationSheet } = useSearchLocation();
   const scale = useFontScale('body');
@@ -49,7 +51,7 @@ export function LocationChip({ style }: { style?: StyleProp<ViewStyle> }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   chip: {
     minHeight: Sizes.tapTarget,
     flexDirection: 'row',
@@ -72,4 +74,4 @@ const styles = StyleSheet.create({
   label: {
     flex: 1,
   },
-});
+}));

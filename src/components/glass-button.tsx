@@ -2,7 +2,7 @@ import { Pressable, StyleSheet } from 'react-native';
 
 import { Glass } from '@/components/glass';
 import { Icon, type IconName } from '@/components/icon';
-import { Colors, Sizes } from '@/constants/theme';
+import { Sizes, useColors } from '@/constants/theme';
 
 export type GlassButtonProps = {
   icon: IconName;
@@ -22,9 +22,10 @@ export function GlassButton({
   icon,
   accessibilityLabel,
   onPress,
-  color = Colors.primary,
+  color,
   size = Sizes.glassButton,
 }: GlassButtonProps) {
+  const Colors = useColors();
   return (
     <Pressable
       accessibilityRole="button"
@@ -41,7 +42,12 @@ export function GlassButton({
             pressed && styles.pressed,
           ]}
         >
-          <Icon name={icon} size={Math.round(size * 0.46)} color={color} weight="semibold" />
+          <Icon
+            name={icon}
+            size={Math.round(size * 0.46)}
+            color={color ?? Colors.primary}
+            weight="semibold"
+          />
         </Glass>
       )}
     </Pressable>

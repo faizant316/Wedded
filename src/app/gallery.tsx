@@ -2,13 +2,13 @@ import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { FlatList, Platform, Pressable, StyleSheet, View, type ViewStyle } from 'react-native';
+import { FlatList, Platform, Pressable, View, type ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppText, useFontScale } from '@/components/app-text';
 import { Icon } from '@/components/icon';
 import { StateView } from '@/components/state-view';
-import { Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { makeStyles, Radius, Sizes, Spacing, useColors } from '@/constants/theme';
 import { useVendorPhotos } from '@/data/vendor-media';
 import { useLocale } from '@/i18n/locale-context';
 
@@ -18,6 +18,8 @@ import { useLocale } from '@/i18n/locale-context';
  * needs to know a gesture to get out. /gallery?vendorId=…&index=…
  */
 export default function GalleryScreen() {
+  const Colors = useColors();
+  const styles = useStyles();
   const { vendorId = '', index = '0' } = useLocalSearchParams<{
     vendorId: string;
     index?: string;
@@ -116,7 +118,7 @@ export default function GalleryScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   screen: {
     flex: 1,
     backgroundColor: Colors.viewer,
@@ -157,4 +159,4 @@ const styles = StyleSheet.create({
     paddingHorizontal: Sizes.pageGutter,
     paddingVertical: Spacing.md,
   },
-});
+}));

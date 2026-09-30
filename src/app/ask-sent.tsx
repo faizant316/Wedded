@@ -13,7 +13,7 @@ import { Button } from '@/components/button';
 import { Card } from '@/components/card';
 import { Icon } from '@/components/icon';
 import { Screen } from '@/components/screen';
-import { Colors, Spacing, Springs } from '@/constants/theme';
+import { Spacing, Springs, useColors } from '@/constants/theme';
 import { useHomeEvents } from '@/data/reference';
 import { useInquiryVendor } from '@/features/inquiry/inquiry-helpers';
 import { localized } from '@/i18n/localized';
@@ -26,6 +26,7 @@ import { successHaptic } from '@/lib/haptics';
  * app's daily email limit was reached and it goes out tomorrow.
  */
 export default function AskSentScreen() {
+  const Colors = useColors();
   const { t, locale } = useLocale();
   const params = useLocalSearchParams<{ vendorId?: string; event?: string; queued?: string }>();
   const vendor = useInquiryVendor(params.vendorId ?? '');

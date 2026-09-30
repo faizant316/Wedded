@@ -1,8 +1,8 @@
 import { GlassView, isGlassEffectAPIAvailable, isLiquidGlassAvailable } from 'expo-glass-effect';
 import type { ReactNode } from 'react';
-import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Platform, View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { Colors } from '@/constants/theme';
+import { makeStyles, useColors, useScheme, type Palette } from '@/constants/theme';
 
 // Real Liquid Glass needs iOS 26; some iOS 26 betas crash without the API
 // check. Everything else gets a stand-in drawn below.
@@ -28,12 +28,16 @@ export type GlassProps = {
  * iPhones a milky white that keeps the text on it readable.
  */
 export function Glass({ children, style, interactive, tinted }: GlassProps) {
+  const Colors = useColors();
+  const styles = useStyles();
+  const scheme = useScheme();
   if (nativeGlass) {
     return (
       <GlassView
         glassEffectStyle="regular"
         isInteractive={interactive}
-        tintColor={tinted ? Colors.primary : undefined}
+        tintColor={tinted ? Colors.primaryFill : undefined}
+        colorScheme={scheme}
         style={style}
       >
         {children}
@@ -50,23 +54,24 @@ export function Glass({ children, style, interactive, tinted }: GlassProps) {
   );
 }
 
-const edge = `0 0 0 0.5px rgba(0, 0, 0, 0.06), inset 0 1px 0 ${Colors.glassEdge}`;
+const edge = (Colors: Palette) =>
+  `0 0 0 0.5px rgba(0, 0, 0, 0.06), inset 0 1px 0 ${Colors.glassEdge}`;
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   web: {
     backgroundColor: Colors.glassWeb,
     // Not in React Native's types; the web passes it through (with -webkit-).
     ...({ backdropFilter: 'blur(24px) saturate(190%)' } as ViewStyle),
-    boxShadow: `0 8px 28px ${Colors.glassShadow}, ${edge}`,
+    boxShadow: `0 8px 28px ${Colors.glassShadow}, ${edge(Colors)}`,
   },
   fallback: {
     backgroundColor: Colors.glassFallback,
-    boxShadow: `0 6px 20px ${Colors.glassShadow}, ${edge}`,
+    boxShadow: `0 6px 20px ${Colors.glassShadow}, ${edge(Colors)}`,
   },
   tinted: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.primaryFill,
   },
-});
+}));
 
 /** Whether this device draws real Liquid Glass (iOS 26 and later). */
 export const hasNativeGlass = nativeGlass;

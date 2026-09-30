@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { AppText, useFontScale, useTypeStyle, type AppTextProps } from '@/components/app-text';
 import { Icon, type IconName } from '@/components/icon';
-import { Colors, Sizes, Spacing } from '@/constants/theme';
+import { Sizes, Spacing, useColors } from '@/constants/theme';
 
 /**
  * An icon and a line of text, like "Based in Yuba City" with a pin. The icon
@@ -17,6 +17,7 @@ export function IconLine({
   children: string;
   color?: AppTextProps['color'];
 }) {
+  const Colors = useColors();
   const scale = useFontScale('body');
   const { lineHeight } = useTypeStyle({ text: children });
 

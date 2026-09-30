@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import {
   Platform,
-  StyleSheet,
   View,
   type LayoutChangeEvent,
   type ScrollViewProps,
@@ -20,7 +19,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/app-text';
 import { BackButton } from '@/components/back-button';
 import { useBottomSpace } from '@/components/tab-bar';
-import { Colors, Sizes, Spacing } from '@/constants/theme';
+import { makeStyles, Sizes, Spacing } from '@/constants/theme';
 import type { Locale } from '@/i18n';
 
 /**
@@ -76,6 +75,7 @@ type NavBarProps = {
  * content out and the title in small type. Sits on top of the screen.
  */
 export function NavBar({ scroll, title, titleLang, back = true, trailing, leading }: NavBarProps) {
+  const styles = useStyles();
   const top = useBarTop();
   // Worklets may capture only the shared values, never the whole scroll
   // object: its onScroll handler can't be copied to the UI thread (iOS crash).
@@ -142,6 +142,7 @@ export function LargeTitle({
   eyebrow,
   style,
 }: LargeTitleProps) {
+  const styles = useStyles();
   const { scrollY } = scroll;
   const stretch = useAnimatedStyle(() => ({
     transform: [
@@ -198,6 +199,7 @@ export function NavScreen({
   contentContainerStyle,
   ...rest
 }: NavScreenProps) {
+  const styles = useStyles();
   const scroll = useNavScroll();
   const top = useNavTop();
   const bottom = useBottomSpace();
@@ -236,19 +238,17 @@ export function NavScreen({
 // and fading out below the bar, like iOS 26's scroll edge effect. The web
 // also blurs what's behind it.
 const FADE = 20;
-const bgFade = `linear-gradient(to bottom, rgba(242, 242, 247, 0.97) 0%, rgba(242, 242, 247, 0.9) 72%, rgba(242, 242, 247, 0) 100%)`;
-const backdropStyle = (
-  Platform.OS === 'web'
+const backdropStyle = (scrollEdge: string) =>
+  (Platform.OS === 'web'
     ? {
-        backgroundImage: bgFade,
+        backgroundImage: scrollEdge,
         backdropFilter: 'blur(12px) saturate(180%)',
         maskImage: 'linear-gradient(to bottom, #000 75%, transparent 100%)',
         WebkitMaskImage: 'linear-gradient(to bottom, #000 75%, transparent 100%)',
       }
-    : { experimental_backgroundImage: bgFade }
-) as ViewStyle;
+    : { experimental_backgroundImage: scrollEdge }) as ViewStyle;
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   screen: {
     flex: 1,
     backgroundColor: Colors.bg,
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: -FADE,
-    ...backdropStyle,
+    ...backdropStyle(Colors.scrollEdge),
   },
   row: {
     pointerEvents: 'box-none',
@@ -305,4 +305,4 @@ const styles = StyleSheet.create({
     gap: 2,
     transformOrigin: 'left center',
   },
-});
+}));

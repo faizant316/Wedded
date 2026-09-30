@@ -1,8 +1,8 @@
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable } from 'react-native';
 
 import { AppText, useFontScale } from '@/components/app-text';
 import { Icon } from '@/components/icon';
-import { Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { makeStyles, Radius, Sizes, Spacing, useColors } from '@/constants/theme';
 import { useLocale } from '@/i18n/locale-context';
 
 /**
@@ -10,6 +10,8 @@ import { useLocale } from '@/i18n/locale-context';
  * Search tab (vision doc S4). The real text field lives on the Search screen.
  */
 export function SearchButton({ onPress }: { onPress: () => void }) {
+  const Colors = useColors();
+  const styles = useStyles();
   const { t } = useLocale();
   const scale = useFontScale('body');
 
@@ -28,7 +30,7 @@ export function SearchButton({ onPress }: { onPress: () => void }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   field: {
     minHeight: Sizes.search,
     flexDirection: 'row',
@@ -45,4 +47,4 @@ const styles = StyleSheet.create({
   label: {
     flex: 1,
   },
-});
+}));

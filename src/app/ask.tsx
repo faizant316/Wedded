@@ -1,7 +1,7 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Platform, ScrollView, View } from 'react-native';
 
 import { AppText } from '@/components/app-text';
 import { Button } from '@/components/button';
@@ -13,7 +13,7 @@ import { Screen } from '@/components/screen';
 import { SheetHeader } from '@/components/sheet-header';
 import { StateView } from '@/components/state-view';
 import { TextField } from '@/components/text-field';
-import { Colors, Spacing } from '@/constants/theme';
+import { makeStyles, Spacing } from '@/constants/theme';
 import { useSendInquiry, type GuestBand, type ReplyBy, type SendOutcome } from '@/data/inquiries';
 import { useHomeEvents } from '@/data/reference';
 import { normalizePhone } from '@/features/auth/about-you-validation';
@@ -50,6 +50,7 @@ const REPLY_BY: ReplyBy[] = ['call', 'text', 'whatsapp', 'email'];
  * asks logged-out people to sign in, then sends the same draft.
  */
 export default function AskScreen() {
+  const styles = useStyles();
   const { t, locale } = useLocale();
   const params = useLocalSearchParams<{ vendorId?: string; event?: string; kind?: string }>();
   const isTour = params.kind === 'tour';
@@ -437,6 +438,7 @@ export default function AskScreen() {
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  const styles = useStyles();
   return (
     <View style={styles.section}>
       <AppText variant="heading" accessibilityRole="header">
@@ -447,7 +449,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   grow: {
     flex: 1,
   },
@@ -471,4 +473,4 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: Colors.border,
   },
-});
+}));

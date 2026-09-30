@@ -324,3 +324,116 @@ from (values
 ) as link (venue_slug, vendor_slug, kind, vendor_confirmed)
 join public.vendors venue on venue.slug = link.venue_slug
 join public.vendors vendor on vendor.slug = link.vendor_slug;
+
+-- Every other vendor type, for testing the whole app ---------------------------
+-- One or two sample vendors in each remaining category except kids-entertainment
+-- (the search tests own that one). Same rules as above.
+
+create temporary table all_type_samples (
+  n integer, slug text, name text, tagline text, bio text, city_slug text, radius smallint,
+  category text, category2 text, price_display text, price_from integer, price_to integer,
+  unit text, phone text, contact text, languages text[], events text[], instagram text
+);
+
+insert into all_type_samples values
+  (26, 'sutter-buttes-garden-estate', 'Sutter Buttes Garden Estate', 'Open lawns and an orchard backdrop for up to 500 guests.', 'A family farm turned venue, with string lights over the lawn and room for the ghori to arrive in style.', 'yuba-city', 25, 'outdoor-venue', 'tent', 'starting_at', 6500, null, 'event', '+15305550126', 'call', '{en,pa}', '{reception,sangeet,mehndi,jaago}', 'sutterbuttesestate'),
+  (27, 'valley-oak-community-hall', 'Valley Oak Community Hall', 'Affordable hall for 300 with a full kitchen for your halwai.', 'Run by volunteers. Popular for roka, chunni and akhand paath bhog lunches.', 'stockton', 25, 'community-center', null, 'range', 1200, 2500, 'event', '+12095550127', 'call', '{en,pa}', '{roka,chunni-kurmai,akhand-paath,maiyan,viah-di-roti}', null),
+  (28, 'tandoori-nights-private-room', 'Tandoori Nights Private Room', 'Private dining room for 80, set menus from $32 a person.', 'Good for the roka, the saha dinner or a small reception with close family.', 'fremont', 25, 'restaurant-room', 'caterer', 'starting_at', 32, null, 'person', '+15105550128', 'text', '{en,pa,hi}', '{roka,saha,chunni-kurmai,reception}', 'tandoorinightsfremont'),
+  (29, 'gurdwara-sahib-sample-lathrop', 'Sample Gurdwara Sahib (Lathrop)', 'Anand Karaj bookings through the gurdwara office.', 'Langar hall for 600. Please call the office to book the Anand Karaj and the akhand paath.', 'lathrop', 25, 'gurdwara', null, 'contact', null, null, null, '+12095550129', 'call', '{pa,en}', '{anand-karaj,akhand-paath,langar}', null),
+  (30, 'harmony-mandir-hall', 'Harmony Mandir Hall', 'Temple hall for Hindu and interfaith ceremonies, 250 guests.', 'Pandit ji available by arrangement. Vegetarian catering only.', 'fremont', 25, 'mandir-masjid', null, 'contact', null, null, null, '+15105550130', 'call', '{en,hi,pa}', '{anand-karaj,sangeet,mehndi}', null),
+  (31, 'crystal-palace-banquets', 'Crystal Palace Banquets', 'Chandeliers, a sprung dance floor and seating for 900.', 'The biggest room in the valley, with two bridal suites and parking for 500 cars.', 'manteca', 25, 'banquet-hall', null, 'starting_at', 65, null, 'plate', '+12095550131', 'call', '{en,pa}', '{reception,sangeet,viah-di-roti,jaago}', 'crystalpalacemanteca'),
+  (32, 'chai-and-parontha-co', 'Chai & Parontha Co.', 'Morning nashta for the maiyan and the Anand Karaj day.', 'Fresh aloo and gobi paronthe, masala chai in big pateelas, set up by 7 AM.', 'yuba-city', 50, 'nashta-chai', null, 'starting_at', 9, null, 'person', '+15305550132', 'whatsapp', '{pa,en}', '{maiyan,anand-karaj,akhand-paath,roka}', null),
+  (33, 'desi-mithai-house', 'Desi Mithai House', 'Laddoo, barfi and jalebi boxes for shagun and milni.', 'Custom mithai boxes with your names printed on the lid, orders from 50 boxes.', 'sacramento', 100, 'mithai', 'favors', 'starting_at', 12, null, 'person', '+19165550133', 'text', '{en,pa,hi}', '{roka,chunni-kurmai,milni,reception}', 'desimithaihouse'),
+  (34, 'five-rivers-catering', 'Five Rivers Catering', 'Punjabi and Indo-Chinese menus, live chaat and tandoor.', 'Butter chicken, sarson da saag, paneer tikka and a chaat counter guests talk about for weeks.', 'stockton', 100, 'caterer', 'live-counters', 'starting_at', 22, null, 'person', '+12095550134', 'call', '{pa,en,hi}', '{reception,jaago,sangeet,mehndi,viah-di-roti,roka}', 'fiveriverscatering'),
+  (35, 'giddha-queens-dholki', 'Giddha Queens Dholki', 'Dholki and boliyan for the ladies sangeet.', 'Four aunties with a dholki, spoons and every boli you remember from back home.', 'yuba-city', 50, 'dholki-singers', null, 'starting_at', 400, null, 'event', '+15305550135', 'call', '{pa}', '{sangeet,mehndi,jaago,maiyan}', null),
+  (36, 'naach-studio-choreography', 'Naach Studio Choreography', 'Family dance routines for the sangeet in six weekends.', 'We teach cousins, parents and grandparents one routine each, and film the rehearsals for practice.', 'san-jose', 100, 'choreographer', null, 'packages', 900, null, 'event', '+14085550136', 'instagram', '{en,pa,hi}', '{sangeet,reception}', 'naachstudio'),
+  (37, 'thunder-dhol-academy', 'Thunder Dhol Academy', 'Two or four dholis for the baraat and the doli.', 'Matching turbans, loud and on time. Add a bagpipe band for the milni.', 'sacramento', 100, 'dhol', null, 'starting_at', 400, null, 'event', '+19165550137', 'whatsapp', '{pa,en}', '{baraat,sehra-ghori,jaago,doli,reception}', 'thunderdhol'),
+  (38, 'beat-drop-dj-sac', 'Beat Drop DJ', 'Bhangra, hip-hop and Bollywood with a light show.', 'Clean mixes for the aunties, bass for the cousins. Cold sparklers for the first dance.', 'elk-grove', 100, 'dj', 'lighting', 'starting_at', 1400, null, 'event', '+19165550138', 'text', '{en,pa}', '{reception,sangeet,jaago}', 'beatdropdj'),
+  (39, 'saanjh-live-streams', 'Saanjh Live Streams', 'Stream the Anand Karaj to family in India and Canada.', 'Two cameras, a private link and a recording the same day.', 'fremont', 250, 'live-streaming', 'videographer', 'starting_at', 700, null, 'event', '+15105550139', 'text', '{en,pa}', '{anand-karaj,reception,akhand-paath}', 'saanjhlive'),
+  (40, 'mitti-stories-photography', 'Mitti Stories Photography', 'Documentary photos of every ceremony, from roka to doli.', 'Unposed, warm and full of family. Albums printed in Punjab-style leather.', 'modesto', 250, 'photographer', null, 'starting_at', 2800, null, 'event', '+12095550140', 'instagram', '{en,pa}', '{roka,chunni-kurmai,mehndi,jaago,anand-karaj,milni,doli,reception}', 'mittistories'),
+  (41, 'bhai-sahib-ragi-jatha', 'Sample Ragi Jatha', 'Kirtan for the Anand Karaj, akhand paath bhog and home functions.', 'Three-member jatha. Please book through the gurdwara office or call directly.', 'yuba-city', 100, 'ragi-jatha', null, 'contact', null, null, null, '+15305550141', 'call', '{pa}', '{anand-karaj,akhand-paath}', null),
+  (42, 'sample-granthi-singh', 'Sample Granthi Singh', 'Granthi available for home paath and the Anand Karaj.', 'Punjabi and English. Available weekends across the Sacramento valley.', 'sacramento', 100, 'granthi', 'paathi', 'contact', null, null, null, '+19165550142', 'call', '{pa,en}', '{anand-karaj,akhand-paath}', null),
+  (43, 'sample-paathi-singhs', 'Sample Paathi Singhs', 'A team of paathis for the akhand paath at home.', 'Five paathis in rotation for the full 48 hours.', 'stockton', 100, 'paathi', null, 'contact', null, null, null, '+12095550143', 'call', '{pa}', '{akhand-paath}', null),
+  (44, 'sample-pandit-ji', 'Sample Pandit Ji', 'Hindu wedding ceremonies, havan and griha pravesh.', 'Hindi, Punjabi and English. Brings the samagri.', 'fremont', 100, 'pandit', null, 'contact', null, null, null, '+15105550144', 'call', '{hi,pa,en}', '{anand-karaj,roka,sangeet}', null),
+  (45, 'sample-nikah-khwan', 'Sample Nikah Khwan', 'Nikah ceremonies at the masjid, a hall or at home.', 'Urdu, Punjabi and English.', 'sacramento', 100, 'imam', null, 'contact', null, null, null, '+19165550145', 'call', '{ur,pa,en}', '{anand-karaj}', null),
+  (46, 'sample-bhajan-mandali', 'Sample Bhajan Mandali', 'Bhajans and kirtan for mehndi nights and home functions.', 'Harmonium, tabla and six voices.', 'modesto', 100, 'bhajan-mandali', null, 'contact', null, null, null, '+12095550146', 'call', '{hi,pa}', '{mehndi,sangeet,akhand-paath}', null),
+  (47, 'mehndi-by-harleen', 'Mehndi by Harleen', 'Bridal mehndi with portraits, names and the date hidden in the design.', 'Organic henna, dark stain in 24 hours. Guest mehndi at $10 a hand.', 'fremont', 100, 'mehndi-artist', null, 'starting_at', 250, null, 'event', '+15105550147', 'instagram', '{en,pa}', '{mehndi,sangeet}', 'mehndibyharleen'),
+  (48, 'sardar-grooming-lounge', 'Sardar Grooming Lounge', 'Beard styling, facials and a calm morning for the groom.', 'We come to the house on the wedding morning with everything, including the beard fixer.', 'sacramento', 50, 'groom-grooming', 'turban-tying', 'starting_at', 180, null, 'event', '+19165550148', 'text', '{en,pa}', '{anand-karaj,sehra-ghori,reception}', 'sardargrooming'),
+  (49, 'pagg-da-ustaad', 'Pagg Da Ustaad', 'Turban tying for the groom and the whole baraat.', 'Matching pagg for 20 relatives in an hour. Starch and pins included.', 'yuba-city', 50, 'turban-tying', null, 'starting_at', 15, null, 'turban', '+15305550149', 'whatsapp', '{pa,en}', '{anand-karaj,baraat,sehra-ghori}', 'paggdaustaad'),
+  (50, 'kohl-and-kesar-studio', 'Kohl & Kesar Studio', 'Airbrush bridal makeup and hair for the reception.', 'Soft glam or full glam. Trial sessions on weekday evenings.', 'san-jose', 100, 'makeup', null, 'starting_at', 400, null, 'event', '+14085550150', 'instagram', '{en,pa,hi}', '{anand-karaj,reception,sangeet,chunni-kurmai}', 'kohlandkesar'),
+  (51, 'rajwada-sherwani-house', 'Rajwada Sherwani House', 'Sherwanis, achkans and matching pagg fabric for the groom.', 'Made to measure in four weeks, rentals for the groom''s brothers.', 'fremont', 100, 'groom-wear', null, 'starting_at', 450, null, 'event', '+15105550151', 'text', '{en,pa,hi}', '{anand-karaj,reception}', 'rajwadasherwani'),
+  (52, 'nirvair-bridal-boutique', 'Nirvair Bridal Boutique', 'Bridal lehengas and Anand Karaj suits, custom colors.', 'Appointments on Saturdays. Bring your mother and your chooda color.', 'yuba-city', 100, 'bridal-boutique', null, 'starting_at', 1200, null, 'event', '+15305550152', 'instagram', '{pa,en}', '{anand-karaj,reception,chunni-kurmai}', 'nirvairbridal'),
+  (53, 'phulkari-heritage', 'Phulkari Heritage', 'Hand-embroidered phulkari dupattas and baghs from Patiala.', 'Each piece takes weeks to stitch. Perfect for the bride''s mother and the jaago.', 'stockton', 250, 'phulkari', null, 'starting_at', 150, null, 'event', '+12095550153', 'text', '{pa,en}', '{jaago,mehndi,anand-karaj}', 'phulkariheritage'),
+  (54, 'sona-jewellers', 'Sona Jewellers', 'Bridal sets, kalire and chooda, with 22-karat gold.', 'Rent or buy. We fit the chooda the night before.', 'yuba-city', 100, 'jewelry', null, 'contact', null, null, null, '+15305550154', 'call', '{pa,en,hi}', '{choora,anand-karaj,reception}', 'sonajewellers'),
+  (55, 'stitch-perfect-tailors', 'Stitch Perfect Tailors', 'Suit stitching and alterations in a week.', 'Blouses, salwar suits and sherwani fittings. Rush jobs in two days.', 'sacramento', 50, 'tailor', null, 'starting_at', 40, null, 'event', '+19165550155', 'text', '{en,pa,hi}', '{whole-wedding}', null),
+  (56, 'jaago-crafts-by-bibi', 'Jaago Crafts by Bibi', 'Decorated jaago pots and dandas, ready to carry.', 'Brass gaagar with diyas, a decorated danda with ghungroo, and a spare for the cousins.', 'yuba-city', 100, 'jaago-decor', null, 'starting_at', 120, null, 'event', '+15305550156', 'whatsapp', '{pa}', '{jaago}', null),
+  (57, 'neon-and-names', 'Neon & Names', 'Custom neon signs and welcome boards with your names.', 'Your names in Gurmukhi or English. Rent or keep.', 'san-jose', 250, 'signage', null, 'starting_at', 180, null, 'event', '+14085550157', 'instagram', '{en,pa}', '{reception,sangeet,mehndi}', 'neonandnames'),
+  (58, 'sparkle-moments-fx', 'Sparkle Moments FX', 'Cold sparklers and low fog for the first dance and entrances.', 'Indoor-safe, approved by most halls. A tech stays for the whole night.', 'elk-grove', 100, 'cold-sparklers', null, 'starting_at', 500, null, 'event', '+19165550158', 'text', '{en}', '{reception,sangeet}', 'sparklemomentsfx'),
+  (59, 'shagun-thaal-studio', 'Shagun Thaal Studio', 'Decorated trays for the roka, chunni and shagun.', 'Dry fruit, mithai and chunni trays wrapped to match your colors.', 'fremont', 100, 'thaal-packing', 'favors', 'starting_at', 35, null, 'event', '+15105550159', 'instagram', '{en,pa,hi}', '{roka,chunni-kurmai,milni}', 'shagunthaal'),
+  (60, 'valley-party-rentals', 'Valley Party Rentals', 'Tents, tables, chairs, heaters and palki rentals.', 'Delivery and setup included within 25 miles.', 'modesto', 100, 'rentals', 'tent', 'starting_at', 800, null, 'event', '+12095550160', 'call', '{en,pa}', '{mehndi,jaago,maiyan,akhand-paath,reception}', null),
+  (61, 'gulmohar-floral-studio', 'Gulmohar Floral Studio', 'Floral mandaps, car decor and the doli car garlands.', 'Fresh marigold and rose, flown in the week of the wedding.', 'pleasanton', 100, 'florist', 'decorator', 'range', 2500, 9000, 'event', '+19255550161', 'text', '{en,pa,hi}', '{reception,mehndi,doli,milni}', 'gulmoharfloral'),
+  (62, 'shaadi-sorted-planning', 'Shaadi Sorted Planning', 'Day-of coordination or planning from the roka to the doli.', 'We keep the timeline, the vendors and the aunties on schedule, so you enjoy the day.', 'san-jose', 250, 'planner', null, 'packages', 2500, null, 'event', '+14085550162', 'instagram', '{en,pa,hi}', '{whole-wedding}', 'shaadisorted'),
+  (63, 'punjab-express-travel', 'Punjab Express Travel', 'Group flights for family coming from India and Canada.', 'Visa letters, group fares and airport pickups.', 'yuba-city', 250, 'travel-agent', null, 'contact', null, null, null, '+15305550163', 'call', '{pa,en}', '{whole-wedding}', null),
+  (64, 'event-cover-insurance', 'Event Cover Insurance', 'Liability insurance and permits for halls and backyards.', 'Same-day certificates that halls ask for.', 'sacramento', 250, 'permits-insurance', null, 'starting_at', 150, null, 'event', '+19165550164', 'call', '{en}', '{whole-wedding}', null),
+  (65, 'guest-stay-blocks', 'Guest Stay Blocks', 'Hotel room blocks near your hall, no deposit.', 'We negotiate group rates and handle the rooming list.', 'sacramento', 250, 'hotel-blocks', null, 'contact', null, null, null, '+19165550165', 'text', '{en,pa}', '{whole-wedding}', null),
+  (66, 'spotless-event-crew', 'Spotless Event Crew', 'Cleanup for backyard functions and the langar hall.', 'Before and after cleaning, trash haul-away, dishes.', 'stockton', 50, 'cleaning', null, 'starting_at', 35, null, 'hour', '+12095550166', 'call', '{en,pa}', '{mehndi,jaago,akhand-paath,maiyan}', null),
+  (67, 'safe-side-security', 'Safe Side Security', 'Licensed guards for receptions, as halls with a bar require.', 'Bilingual guards, uniformed or in suits.', 'fremont', 100, 'security', null, 'starting_at', 40, null, 'hour', '+15105550167', 'call', '{en,pa}', '{reception,jaago}', null),
+  (68, 'rangoli-invites', 'Rangoli Invites', 'Printed cards in Gurmukhi and English, boxed invitations.', 'Laser-cut and foil cards, envelopes addressed by hand.', 'fremont', 250, 'invitations', null, 'starting_at', 6, null, 'person', '+15105550168', 'instagram', '{en,pa,hi}', '{whole-wedding}', 'rangoliinvites'),
+  (69, 'reel-invite-studio', 'Reel Invite Studio', 'Video and animated WhatsApp invitations in a day.', 'Your photos, a Punjabi song and the event list, ready to forward.', 'san-jose', 250, 'digital-invites', null, 'starting_at', 120, null, 'event', '+14085550169', 'instagram', '{en,pa}', '{whole-wedding}', 'reelinvites'),
+  (70, 'little-lamb-favors', 'Little Lamb Favors', 'Welcome bags and favors: mithai, candles and mini bottles.', 'Packed and labeled by guest name.', 'elk-grove', 100, 'favors', null, 'starting_at', 8, null, 'person', '+19165550170', 'text', '{en}', '{reception,mehndi}', null),
+  (71, 'shahi-ghori-wale', 'Shahi Ghori Wale', 'A decorated white ghori for the groom, with a handler.', 'Includes the sehra-bandi ride and photos with the baraat.', 'yuba-city', 100, 'ghori', null, 'starting_at', 900, null, 'event', '+15305550171', 'whatsapp', '{pa,en}', '{sehra-ghori,baraat}', 'shahighori'),
+  (72, 'royal-rides-limo', 'Royal Rides Limo & Party Bus', 'Vintage cars, limos and a party bus for the baraat.', 'The doli car comes decorated if you like.', 'hayward', 100, 'cars-limos', 'shuttle', 'starting_at', 150, null, 'hour', '+15105550172', 'call', '{en,pa,hi}', '{baraat,doli,reception}', 'royalrideslimo'),
+  (73, 'park-it-valet', 'Park It Valet', 'Valet for halls with small lots and backyard functions.', 'Insured drivers, glow signs and a ticket for every car.', 'sacramento', 100, 'valet', null, 'starting_at', 600, null, 'event', '+19165550173', 'call', '{en}', '{reception,jaago}', null);
+
+insert into public.vendors (
+  id, slug, status, is_sample, name, tagline, bio, city, location, service_radius_miles,
+  call_phone, text_phone, whatsapp_phone, instagram_handle, preferred_contact, languages,
+  price_display, price_from, price_to, price_unit
+)
+select
+  ('00000000-0000-4000-8000-0000000000' || lpad(m.n::text, 2, '0'))::uuid, m.slug, 'published', true,
+  m.name, m.tagline, m.bio, c.name, c.location, m.radius, m.phone, m.phone,
+  case when m.contact = 'whatsapp' then m.phone end, m.instagram, m.contact, m.languages,
+  m.price_display, m.price_from, m.price_to, m.unit
+from all_type_samples m
+join public.cities c on c.slug = m.city_slug;
+
+insert into public.vendor_private (vendor_id, email, checks_email, owner_name)
+select ('00000000-0000-4000-8000-0000000000' || lpad(m.n::text, 2, '0'))::uuid,
+  replace(m.slug, '-', '.') || '@example.com', true, 'Sample Owner ' || m.n
+from all_type_samples m;
+
+insert into public.vendor_categories (vendor_id, category_slug, position)
+select ('00000000-0000-4000-8000-0000000000' || lpad(m.n::text, 2, '0'))::uuid, m.category, 1
+from all_type_samples m
+union all
+select ('00000000-0000-4000-8000-0000000000' || lpad(m.n::text, 2, '0'))::uuid, m.category2, 2
+from all_type_samples m where m.category2 is not null;
+
+insert into public.vendor_events (vendor_id, event_slug)
+select ('00000000-0000-4000-8000-0000000000' || lpad(m.n::text, 2, '0'))::uuid, unnest(m.events)
+from all_type_samples m;
+
+drop table all_type_samples;
+
+-- A line about each of the earlier samples, shown as the caption in Discover.
+update public.vendors v set bio = b.bio
+from (values
+  ('grand-sutter-hotel-ballroom', 'Downtown Yuba City. In-house chefs cook Punjabi and continental menus, and guests can stay upstairs.'),
+  ('saffron-tandoor-catering', 'Three generations of cooks from Jalandhar. We bring the tandoor, the halwai and the serving staff.'),
+  ('royal-feast-caterers', 'Big weddings are our specialty: we have served 1,500 guests in one evening.'),
+  ('dhol-di-awaaz', 'Our dholis have played at hundreds of Sutter County weddings. We know every entrance tune.'),
+  ('valley-beats-dj', 'We read the room: slow for the aunties, fast for the cousins, and never too loud at dinner.'),
+  ('glowline-lighting', 'Uplighting in your colors, an LED wall for the entrance video and a dance floor that glows.'),
+  ('marigold-stage-decor', 'From the jaago charpai to the reception stage, we design and set up everything.'),
+  ('frames-by-jas', 'We know every moment of the Anand Karaj and never get in the way of the ceremony.'),
+  ('reel-story-films', 'Cinematic wedding films, drone shots and a same-day edit for the reception.'),
+  ('bridal-glam-by-noor', 'Long-wear makeup that lasts from the Anand Karaj to the last song.'),
+  ('sufi-nights-live', 'Live qawwali, Sufi and Punjabi folk. A favourite for sangeet nights.'),
+  ('bhangra-empire-team', 'Bhangra and giddha teams for entrances, sangeets and surprise performances.'),
+  ('pour-house-bartending', 'Licensed and insured bartenders, plus mocktails the whole family can enjoy.'),
+  ('shield-event-security', 'Guards who know how a Punjabi wedding runs and keep it calm.'),
+  ('sweet-rasoi-cakes', 'Eggless cakes in any size, with flavours like rasmalai and pista.'),
+  ('snapbox-360-booth', 'Slow-motion 360 videos your cousins will post all night.')
+) as b (slug, bio)
+where v.slug = b.slug and v.bio is null;

@@ -1,7 +1,6 @@
 import { useState, type Ref } from 'react';
 import {
   Platform,
-  StyleSheet,
   TextInput,
   View,
   type StyleProp,
@@ -11,7 +10,7 @@ import {
 
 import { AppText, useTypeStyle } from '@/components/app-text';
 import { FieldError } from '@/components/field-error';
-import { BorderWidth, Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { BorderWidth, makeStyles, Radius, Sizes, Spacing, useColors } from '@/constants/theme';
 
 export type TextFieldType = 'text' | 'name' | 'email' | 'phone' | 'city';
 
@@ -76,6 +75,8 @@ export function TextField({
   onBlur,
   ...rest
 }: TextFieldProps) {
+  const Colors = useColors();
+  const styles = useStyles();
   const [focused, setFocused] = useState(false);
   const { script, lineHeight, maxFontSizeMultiplier, ...font } = useTypeStyle({
     variant: 'bodyLg',
@@ -130,7 +131,7 @@ export function TextField({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   container: {
     gap: Spacing.sm,
   },
@@ -166,4 +167,4 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg - 1,
     paddingVertical: Spacing.md - 1,
   },
-});
+}));

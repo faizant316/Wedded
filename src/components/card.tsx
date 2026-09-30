@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
-import { StyleSheet, View, type StyleProp, type ViewProps, type ViewStyle } from 'react-native';
+import { View, type StyleProp, type ViewProps, type ViewStyle } from 'react-native';
 
 import { PressableScale } from '@/components/pressable-scale';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { makeStyles, Radius, Spacing } from '@/constants/theme';
 
 export type CardProps = Omit<ViewProps, 'style'> & {
   /** Makes the whole card one tap target. Give it an `accessibilityLabel` that
@@ -21,6 +21,7 @@ export type CardProps = Omit<ViewProps, 'style'> & {
  * edge-to-edge photos; the corners clip the photo.
  */
 export function Card({ onPress, overlay, style, children, ...rest }: CardProps) {
+  const styles = useStyles();
   if (!onPress) {
     return (
       <View {...rest} style={[styles.card, style]}>
@@ -43,7 +44,7 @@ export function Card({ onPress, overlay, style, children, ...rest }: CardProps) 
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   card: {
     backgroundColor: Colors.surface,
     borderRadius: Radius.card,
@@ -51,4 +52,4 @@ const styles = StyleSheet.create({
     padding: Spacing.lg,
     overflow: 'hidden',
   },
-});
+}));

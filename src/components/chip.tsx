@@ -1,6 +1,5 @@
 import {
   Pressable,
-  StyleSheet,
   type GestureResponderEvent,
   type PressableProps,
   type StyleProp,
@@ -9,7 +8,7 @@ import {
 
 import { AppText, useFontScale } from '@/components/app-text';
 import { Icon } from '@/components/icon';
-import { Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { makeStyles, Radius, Sizes, Spacing, useColors } from '@/constants/theme';
 import { selectionHaptic } from '@/lib/haptics';
 
 export type ChipProps = Omit<PressableProps, 'children' | 'style'> & {
@@ -43,6 +42,8 @@ export function Chip({
   onPress,
   ...rest
 }: ChipProps) {
+  const Colors = useColors();
+  const styles = useStyles();
   const scale = useFontScale('label');
   const selected = role !== 'button' && selectedProp;
 
@@ -92,7 +93,7 @@ export function Chip({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   chip: {
     minHeight: Sizes.chip,
     flexDirection: 'row',
@@ -107,14 +108,14 @@ const styles = StyleSheet.create({
     boxShadow: `inset 0 0 0 1px ${Colors.border}`,
   },
   selected: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.primaryFill,
     boxShadow: 'none',
   },
   pressed: {
     backgroundColor: Colors.rowPressed,
   },
   selectedPressed: {
-    backgroundColor: Colors.primaryPressed,
+    backgroundColor: Colors.primaryFillPressed,
   },
   disabled: {
     backgroundColor: Colors.fill,
@@ -123,4 +124,4 @@ const styles = StyleSheet.create({
   label: {
     flexShrink: 1,
   },
-});
+}));
