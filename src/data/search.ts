@@ -87,6 +87,7 @@ export async function searchVendors(params: VendorSearch): Promise<VendorResult[
     min_guests: params.filters?.minGuests ?? undefined,
     max_price: params.filters?.maxPrice ?? undefined,
     language: params.filters?.language ?? undefined,
+    available_on: params.filters?.availableOn ?? undefined,
     sort: params.filters?.sort ?? 'distance',
   } as SearchFunction['Args'];
 

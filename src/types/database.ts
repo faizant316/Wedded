@@ -838,12 +838,45 @@ export type Database = {
           },
         ];
       };
+      vendor_unavailable_days: {
+        Row: {
+          created_at: string;
+          day: string;
+          part: string;
+          status: string;
+          vendor_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          day: string;
+          part?: string;
+          status?: string;
+          vendor_id: string;
+        };
+        Update: {
+          created_at?: string;
+          day?: string;
+          part?: string;
+          status?: string;
+          vendor_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'vendor_unavailable_days_vendor_id_fkey';
+            columns: ['vendor_id'];
+            isOneToOne: false;
+            referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       vendors: {
         Row: {
           address_line: string | null;
           address_visibility: string;
           bio: string | null;
           bio_pa: string | null;
+          calendar_updated_at: string | null;
           call_phone: string | null;
           city: string;
           created_at: string;
@@ -884,6 +917,7 @@ export type Database = {
           address_visibility?: string;
           bio?: string | null;
           bio_pa?: string | null;
+          calendar_updated_at?: string | null;
           call_phone?: string | null;
           city: string;
           created_at?: string;
@@ -924,6 +958,7 @@ export type Database = {
           address_visibility?: string;
           bio?: string | null;
           bio_pa?: string | null;
+          calendar_updated_at?: string | null;
           call_phone?: string | null;
           city?: string;
           created_at?: string;
@@ -1232,6 +1267,7 @@ export type Database = {
       };
       search_vendors: {
         Args: {
+          available_on?: string;
           category_slug?: string;
           event_slug?: string;
           include_travelers?: boolean;
@@ -1271,6 +1307,7 @@ export type Database = {
         Returns: undefined;
       };
       track_vendor_activity: { Args: { p_kind: string; p_vendor_id: string }; Returns: undefined };
+      vendor_date_status: { Args: { p_day: string; p_vendor_id: string }; Returns: string };
       vendor_public_stats: {
         Args: { p_vendor_id: string };
         Returns: {
