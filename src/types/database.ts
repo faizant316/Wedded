@@ -1355,6 +1355,7 @@ export type Database = {
         Args: { p_vendor_id: string };
         Returns: {
           answered: number;
+          booked_by: number;
           replied: number;
           saved_by: number;
         }[];

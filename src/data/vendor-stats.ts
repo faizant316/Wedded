@@ -35,19 +35,28 @@ export type VendorPublicStats = {
   savedBy: number | null;
   /** From the families' follow-up answers; null below 5 answers. */
   replied: { replied: number; answered: number } | null;
+  /** Weddings that booked them (a shared plan, or "Yes, we booked them"); null below 5. */
+  bookedBy: number | null;
 };
 
 export async function fetchVendorPublicStats(vendorId: string): Promise<VendorPublicStats> {
   const { data, error } = await supabase.rpc('vendor_public_stats', { p_vendor_id: vendorId });
   if (error) throw error;
   const row = data[0] as
-    { saved_by: number | null; replied: number | null; answered: number | null } | undefined;
+    | {
+        saved_by: number | null;
+        replied: number | null;
+        answered: number | null;
+        booked_by: number | null;
+      }
+    | undefined;
   return {
     savedBy: row?.saved_by ?? null,
     replied:
       row && row.replied !== null && row.answered !== null
         ? { replied: row.replied, answered: row.answered }
         : null,
+    bookedBy: row?.booked_by ?? null,
   };
 }
 
