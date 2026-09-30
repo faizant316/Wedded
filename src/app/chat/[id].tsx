@@ -183,7 +183,13 @@ function ThreadRow({
   const { message, mine, first, last, seen } = item;
   return (
     <View style={message.id.startsWith('pending-') ? styles.pending : null}>
-      <MessageRow mine={mine} last={last} seen={seen} createdAt={message.createdAt}>
+      <MessageRow
+        mine={mine}
+        last={last}
+        seen={seen}
+        createdAt={message.createdAt}
+        wide={message.kind === 'quote' || message.kind === 'menu' || message.kind === 'booking'}
+      >
         <MessageContent
           message={message}
           mine={mine}

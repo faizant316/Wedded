@@ -23,8 +23,11 @@ export function MessageRow({
   last,
   seen,
   createdAt,
+  wide = false,
   children,
 }: {
+  /** Cards (quote, menu, inquiry) take the row's full width instead of shrinking to fit. */
+  wide?: boolean;
   mine: boolean;
   last: boolean;
   seen: boolean;
@@ -34,8 +37,15 @@ export function MessageRow({
   const styles = useStyles();
   const { t } = useLocale();
   return (
-    <View style={[styles.row, mine ? styles.mine : styles.theirs, last && styles.runEnd]}>
-      <View style={styles.content}>{children}</View>
+    <View
+      style={[
+        styles.row,
+        wide && styles.wide,
+        mine ? styles.mine : styles.theirs,
+        last && styles.runEnd,
+      ]}
+    >
+      <View style={[styles.content, wide && styles.fill]}>{children}</View>
       {last && (
         <AppText variant="caption" color="text2" style={mine ? styles.metaMine : null}>
           {seen ? `${formatClock(createdAt)} · ${t('chat.seen')}` : formatClock(createdAt)}
@@ -111,6 +121,13 @@ const useStyles = makeStyles((Colors) => ({
   theirs: {
     alignSelf: 'flex-start',
     alignItems: 'flex-start',
+  },
+  wide: {
+    width: '86%',
+    maxWidth: 420,
+  },
+  fill: {
+    alignSelf: 'stretch',
   },
   runEnd: {
     marginBottom: Spacing.sm,
