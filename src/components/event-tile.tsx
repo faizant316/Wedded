@@ -1,11 +1,11 @@
 import { Image } from 'expo-image';
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { AppText, useFontScale } from '@/components/app-text';
 import { BilingualName } from '@/components/bilingual-name';
 import { Card } from '@/components/card';
 import { Icon } from '@/components/icon';
-import { Colors, Sizes, Spacing } from '@/constants/theme';
+import { makeStyles, Sizes, Spacing, useColors } from '@/constants/theme';
 import { bilingual, type LocalizedText } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
 
@@ -35,6 +35,8 @@ export function EventTile({
   onPress,
   style,
 }: EventTileProps) {
+  const Colors = useColors();
+  const styles = useStyles();
   const { locale, t } = useLocale();
   const scale = useFontScale('body');
   const { primary } = bilingual(name, locale);
@@ -80,7 +82,7 @@ export function EventTile({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   card: {
     minHeight: Sizes.eventTile,
     flexDirection: 'row',
@@ -103,4 +105,4 @@ const styles = StyleSheet.create({
   chevron: {
     marginRight: Spacing.lg,
   },
-});
+}));

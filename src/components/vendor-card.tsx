@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { useEffect, useRef } from 'react';
-import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Pressable, View, type StyleProp, type ViewStyle } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useReducedMotion,
@@ -14,7 +14,7 @@ import { AppText, useFontScale } from '@/components/app-text';
 import { Card } from '@/components/card';
 import { Glass } from '@/components/glass';
 import { Icon } from '@/components/icon';
-import { Colors, Radius, Sizes, Spacing, Springs } from '@/constants/theme';
+import { makeStyles, Radius, Sizes, Spacing, Springs, useColors } from '@/constants/theme';
 import { localized, type LocalizedText } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
 import { saveHaptic } from '@/lib/haptics';
@@ -74,6 +74,8 @@ export function VendorCard({
   onPress,
   style,
 }: VendorCardProps) {
+  const Colors = useColors();
+  const styles = useStyles();
   const { locale, t } = useLocale();
   const scale = Math.min(useFontScale('label'), 1.4);
 
@@ -213,6 +215,8 @@ function SaveHeart({
   label: string;
   onPress: () => void;
 }) {
+  const Colors = useColors();
+  const styles = useStyles();
   const reduceMotion = useReducedMotion();
   const pop = useSharedValue(1);
   const wasSaved = useRef(saved);
@@ -251,7 +255,7 @@ function SaveHeart({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   card: {
     padding: 0,
   },
@@ -304,4 +308,4 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontVariant: ['tabular-nums'],
   },
-});
+}));

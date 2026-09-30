@@ -1,10 +1,10 @@
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { AppText, useFontScale } from '@/components/app-text';
 import { BilingualName } from '@/components/bilingual-name';
 import { Card } from '@/components/card';
 import { Icon, type IconName } from '@/components/icon';
-import { Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { makeStyles, Radius, Sizes, Spacing, useColors } from '@/constants/theme';
 import { bilingual, type LocalizedText } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
 
@@ -35,6 +35,8 @@ export function CategoryTile({
   onPress,
   style,
 }: CategoryTileProps) {
+  const Colors = useColors();
+  const styles = useStyles();
   const { locale, t } = useLocale();
   const scale = Math.min(useFontScale('body'), 1.4);
   const { primary } = bilingual(name, locale);
@@ -65,7 +67,7 @@ export function CategoryTile({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   card: {
     minHeight: Sizes.tile,
     gap: Spacing.md,
@@ -81,4 +83,4 @@ const styles = StyleSheet.create({
   text: {
     gap: 2,
   },
-});
+}));

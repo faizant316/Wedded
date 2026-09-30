@@ -1,7 +1,6 @@
 import {
   ActivityIndicator,
   Pressable,
-  StyleSheet,
   type PressableProps,
   type StyleProp,
   type ViewStyle,
@@ -9,7 +8,7 @@ import {
 
 import { AppText, useFontScale } from '@/components/app-text';
 import { Icon, type IconName } from '@/components/icon';
-import { Colors, Radius, Sizes, Spacing, type ColorToken } from '@/constants/theme';
+import { type ColorToken, makeStyles, Radius, Sizes, Spacing, useColors } from '@/constants/theme';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'text' | 'danger';
 
@@ -49,6 +48,9 @@ export function Button({
   accessibilityLabel,
   ...rest
 }: ButtonProps) {
+  const Colors = useColors();
+  const styles = useStyles();
+  const pressedStyles = usePressedStyles();
   const labelColor: ColorToken = disabled ? 'textDisabled' : LABEL_COLOR[variant];
   const scale = useFontScale('button');
 
@@ -86,7 +88,7 @@ export function Button({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   base: {
     minHeight: Sizes.button,
     flexDirection: 'row',
@@ -98,7 +100,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.button,
   },
   primary: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.primaryFill,
   },
   secondary: {
     backgroundColor: Colors.primaryTint,
@@ -107,7 +109,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
   },
   danger: {
-    backgroundColor: Colors.error,
+    backgroundColor: Colors.errorFill,
   },
   disabled: {
     backgroundColor: Colors.fill,
@@ -116,11 +118,11 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     textAlign: 'center',
   },
-});
+}));
 
-const pressedStyles = StyleSheet.create({
+const usePressedStyles = makeStyles((Colors) => ({
   primary: {
-    backgroundColor: Colors.primaryPressed,
+    backgroundColor: Colors.primaryFillPressed,
   },
   secondary: {
     backgroundColor: Colors.fillPressed,
@@ -129,6 +131,6 @@ const pressedStyles = StyleSheet.create({
     opacity: 0.5,
   },
   danger: {
-    backgroundColor: Colors.errorPressed,
+    backgroundColor: Colors.errorFillPressed,
   },
-});
+}));

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useReducedMotion,
@@ -9,7 +9,7 @@ import Animated, {
 
 import { AppText } from '@/components/app-text';
 import { Glass } from '@/components/glass';
-import { Colors, Sizes, Springs } from '@/constants/theme';
+import { makeStyles, Sizes, Springs } from '@/constants/theme';
 import { useLocale } from '@/i18n/locale-context';
 import type { Locale } from '@/i18n';
 import { selectionHaptic } from '@/lib/haptics';
@@ -28,6 +28,7 @@ const PAD = 3;
  * child. The selected half slides over with a spring.
  */
 export function LanguageToggle() {
+  const styles = useStyles();
   const { locale, setLocale } = useLocale();
   const reduceMotion = useReducedMotion();
   const index = OPTIONS.findIndex((option) => option.locale === locale);
@@ -74,7 +75,7 @@ export function LanguageToggle() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   track: {
     height: Sizes.tapTarget,
     borderRadius: Sizes.tapTarget / 2,
@@ -92,11 +93,11 @@ const styles = StyleSheet.create({
     left: 0,
     width: WIDTH,
     borderRadius: 999,
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.primaryFill,
   },
   option: {
     width: WIDTH,
     alignItems: 'center',
     justifyContent: 'center',
   },
-});
+}));

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
-import { Colors } from '@/constants/theme';
+import { makeStyles } from '@/constants/theme';
 import { darkRuns, QR_QUIET_ZONE, qrMatrix } from '@/features/tent/table-tent';
 
 /**
@@ -18,6 +18,7 @@ export function QrCode({
   size: number;
   accessibilityLabel: string;
 }) {
+  const styles = useStyles();
   const matrix = useMemo(() => qrMatrix(value), [value]);
   const modules = matrix.length + QR_QUIET_ZONE * 2;
   const unit = Math.max(1, Math.floor(size / modules));
@@ -50,7 +51,7 @@ export function QrCode({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   code: {
     backgroundColor: Colors.qrLight,
   },
@@ -58,4 +59,4 @@ const styles = StyleSheet.create({
     position: 'absolute',
     backgroundColor: Colors.qrDark,
   },
-});
+}));

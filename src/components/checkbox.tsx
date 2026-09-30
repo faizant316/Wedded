@@ -1,16 +1,9 @@
-import {
-  Pressable,
-  StyleSheet,
-  View,
-  type PressableProps,
-  type StyleProp,
-  type ViewStyle,
-} from 'react-native';
+import { Pressable, View, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
 
 import { AppText } from '@/components/app-text';
 import { FieldError } from '@/components/field-error';
 import { Icon } from '@/components/icon';
-import { BorderWidth, Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { BorderWidth, makeStyles, Radius, Sizes, Spacing, useColors } from '@/constants/theme';
 import { selectionHaptic } from '@/lib/haptics';
 
 export type CheckboxProps = Omit<PressableProps, 'children' | 'style' | 'onPress'> & {
@@ -36,6 +29,8 @@ export function Checkbox({
   accessibilityLabel,
   ...rest
 }: CheckboxProps) {
+  const Colors = useColors();
+  const styles = useStyles();
   return (
     <View style={[styles.container, style]}>
       <Pressable
@@ -81,7 +76,7 @@ export function Checkbox({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   container: {
     gap: Spacing.xs,
   },
@@ -110,8 +105,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.rowPressed,
   },
   boxChecked: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primary,
+    borderColor: Colors.primaryFill,
+    backgroundColor: Colors.primaryFill,
   },
   boxDisabled: {
     borderColor: Colors.border,
@@ -120,4 +115,4 @@ const styles = StyleSheet.create({
   label: {
     flex: 1,
   },
-});
+}));

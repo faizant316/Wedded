@@ -1,13 +1,14 @@
 import { Text, useWindowDimensions, type TextProps } from 'react-native';
 
 import {
-  Colors,
+  type ColorToken,
   fontStyle,
+  type FontWeight,
   GURMUKHI_SIZE_MULTIPLIER,
   Typography,
-  type ColorToken,
-  type FontWeight,
   type TypographyVariant,
+  useColors,
+  useTextScale,
 } from '@/constants/theme';
 import { hasGurmukhi, type Locale } from '@/i18n';
 import { useLocale } from '@/i18n/locale-context';
@@ -36,9 +37,10 @@ type TypeStyleOptions = {
  */
 export function useTypeStyle({ variant = 'body', weight, lang, text = '' }: TypeStyleOptions) {
   const { locale } = useLocale();
+  const textScale = useTextScale();
   const spec = Typography[variant];
   const script: Locale = lang ?? (locale === 'pa' || hasGurmukhi(text) ? 'pa' : 'en');
-  const fontSize = script === 'pa' ? spec.size * GURMUKHI_SIZE_MULTIPLIER : spec.size;
+  const fontSize = (script === 'pa' ? spec.size * GURMUKHI_SIZE_MULTIPLIER : spec.size) * textScale;
 
   return {
     script,
@@ -50,12 +52,13 @@ export function useTypeStyle({ variant = 'body', weight, lang, text = '' }: Type
 }
 
 /**
- * How much the phone's text size setting enlarges a variant, capped the same
- * way AppText caps it. Multiply icon sizes by it so icons next to text keep up.
+ * How much the phone's text size setting (capped the same way AppText caps
+ * it) and the app's own Settings > Text size enlarge a variant. Multiply icon
+ * sizes by it so icons next to text keep up.
  */
 export function useFontScale(variant: TypographyVariant = 'body') {
   const { fontScale } = useWindowDimensions();
-  return Math.min(fontScale, Typography[variant].maxScale);
+  return Math.min(fontScale, Typography[variant].maxScale) * useTextScale();
 }
 
 /**
@@ -74,6 +77,7 @@ export function AppText({
   children,
   ...rest
 }: AppTextProps) {
+  const Colors = useColors();
   const text = typeof children === 'string' ? children : '';
   const { script, maxFontSizeMultiplier, ...type } = useTypeStyle({
     variant,

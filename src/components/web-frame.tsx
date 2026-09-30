@@ -1,10 +1,10 @@
 import { useSyncExternalStore, type ReactNode } from 'react';
-import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Platform, useWindowDimensions, View } from 'react-native';
 import { SafeAreaFrameContext, SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/app-text';
 import { Icon } from '@/components/icon';
-import { Colors } from '@/constants/theme';
+import { makeStyles, useColors } from '@/constants/theme';
 
 // An iPhone 17 Pro Max screen in points, with its safe areas.
 const PHONE = { width: 440, height: 956, top: 62, bottom: 34, radius: 62 };
@@ -20,6 +20,7 @@ const FRAME_FROM_WIDTH = 700;
  * render the app as is.
  */
 export function WebFrame({ children }: { children: ReactNode }) {
+  const styles = useStyles();
   const window = useWindowDimensions();
   // The web build renders pages ahead of time without a window, so the frame
   // waits until the page is live in a browser (no hydration mismatch).
@@ -57,6 +58,8 @@ export function WebFrame({ children }: { children: ReactNode }) {
 const noSubscription = () => () => {};
 
 function StatusBar() {
+  const Colors = useColors();
+  const styles = useStyles();
   return (
     <View style={styles.statusBar} aria-hidden>
       <AppText variant="button" lang="en" style={styles.time}>
@@ -72,12 +75,12 @@ function StatusBar() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   desk: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#E8E8ED',
+    backgroundColor: Colors.desk,
   },
   bezel: {
     padding: 14,
@@ -133,4 +136,4 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.text,
     zIndex: 1000,
   },
-});
+}));

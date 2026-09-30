@@ -7,6 +7,7 @@ import {
   Alert,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   useWindowDimensions,
   View,
@@ -25,18 +26,22 @@ import { AppText, useFontScale } from '@/components/app-text';
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
 import { Glass } from '@/components/glass';
+import { GlassButton } from '@/components/glass-button';
 import { groupIcon } from '@/components/group-icon';
 import { Icon, type IconName } from '@/components/icon';
 import { ListRow, ListSection, SectionTitle } from '@/components/list';
 import { NavBar, useNavScroll, useNavTop } from '@/components/nav';
 import { StateView } from '@/components/state-view';
+import { StoryRing } from '@/components/story-ring';
 import { appLink } from '@/constants/links';
-import { Colors, Radius, Sizes, Spacing } from '@/constants/theme';
+import { makeStyles, Radius, Sizes, Spacing, useColors } from '@/constants/theme';
+import { useHomeEvents } from '@/data/reference';
 import { useSavedEventsFor, useSaveVendor } from '@/data/saved';
 import { useVendorLinks, type LinkedVendor } from '@/data/vendor-links';
 import { useRealWeddingsAt, useVendorPhotos, type VendorPhoto } from '@/data/vendor-media';
 import { useVendor } from '@/data/vendors';
 import { ALL_NORCAL_MILES, factLabels, priceLine } from '@/features/vendors/profile-format';
+import { shareVendor } from '@/features/vendors/share';
 import { bilingual, localized, vendorText } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
 import { saveHaptic } from '@/lib/haptics';
@@ -47,6 +52,7 @@ import { formatPhone } from '@/lib/phone';
  * them, worked with), each opening their own profile. Nothing when empty.
  */
 function LinkedVendors({ title, vendors }: { title: string; vendors: LinkedVendor[] }) {
+  const styles = useStyles();
   const router = useRouter();
   const { locale } = useLocale();
   if (vendors.length === 0) return null;
@@ -72,8 +78,64 @@ function LinkedVendors({ title, vendors }: { title: string; vendors: LinkedVendo
   );
 }
 
+/**
+ * Story highlights, as on an Instagram profile: all the photos, then one
+ * circle per event they were taken at (Jaago, Reception...). Each opens the
+ * full-screen story viewer at that photo.
+ */
+function Highlights({ slug, photos, name }: { slug: string; photos: VendorPhoto[]; name: string }) {
+  const styles = useStyles();
+  const router = useRouter();
+  const { locale, t } = useLocale();
+  const events = useHomeEvents();
+  const eventNames = new Map(
+    (events.data ?? []).flatMap((section) => section.events).map((e) => [e.slug, e.name]),
+  );
+  const byEvent = new Map<string, VendorPhoto>();
+  for (const photo of photos) {
+    if (photo.eventSlug && !byEvent.has(photo.eventSlug)) byEvent.set(photo.eventSlug, photo);
+  }
+  const open = (photoId?: string) =>
+    router.push({
+      pathname: '/story',
+      params: photoId ? { vendor: slug, photo: photoId } : { vendor: slug },
+    });
+
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={styles.highlightStrip}
+      contentContainerStyle={styles.highlights}
+    >
+      <StoryRing
+        photoUrl={photos[0].url.small}
+        label={t('vendor.allPhotos')}
+        size={62}
+        accessibilityLabel={t('discover.openStory', { name })}
+        onPress={() => open()}
+      />
+      {[...byEvent.entries()].map(([eventSlug, photo]) => {
+        const eventName = eventNames.get(eventSlug);
+        const label = eventName ? localized(eventName, locale) : eventSlug;
+        return (
+          <StoryRing
+            key={eventSlug}
+            photoUrl={photo.url.small}
+            label={label}
+            size={62}
+            accessibilityLabel={t('vendor.highlightSpoken', { name, event: label })}
+            onPress={() => open(photo.id)}
+          />
+        );
+      })}
+    </ScrollView>
+  );
+}
+
 /** Three square photos per row (vision doc S9 item 10), with credits read out. */
 function PhotoGrid({ vendorId, photos }: { vendorId: string; photos: VendorPhoto[] }) {
+  const styles = useStyles();
   const { t } = useLocale();
   const router = useRouter();
   const rows: VendorPhoto[][] = [];
@@ -124,6 +186,8 @@ function PhotoGrid({ vendorId, photos }: { vendorId: string; photos: VendorPhoto
  * floating on it; Save and Ask float in a glass bar at the bottom.
  */
 export default function VendorProfileScreen() {
+  const Colors = useColors();
+  const styles = useStyles();
   // `event` is set when they came from an event, so Save and Ask use it.
   const { slug = '', event } = useLocalSearchParams<{ slug: string; event?: string }>();
   const router = useRouter();
@@ -369,6 +433,8 @@ export default function VendorProfileScreen() {
 
         {tagline && <AppText variant="bodyLg">{tagline}</AppText>}
 
+        {allPhotos.length > 0 && <Highlights slug={v.slug} photos={allPhotos} name={name} />}
+
         {Platform.OS === 'web' && (
           <Button
             variant="secondary"
@@ -569,7 +635,34 @@ export default function VendorProfileScreen() {
         <View style={[styles.content, !hero && { paddingTop: navTop }]}>{body}</View>
       </Animated.ScrollView>
 
-      <NavBar scroll={scroll} title={vendor.data ? localized(vendor.data.name, locale) : null} />
+      <NavBar
+        scroll={scroll}
+        title={vendor.data ? localized(vendor.data.name, locale) : null}
+        trailing={
+          vendor.data ? (
+            <GlassButton
+              icon="share-outline"
+              accessibilityLabel={t('discover.shareLabel', {
+                name: localized(vendor.data.name, locale),
+              })}
+              onPress={() => {
+                const v = vendor.data;
+                if (!v) return;
+                void shareVendor(
+                  {
+                    name: localized(v.name, locale),
+                    category: v.categories[0] ? localized(v.categories[0].name, locale) : null,
+                    city: v.city,
+                    slug: v.slug,
+                  },
+                  t,
+                );
+              }}
+              size={44}
+            />
+          ) : null
+        }
+      />
 
       {vendor.data && (
         <View
@@ -611,7 +704,7 @@ export default function VendorProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((Colors) => ({
   screen: {
     flex: 1,
     backgroundColor: Colors.bg,
@@ -645,6 +738,13 @@ const styles = StyleSheet.create({
   },
   titleBlock: {
     gap: Spacing.xs,
+  },
+  highlightStrip: {
+    marginHorizontal: -Sizes.pageGutter,
+  },
+  highlights: {
+    gap: Spacing.xs,
+    paddingHorizontal: Sizes.pageGutter - 6,
   },
   founding: {
     flexDirection: 'row',
@@ -751,4 +851,4 @@ const styles = StyleSheet.create({
   ask: {
     flex: 3,
   },
-});
+}));
