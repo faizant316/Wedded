@@ -706,5 +706,34 @@
       "maybe": "Maybe",
       "no": "Not for us"
     }
+  },
+  "compare": {
+    "title": "Compare",
+    "button": {
+      "one": "Compare",
+      "other": "Compare {{count}} side by side"
+    },
+    "pickHint": "Choose up to {{count}} to compare.",
+    "pickTwo": "Choose at least two vendors to compare.",
+    "notSaid": "Not listed",
+    "yes": "Yes",
+    "no": "No",
+    "travels": "{{city}}, travels {{miles}} mi",
+    "travelsNorcal": "{{city}}, travels anywhere in NorCal",
+    "repliedShort": "Replied to {{replied}} of {{answered}}",
+    "rows": {
+      "price": "Price",
+      "seats": "Seats",
+      "catering": "Outside caterers",
+      "alcohol": "Alcohol",
+      "ghori": "Ghori allowed",
+      "curfew": "Ends by",
+      "parking": "Parking",
+      "where": "Where",
+      "languages": "Speaks",
+      "founding": "Founding vendor",
+      "saved": "Saved by",
+      "replied": "Replies"
+    }
   }
 }

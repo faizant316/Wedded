@@ -706,5 +706,34 @@
       "maybe": "ਸ਼ਾਇਦ",
       "no": "ਸਾਡੇ ਲਈ ਨਹੀਂ"
     }
+  },
+  "compare": {
+    "title": "ਤੁਲਨਾ",
+    "button": {
+      "one": "ਤੁਲਨਾ",
+      "other": "{{count}} ਦੀ ਨਾਲ-ਨਾਲ ਤੁਲਨਾ"
+    },
+    "pickHint": "ਤੁਲਨਾ ਲਈ {{count}} ਤੱਕ ਚੁਣੋ।",
+    "pickTwo": "ਤੁਲਨਾ ਲਈ ਘੱਟੋ-ਘੱਟ ਦੋ ਵੈਂਡਰ ਚੁਣੋ।",
+    "notSaid": "ਦੱਸਿਆ ਨਹੀਂ",
+    "yes": "ਹਾਂ",
+    "no": "ਨਹੀਂ",
+    "travels": "{{city}}, {{miles}} ਮੀਲ ਤੱਕ ਜਾਂਦੇ ਹਨ",
+    "travelsNorcal": "{{city}}, ਸਾਰੇ ਉੱਤਰੀ ਕੈਲੀਫੋਰਨੀਆ ਵਿੱਚ ਜਾਂਦੇ ਹਨ",
+    "repliedShort": "{{answered}} ਵਿੱਚੋਂ {{replied}} ਨੂੰ ਜਵਾਬ",
+    "rows": {
+      "price": "ਕੀਮਤ",
+      "seats": "ਸੀਟਾਂ",
+      "catering": "ਬਾਹਰੋਂ ਕੇਟਰਰ",
+      "alcohol": "ਸ਼ਰਾਬ",
+      "ghori": "ਘੋੜੀ ਦੀ ਇਜਾਜ਼ਤ",
+      "curfew": "ਕਦੋਂ ਤੱਕ",
+      "parking": "ਪਾਰਕਿੰਗ",
+      "where": "ਕਿੱਥੇ",
+      "languages": "ਬੋਲਦੇ ਹਨ",
+      "founding": "ਫਾਊਂਡਿੰਗ ਵੈਂਡਰ",
+      "saved": "ਸੰਭਾਲਿਆ",
+      "replied": "ਜਵਾਬ"
+    }
   }
 }

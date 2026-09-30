@@ -2,6 +2,7 @@ import { router, type Href } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
 import { AppText } from '@/components/app-text';
+import { Button } from '@/components/button';
 import { Icon, type IconName } from '@/components/icon';
 import { SectionTitle } from '@/components/list';
 import { makeStyles, Radius, Sizes, Spacing, useColors } from '@/constants/theme';
@@ -49,6 +50,26 @@ export function FamilyShortlist({ weddingId }: { weddingId: string }) {
       <AppText color="text2" style={styles.pad}>
         {t('familyShortlist.hint')}
       </AppText>
+      {shortlist.data.filter((v) => v.published).length >= 2 && (
+        <Button
+          variant="text"
+          icon="git-compare-outline"
+          label={t('compare.button', {
+            count: Math.min(shortlist.data.filter((v) => v.published).length, 3),
+          })}
+          onPress={() =>
+            router.push({
+              pathname: '/compare',
+              params: {
+                vendors: shortlist.data
+                  .filter((v) => v.published)
+                  .map((v) => v.slug)
+                  .join(','),
+              },
+            })
+          }
+        />
+      )}
       {shortlist.data.map((vendor) => (
         <ShortlistCard key={vendor.vendorId} vendor={vendor} weddingId={weddingId} />
       ))}
