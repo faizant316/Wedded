@@ -19,6 +19,7 @@ const wedding: AccountWedding = {
   joinedAt: '2026-09-30T08:00:00Z',
   events: ['reception', 'jaago'],
   booked: { reception: ['banquet-hall'] },
+  guests: { reception: '250_500' },
 };
 
 describe('toAccountWedding', () => {
@@ -32,8 +33,12 @@ describe('toAccountWedding', () => {
           title: 'Jaspreet & Amrit',
           wedding_date: '2027-06-12',
           wedding_events: [
-            { event_slug: 'reception', wedding_bookings: [{ category_slug: 'dj' }] },
-            { event_slug: 'jaago', wedding_bookings: [] },
+            {
+              event_slug: 'reception',
+              guest_band: '250_500',
+              wedding_bookings: [{ category_slug: 'dj' }],
+            },
+            { event_slug: 'jaago', guest_band: null, wedding_bookings: [] },
           ],
         },
       }),
@@ -45,6 +50,7 @@ describe('toAccountWedding', () => {
       joinedAt: '2026-09-30T08:00:00Z',
       events: ['reception', 'jaago'],
       booked: { reception: ['dj'] },
+      guests: { reception: '250_500' },
     });
   });
 
@@ -65,10 +71,18 @@ describe('applyChange', () => {
     expect(applyChange(wedding, { kind: 'date', date: null }).weddingDate).toBeNull();
   });
 
-  it('removing an event removes what was booked for it', () => {
+  it('removing an event removes what was booked for it and its guest count', () => {
     const next = applyChange(wedding, { kind: 'event', slug: 'reception', on: false });
     expect(next.events).toEqual(['jaago']);
     expect(next.booked).toEqual({});
+    expect(next.guests).toEqual({});
+  });
+
+  it("sets and clears an event's guest count", () => {
+    const set = applyChange(wedding, { kind: 'guests', event: 'jaago', band: '100_250' });
+    expect(set.guests).toEqual({ reception: '250_500', jaago: '100_250' });
+    const cleared = applyChange(set, { kind: 'guests', event: 'reception', band: null });
+    expect(cleared.guests).toEqual({ jaago: '100_250' });
   });
 
   it('adds an event once', () => {

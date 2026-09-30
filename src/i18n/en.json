@@ -593,7 +593,8 @@
     "bookedShort": {
       "one": "{{count}} booked",
       "other": "{{count}} booked"
-    }
+    },
+    "guestsTitle": "About how many guests?"
   },
   "filters": {
     "title": "Filters",

@@ -593,7 +593,8 @@
     "bookedShort": {
       "one": "{{count}} ਬੁੱਕ",
       "other": "{{count}} ਬੁੱਕ"
-    }
+    },
+    "guestsTitle": "ਲਗਭਗ ਕਿੰਨੇ ਮਹਿਮਾਨ?"
   },
   "filters": {
     "title": "ਫਿਲਟਰ",
