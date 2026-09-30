@@ -14,7 +14,7 @@ import { StateView } from '@/components/state-view';
 import { makeStyles, Radius, Sizes, Spacing, useColors } from '@/constants/theme';
 import { useEventNeeds, useHomeEvents } from '@/data/reference';
 import { useWeddingPlan } from '@/data/wedding';
-import { formatDate } from '@/features/inquiry/inquiry-helpers';
+import { formatDate, GUEST_BANDS } from '@/features/inquiry/inquiry-helpers';
 import { bookedCount, daysUntil } from '@/features/planner/plan';
 import { FamilyShortlist } from '@/features/planner/family-shortlist';
 import { PlanTogether } from '@/features/planner/plan-together';
@@ -33,8 +33,16 @@ export default function PlanScreen() {
   const Colors = useColors();
   const styles = useStyles();
   const { t, locale } = useLocale();
-  const { plan, wedding, canEdit, saveFailed, setWeddingDate, toggleEvent, toggleBooked } =
-    useWeddingPlan();
+  const {
+    plan,
+    wedding,
+    canEdit,
+    saveFailed,
+    setWeddingDate,
+    toggleEvent,
+    toggleBooked,
+    setEventGuests,
+  } = useWeddingPlan();
   const events = useHomeEvents();
   const allEvents = events.data?.flatMap((section) => section.events) ?? [];
   const chosen = allEvents.filter((event) => plan.events.includes(event.slug));
@@ -130,6 +138,8 @@ export default function PlanScreen() {
               startOpen={i === 0}
               canEdit={canEdit}
               onToggleBooked={(category) => toggleBooked(event.slug, category)}
+              guests={plan.guests?.[event.slug] ?? null}
+              onGuests={(band) => setEventGuests(event.slug, band)}
             />
           ))}
         </View>
@@ -160,6 +170,8 @@ function EventPlan({
   startOpen,
   canEdit,
   onToggleBooked,
+  guests,
+  onGuests,
 }: {
   slug: string;
   name: LocalizedText;
@@ -167,6 +179,8 @@ function EventPlan({
   startOpen: boolean;
   canEdit: boolean;
   onToggleBooked: (categorySlug: string) => void;
+  guests: string | null;
+  onGuests: (band: string | null) => void;
 }) {
   const Colors = useColors();
   const styles = useStyles();
@@ -203,6 +217,25 @@ function EventPlan({
           weight="semibold"
         />
       </Pressable>
+      {open && (
+        <View style={styles.guests}>
+          <AppText variant="label" weight={600} color="text2">
+            {t('planner.guestsTitle')}
+          </AppText>
+          <View style={styles.guestChips} accessibilityRole="radiogroup">
+            {GUEST_BANDS.map((band) => (
+              <Chip
+                key={band}
+                role="radio"
+                label={t(`inquiry.guestBands.${band}`)}
+                selected={guests === band}
+                disabled={!canEdit}
+                onPress={() => onGuests(guests === band ? null : band)}
+              />
+            ))}
+          </View>
+        </View>
+      )}
       {open &&
         needs.data?.map((section) =>
           section.needs.map((need) => {
@@ -360,6 +393,16 @@ const useStyles = makeStyles((Colors) => ({
   doneText: {
     color: Colors.text2,
     textDecorationLine: 'line-through',
+  },
+  guests: {
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.md,
+  },
+  guestChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
   },
   find: {
     minHeight: Sizes.tapTarget,
