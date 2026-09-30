@@ -75,6 +75,18 @@ Everything is checked before anything is saved, and each problem is explained. R
 
 `✗` means the demo breaks; `!` means it works but could look better. For the hosted database, set `SUPABASE_URL`, `SUPABASE_SECRET_KEY` and `SUPABASE_PUBLISHABLE_KEY`, and add `--send` to also send the tour request, which emails for real.
 
+### Vendor calendars
+
+Until vendors have accounts, founders keep each vendor's calendar after a call or text:
+
+```bash
+npm run availability -- --local --vendor=royal-orchard-banquet-hall --booked=2027-06-12,2027-06-13 --held=2027-06-19 --evening=2027-06-26
+npm run availability -- --local --vendor=royal-orchard-banquet-hall --open=2027-06-13 --list
+```
+
+- **Days you mark:** `--booked` (all day), `--held` (someone is holding it), `--morning` / `--evening` (that part of the day is booked). `--open` clears a day.
+- **Days you don't mark** show as open for 60 days after each update, and after that as unknown. Families see "open", "booked", "held" or "partly booked", never who booked.
+
 ### Punjabi review sheet
 
 `npm run i18n:review -- --local` writes `punjabi-review.csv` (gitignored): every English text in the app (event names and timings, vendor types, groups, area-code chips, and the app's own words) next to its Punjabi, with the missing ones first in each section. Open it in Google Sheets or Excel, have the family fill in the **Correction** column, and give the file back to Claude Code to apply. Add `--out=<file>` to write it somewhere else.
