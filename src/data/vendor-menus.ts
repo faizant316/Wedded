@@ -97,7 +97,7 @@ export function cheapestMenu(menus: Menu[]): Menu['price'] {
   );
 }
 
-async function fetchVendorMenus(vendorId: string): Promise<Menu[]> {
+export async function fetchVendorMenus(vendorId: string): Promise<Menu[]> {
   const { data, error } = await supabase
     .from('vendor_menus')
     .select(

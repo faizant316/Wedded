@@ -2,6 +2,9 @@ import type { VendorProfile } from '@/data/vendors';
 
 import { compareRows } from './compare';
 
+// compare.ts uses cheapestMenu() from the menus data file, which loads the client.
+jest.mock('@/lib/supabase', () => ({ supabase: {} }));
+
 const t = (key: string, options?: Record<string, string | number>) =>
   options ? `${key} ${JSON.stringify(options)}` : key;
 
@@ -71,6 +74,29 @@ describe('compareRows', () => {
     ]);
     expect(rows.find((r) => r.key === 'saved')?.values).toEqual([
       'vendorStats.savedBy {"count":12}',
+      null,
+    ]);
+  });
+
+  it('shows each vendor\'s cheapest menu as "Menus from"', () => {
+    const menu = (amount: number, unit: 'plate' | 'person') => ({
+      id: `${amount}`,
+      name: { en: 'Menu' },
+      description: null,
+      price: { amount, unit },
+      minGuests: null,
+      cuisine: null,
+      dietTags: [],
+      sections: [],
+    });
+    const rows = compareRows(
+      [vendor({}), vendor({})],
+      t,
+      [],
+      [[menu(28, 'plate'), menu(22, 'plate')], []],
+    );
+    expect(rows.find((r) => r.key === 'menus')?.values).toEqual([
+      'menus.fromPrice {"amount":"$22 / vendorCard.units.plate"}',
       null,
     ]);
   });
