@@ -63,6 +63,9 @@ export default function SavedScreen() {
     body = sections.map((section) => (
       <View key={section.key} style={styles.section}>
         <SectionTitle>{localized(section.title, locale)}</SectionTitle>
+        <CompareButton
+          slugs={section.data.flatMap((save) => (save.vendor ? [save.vendor.slug] : []))}
+        />
         {section.data.map((save) => (
           <SavedItem key={save.id} save={save} onRemove={() => removeSave(save.id)} />
         ))}
@@ -176,3 +179,17 @@ const styles = StyleSheet.create({
     minHeight: 44,
   },
 });
+
+/** "Compare" for an event group with two or more listed vendors. */
+function CompareButton({ slugs }: { slugs: string[] }) {
+  const { t } = useLocale();
+  if (slugs.length < 2) return null;
+  return (
+    <Button
+      variant="text"
+      icon="git-compare-outline"
+      label={t('compare.button', { count: Math.min(slugs.length, 3) })}
+      onPress={() => router.push({ pathname: '/compare', params: { vendors: slugs.join(',') } })}
+    />
+  );
+}
