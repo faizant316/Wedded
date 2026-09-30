@@ -800,6 +800,68 @@ export type Database = {
           },
         ];
       };
+      vendor_menus: {
+        Row: {
+          created_at: string;
+          cuisine: string | null;
+          description: string | null;
+          description_pa: string | null;
+          diet: string[];
+          id: string;
+          min_guests: number | null;
+          name: string;
+          name_pa: string | null;
+          price_from: number | null;
+          price_unit: string | null;
+          sections: NonNullable<Json>;
+          sort_order: number;
+          updated_at: string;
+          vendor_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          cuisine?: string | null;
+          description?: string | null;
+          description_pa?: string | null;
+          diet?: string[];
+          id?: string;
+          min_guests?: number | null;
+          name: string;
+          name_pa?: string | null;
+          price_from?: number | null;
+          price_unit?: string | null;
+          sections?: NonNullable<Json>;
+          sort_order?: number;
+          updated_at?: string;
+          vendor_id: string;
+        };
+        Update: {
+          created_at?: string;
+          cuisine?: string | null;
+          description?: string | null;
+          description_pa?: string | null;
+          diet?: string[];
+          id?: string;
+          min_guests?: number | null;
+          name?: string;
+          name_pa?: string | null;
+          price_from?: number | null;
+          price_unit?: string | null;
+          sections?: NonNullable<Json>;
+          sort_order?: number;
+          updated_at?: string;
+          vendor_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'vendor_menus_vendor_id_fkey';
+            columns: ['vendor_id'];
+            isOneToOne: false;
+            referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       vendor_private: {
         Row: {
           checks_email: boolean | null;
