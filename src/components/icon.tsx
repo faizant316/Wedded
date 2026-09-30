@@ -48,6 +48,7 @@ const SF_SYMBOLS: Partial<Record<IconName, SFSymbol>> = {
   'mail-outline': 'envelope',
   mail: 'envelope.fill',
   'people-outline': 'person.2',
+  'person-add-outline': 'person.badge.plus',
   'storefront-outline': 'storefront',
   call: 'phone.fill',
   'call-outline': 'phone',
