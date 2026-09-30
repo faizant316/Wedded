@@ -3,7 +3,7 @@
  * published vendors come back: row level security hides the rest. Listings
  * come from useVendorSearch() in src/data/search.ts, which sorts by distance.
  */
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 
 import type { PriceUnit } from '@/components/vendor-card';
 import { asLocalizedText, type LocalizedText } from '@/i18n/localized';
@@ -169,6 +169,17 @@ async function fetchVendor(slug: string): Promise<VendorProfile | null> {
         groupSlug: link.category.group_slug,
       })),
   };
+}
+
+/** Several vendors' profiles at once, in the order given (Compare). */
+export function useVendors(slugs: string[]) {
+  return useQueries({
+    queries: slugs.map((slug) => ({
+      queryKey: vendorKeys.profile(slug),
+      queryFn: () => fetchVendor(slug),
+      enabled: slug.length > 0,
+    })),
+  });
 }
 
 /** One published vendor's profile, or null when no published vendor has that slug. */

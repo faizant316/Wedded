@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Wedding Vendor App"
+    "name": "Wedded App"
   },
   "tabs": {
     "home": "Home",
@@ -460,6 +460,12 @@
       "whichHall": "Which hall?",
       "whichHallHint": "Many halls only allow caterers on their list.",
       "tasting": "Would you like a tasting?"
+    },
+    "dateStatus": {
+      "open": "Open on this date, as of their calendar.",
+      "booked": "Their calendar shows this date as booked. You can still ask, or pick another date.",
+      "held": "Someone is holding this date. Ask soon.",
+      "partly": "Part of this day is booked. Ask which part is free."
     }
   },
   "deleteAccount": {
@@ -524,8 +530,8 @@
     "viewProfile": "Open {{name}}'s profile"
   },
   "share": {
-    "vendor": "{{name}}, {{category}} in {{city}}. Found on the Wedding Vendor App.",
-    "vendorNoCategory": "{{name}} in {{city}}. Found on the Wedding Vendor App.",
+    "vendor": "{{name}}, {{category}} in {{city}}. Found on Wedded App.",
+    "vendorNoCategory": "{{name}} in {{city}}. Found on Wedded App.",
     "copied": "Copied. Paste it into WhatsApp or a text."
   },
   "settings": {
@@ -593,6 +599,141 @@
     "bookedShort": {
       "one": "{{count}} booked",
       "other": "{{count}} booked"
+    },
+    "guestsTitle": "About how many guests?",
+    "bookedWith": "Booked: {{name}}"
+  },
+  "filters": {
+    "title": "Filters",
+    "button": "Filters",
+    "buttonCount": "Filters ({{count}})",
+    "any": "Any",
+    "guests": "How many guests?",
+    "guestsStep": "{{count}}+",
+    "price": "Most you'd pay to start",
+    "pricePlateHint": "The starting price per plate or person.",
+    "priceEventHint": "The starting price for the event.",
+    "upTo": "Up to {{price}}",
+    "language": "Speaks",
+    "sort": "Show first",
+    "sorts": {
+      "distance": "Nearest",
+      "price_low": "Lowest price",
+      "founding": "Founding vendors"
+    },
+    "show": "Show results",
+    "clear": "Clear filters",
+    "date": "Your wedding date",
+    "dateHint": "From My Wedding. Vendors keep their calendars with us.",
+    "anyDate": "Any date",
+    "freeOn": "Free on {{date}}"
+  },
+  "planTogether": {
+    "title": "Plan together with family",
+    "body": "Save your plan to your account, then invite family to see it and help. Everyone sees the same plan, and it's safe if you lose your phone.",
+    "start": "Save and invite family",
+    "signInToStart": "Sign in to plan together",
+    "sharedTitle": "Planning together",
+    "you": "You",
+    "someone": "Family member",
+    "roles": {
+      "owner": "Set up this plan",
+      "planner": "Can help plan",
+      "viewer": "Can see the plan"
+    },
+    "invite": "Invite family to help",
+    "inviteViewer": "Invite someone to only look",
+    "inviteHint": "You'll get a link to send, for example to your family WhatsApp group. It works for 14 days.",
+    "inviteMessage": "Help us plan the wedding on Wedded App. Tap to join our plan: {{link}}",
+    "copied": "Invite copied. Paste it in WhatsApp or a text.",
+    "inviteFailed": "The invite couldn't be made. Check your internet, then try again.",
+    "failed": "That didn't work. Check your internet, then try again.",
+    "saveFailed": "Your last change didn't save. Check your internet, then try again.",
+    "viewerNote": "You can see this plan. Ask whoever set it up to let you help plan it.",
+    "leave": "Leave",
+    "remove": "Remove",
+    "leaveTitle": "Leave this plan?",
+    "leaveBody": "You'll stop seeing it. Someone can invite you again.",
+    "removeTitle": "Remove {{name}}?",
+    "removeBody": "They'll stop seeing this plan. You can invite them again."
+  },
+  "join": {
+    "title": "Join the wedding plan",
+    "pageTitle": "Join our wedding plan · Wedded App",
+    "pageDescription": "You're invited to help plan a wedding on Wedded App.",
+    "invitedBy": "{{name}} invited you to help plan",
+    "invited": "You're invited to help plan",
+    "aWedding": "A family wedding",
+    "plannerExplain": "You'll see the plan and can tick off vendors as they're booked.",
+    "viewerExplain": "You'll be able to see the plan: the events, the date and who's booked.",
+    "join": "Join the plan",
+    "askForNewLink": "Ask the person who sent it for a new link.",
+    "status": {
+      "expired": "This invite has expired",
+      "used_up": "This invite has been used up",
+      "revoked": "This invite was cancelled",
+      "not_found": "This invite doesn't work"
+    },
+    "errors": {
+      "revoked": "This invite was cancelled. Ask for a new link.",
+      "expired": "This invite has expired. Ask for a new link.",
+      "used_up": "This invite has been used up. Ask for a new link.",
+      "not_found": "This invite doesn't work. Ask for a new link.",
+      "full": "This plan already has the most people it can.",
+      "too_many": "You're already part of 10 wedding plans. Leave one to join this.",
+      "failed": "Joining didn't work. Check your internet, then try again."
+    }
+  },
+  "vendorStats": {
+    "savedBy": {
+      "one": "Saved by {{count}} family",
+      "other": "Saved by {{count}} families"
+    },
+    "replied": "Replied to {{replied}} of {{answered}} families who asked",
+    "bookedBy": {
+      "one": "Booked by {{count}} family through Wedded App",
+      "other": "Booked by {{count}} families through Wedded App"
+    }
+  },
+  "familyShortlist": {
+    "title": "Family shortlist",
+    "hint": "Every vendor anyone in the family saved. Tap how you feel about each one.",
+    "empty": "When anyone in the family saves a vendor, it shows up here for everyone.",
+    "savedBy": "Saved by {{names}}",
+    "lovedBy": "{{names}} love it",
+    "reactions": {
+      "love": "Love it",
+      "maybe": "Maybe",
+      "no": "Not for us"
+    }
+  },
+  "compare": {
+    "title": "Compare",
+    "button": {
+      "one": "Compare",
+      "other": "Compare {{count}} side by side"
+    },
+    "pickHint": "Choose up to {{count}} to compare.",
+    "pickTwo": "Choose at least two vendors to compare.",
+    "notSaid": "Not listed",
+    "yes": "Yes",
+    "no": "No",
+    "travels": "{{city}}, travels {{miles}} mi",
+    "travelsNorcal": "{{city}}, travels anywhere in NorCal",
+    "repliedShort": "Replied to {{replied}} of {{answered}}",
+    "rows": {
+      "price": "Price",
+      "seats": "Seats",
+      "catering": "Outside caterers",
+      "alcohol": "Alcohol",
+      "ghori": "Ghori allowed",
+      "curfew": "Ends by",
+      "parking": "Parking",
+      "where": "Where",
+      "languages": "Speaks",
+      "founding": "Founding vendor",
+      "saved": "Saved by",
+      "replied": "Replies"
     }
   }
 }

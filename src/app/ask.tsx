@@ -15,7 +15,9 @@ import { StateView } from '@/components/state-view';
 import { TextField } from '@/components/text-field';
 import { makeStyles, Spacing } from '@/constants/theme';
 import { useSendInquiry, type GuestBand, type ReplyBy, type SendOutcome } from '@/data/inquiries';
+import { useVendorDateStatus } from '@/data/availability';
 import { useHomeEvents } from '@/data/reference';
+import { usePlan } from '@/features/planner/plan';
 import { normalizePhone } from '@/features/auth/about-you-validation';
 import { useSession } from '@/features/auth/session';
 import { CatererQuestions, VenueQuestions } from '@/features/inquiry/category-questions';
@@ -68,7 +70,12 @@ export default function AskScreen() {
   const [date, setDate] = useState<string | null>(null);
   const [dateUnsure, setDateUnsure] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [guests, setGuests] = useState<GuestBand | null>(null);
+  const dateStatus = useVendorDateStatus(vendorId || null, dateUnsure ? null : date);
+  // The guest count set for this event in My Wedding, if there is one
+  const plannedGuests = usePlan().guests?.[params.event ?? ''];
+  const [guests, setGuests] = useState<GuestBand | null>(
+    GUEST_BANDS.includes(plannedGuests as GuestBand) ? (plannedGuests as GuestBand) : null,
+  );
   const [place, setPlace] = useState(profile?.city ?? '');
   const [ownMessage, setOwnMessage] = useState<string | null>(null);
   const [name, setName] = useState(profile?.full_name ?? '');
@@ -310,6 +317,20 @@ export default function AskScreen() {
               label={t('location.done')}
               onPress={() => setPickerOpen(false)}
             />
+          )}
+          {!dateUnsure && date && dateStatus.data && dateStatus.data !== 'unknown' && (
+            <AppText
+              color={
+                dateStatus.data === 'open'
+                  ? 'success'
+                  : dateStatus.data === 'booked'
+                    ? 'error'
+                    : 'text2'
+              }
+              weight={600}
+            >
+              {t(`inquiry.dateStatus.${dateStatus.data}`)}
+            </AppText>
           )}
           <Checkbox
             label={t('inquiry.dateUnsure')}

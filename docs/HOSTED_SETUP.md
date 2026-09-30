@@ -97,6 +97,16 @@ npm run demo:check -- --hall=<hall slug> --send
 
 Fix anything marked `✗`. Then do it by hand on a phone: sign in with a founder's email (the code arrives by email), fill in About you, find the hall from Home → Reception → Banquet hall, save it, send a **Book a tour** request, and check the booking sheet arrives in the Resend account's inbox. Then **Profile → My inquiries** shows it as sent.
 
+## Founders' tools on the hosted database
+
+With `SUPABASE_URL` and `SUPABASE_SECRET_KEY` set in your shell as in step 7, these work on the hosted project too (leave off `--local`):
+
+- `npm run report`: the week's numbers. `-- --vendor=<slug> --month=2026-10` gives a vendor's monthly scorecard.
+- `npm run availability -- --vendor=<slug> --booked=…`: keep a vendor's calendar.
+- `npm run vendors:import` and `npm run photos:upload`: add real vendors and their photos (step 7).
+
+Everything added since this guide was written (Plan together, the family shortlist, filters, vendor numbers, availability) comes with the migrations in step 2. There's nothing extra to set up.
+
 ## Still open
 
 - The app still runs through Expo Go and the laptop's dev server. For the demo at the hall, the phone should open the app without the laptop; decide between an EAS Update the phone opens in Expo Go and a development build before demo week (check the current Expo docs first).

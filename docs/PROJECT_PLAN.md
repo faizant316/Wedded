@@ -1,4 +1,4 @@
-# Wedding Vendor App: Project Plan and Checklist
+# Wedded App: Project Plan and Checklist
 
 Converted from the original PDF plan. Work through the phases in order. There are no deadlines. Tick a box (`- [x]`) when a task is fully finished, and add `(Kirat)` or `(Fezy)` after a task when someone takes it.
 
@@ -69,6 +69,7 @@ Add ideas any time during Phases 1 to 4. No checking or buying until Phase 5.
 
 | Name idea | Suggested by | Notes |
 | --- | --- | --- |
+| **Wedded App** (chosen) | Kirat | Picked 2026-09-30. "App" is part of the name for trademark and licensing reasons. Culture-neutral, so it works beyond Punjabi weddings. Still to check: App Store, Google Play, domain, Instagram handle, USPTO |
 | EverWed | Kirat | Culture-neutral, so it works as we expand beyond Punjabi weddings. "Ever" reflects the full journey, from roka to reception. Easy for elders to say and spell. Made-up word, so easier to trademark than "WED". App Store listing: "Everwed: Wedding Vendors" |
 | HostWell | Kirat | Covers every event, not just weddings. Culture-neutral and sounds established. More distinctive than WedBook, so easier to trademark. Risk: doesn't say "wedding," so needs a subtitle. Risk: "host" is common in hotel and web hosting names, so check for conflicts |
 | WedBook or BookWed | Kirat | Says exactly what the app does. Easy for elders to understand. Works for any culture. Risk: very descriptive, so weak trademark protection. Risk: "Wedbook" likely already exists, so check first |
@@ -158,7 +159,7 @@ Add ideas any time during Phases 1 to 4. No checking or buying until Phase 5.
 ### Name and Brand
 - [ ] Shortlist 3 to 5 names from the Name Ideas list
 - [ ] Check each name: App Store, Google Play, .com domain, Instagram handle, USPTO trademark search
-- [ ] Pick the final name
+- [x] Pick the final name (Kirat: Wedded App, 2026-09-30)
 - [ ] Buy the domain
 - [ ] Claim the Instagram handle
 - [ ] Finalize the logo and app icon
@@ -210,7 +211,7 @@ Add ideas any time during Phases 1 to 4. No checking or buying until Phase 5.
 
 ### Quality
 - [ ] Set up crash and error monitoring (Sentry)
-- [ ] Set up analytics: which categories and vendors get viewed and contacted
+- [ ] Set up analytics: which categories and vendors get viewed and contacted (started 2026-09-30: vendor profile views and contact taps are counted anonymously in `vendor_activity_daily`, and `npm run report` prints the week; category views still to add)
 - [ ] Test on multiple iPhone models and screen sizes
 - [ ] Test on multiple Android models and screen sizes
 - [ ] Run an accessibility check: text size, contrast, screen reader labels
