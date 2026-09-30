@@ -1,6 +1,6 @@
 @AGENTS.md
 
-# Wedding Vendor Booking App
+# Wedded App
 
 ## Start here
 Before planning any feature, read the part of the docs it touches. They are the source of truth; this file only summarizes them.

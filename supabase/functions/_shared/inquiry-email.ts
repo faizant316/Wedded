@@ -265,7 +265,7 @@ export function buildInquiryEmail(input: InquiryEmailInput): OutgoingEmail {
       : `Please contact ${firstName} by phone: ${phone}.`,
     '',
     '--',
-    `Sent through Wedding Vendor App. Families contact you directly; we never charge for introductions. Reference: ${input.inquiryId}`,
+    `Sent through Wedded App. Families contact you directly; we never charge for introductions. Reference: ${input.inquiryId}`,
   ].join('\n');
 
   const button = (label: string, href: string) =>
@@ -304,13 +304,13 @@ ${
 <p style="font-size:16px;line-height:1.5;margin:0 0 16px;white-space:pre-wrap;">${
     escapeHtml(inquiry.message)
   }</p>
-<p style="font-size:14px;color:#5c4a40;margin:0;">Sent through Wedding Vendor App. Families contact you directly; we never charge for introductions. Reference: ${
+<p style="font-size:14px;color:#5c4a40;margin:0;">Sent through Wedded App. Families contact you directly; we never charge for introductions. Reference: ${
     escapeHtml(input.inquiryId)
   }</p>
 </div></body></html>`;
 
   return {
-    from: env('INQUIRY_FROM') ?? 'Wedding Vendor App <inquiries@example.com>',
+    from: env('INQUIRY_FROM') ?? 'Wedded App <inquiries@example.com>',
     to,
     cc: sender.email ? [sender.email] : [],
     bcc: founders.filter((address) => !to.includes(address)),
