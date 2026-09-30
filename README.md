@@ -86,6 +86,17 @@ Everything is checked before anything is saved, and each problem is explained. R
 - the most viewed vendors.
 
 Add `--days=30` for longer. `npm run report -- --local --vendor=<slug> --month=2026-10` writes one vendor's monthly scorecard, ready to send to them. For the hosted database, set `SUPABASE_URL` and `SUPABASE_SECRET_KEY` instead of `--local`.
+### Vendor accounts (for chat)
+
+A vendor's owner chats with families in the same app, signing in with the same email code. Link their email to their listing:
+
+```bash
+npm run vendors:invite -- --local --vendor=royal-orchard-banquet-hall --email=owner@example.com
+npm run vendors:invite -- --local --vendor=royal-orchard-banquet-hall --list
+```
+
+Add `--role=staff` for their staff, and `--remove` to take access away. Without `--local`, set `SUPABASE_URL` and `SUPABASE_SECRET_KEY`.
+
 ### Vendor calendars
 Until vendors have accounts, founders keep each vendor's calendar after a call or text:
 ```bash

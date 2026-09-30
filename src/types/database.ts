@@ -186,6 +186,53 @@ export type Database = {
         };
         Relationships: [];
       };
+      conversations: {
+        Row: {
+          created_at: string;
+          family_name: string | null;
+          family_notified_at: string | null;
+          family_read_at: string | null;
+          family_user_id: string | null;
+          id: string;
+          last_message_at: string;
+          vendor_id: string;
+          vendor_notified_at: string | null;
+          vendor_read_at: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          family_name?: string | null;
+          family_notified_at?: string | null;
+          family_read_at?: string | null;
+          family_user_id?: string | null;
+          id?: string;
+          last_message_at?: string;
+          vendor_id: string;
+          vendor_notified_at?: string | null;
+          vendor_read_at?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          family_name?: string | null;
+          family_notified_at?: string | null;
+          family_read_at?: string | null;
+          family_user_id?: string | null;
+          id?: string;
+          last_message_at?: string;
+          vendor_id?: string;
+          vendor_notified_at?: string | null;
+          vendor_read_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'conversations_vendor_id_fkey';
+            columns: ['vendor_id'];
+            isOneToOne: false;
+            referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       culture_events: {
         Row: {
           created_at: string;
@@ -430,6 +477,57 @@ export type Database = {
             columns: ['vendor_id'];
             isOneToOne: false;
             referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      messages: {
+        Row: {
+          body: string | null;
+          conversation_id: string;
+          created_at: string;
+          data: NonNullable<Json>;
+          id: string;
+          inquiry_id: string | null;
+          kind: string;
+          sender_role: string;
+          sender_user_id: string | null;
+        };
+        Insert: {
+          body?: string | null;
+          conversation_id: string;
+          created_at?: string;
+          data?: NonNullable<Json>;
+          id?: string;
+          inquiry_id?: string | null;
+          kind?: string;
+          sender_role: string;
+          sender_user_id?: string | null;
+        };
+        Update: {
+          body?: string | null;
+          conversation_id?: string;
+          created_at?: string;
+          data?: NonNullable<Json>;
+          id?: string;
+          inquiry_id?: string | null;
+          kind?: string;
+          sender_role?: string;
+          sender_user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'messages_conversation_id_fkey';
+            columns: ['conversation_id'];
+            isOneToOne: false;
+            referencedRelation: 'conversations';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'messages_inquiry_id_fkey';
+            columns: ['inquiry_id'];
+            isOneToOne: false;
+            referencedRelation: 'inquiries';
             referencedColumns: ['id'];
           },
         ];
@@ -794,6 +892,35 @@ export type Database = {
           {
             foreignKeyName: 'vendor_media_venue_vendor_id_fkey';
             columns: ['venue_vendor_id'];
+            isOneToOne: false;
+            referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      vendor_members: {
+        Row: {
+          created_at: string;
+          role: string;
+          user_id: string;
+          vendor_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          role?: string;
+          user_id: string;
+          vendor_id: string;
+        };
+        Update: {
+          created_at?: string;
+          role?: string;
+          user_id?: string;
+          vendor_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'vendor_members_vendor_id_fkey';
+            columns: ['vendor_id'];
             isOneToOne: false;
             referencedRelation: 'vendors';
             referencedColumns: ['id'];
@@ -1371,6 +1498,26 @@ export type Database = {
       };
       create_wedding_invite: { Args: { p_role?: string; p_wedding_id: string }; Returns: string };
       inquiry_emails_left_today: { Args: Record<PropertyKey, never>; Returns: number };
+      mark_conversation_read: { Args: { p_conversation_id: string }; Returns: undefined };
+      my_conversations: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          family_name: string;
+          id: string;
+          last_body: string;
+          last_kind: string;
+          last_message_at: string;
+          last_sender_role: string;
+          other_read_at: string;
+          side: string;
+          unread_count: number;
+          vendor_cover_path: string;
+          vendor_id: string;
+          vendor_name: string;
+          vendor_name_pa: string;
+          vendor_slug: string;
+        }[];
+      };
       react_to_vendor: {
         Args: { p_reaction: string; p_vendor_id: string; p_wedding_id: string };
         Returns: undefined;
@@ -1416,10 +1563,15 @@ export type Database = {
           within_search_radius: boolean;
         }[];
       };
+      send_message: {
+        Args: { p_body?: string; p_conversation_id: string; p_data?: Json; p_kind?: string };
+        Returns: string;
+      };
       set_wedding_member_role: {
         Args: { p_role: string; p_user_id: string; p_wedding_id: string };
         Returns: undefined;
       };
+      start_conversation: { Args: { p_vendor_id: string }; Returns: string };
       track_vendor_activity: { Args: { p_kind: string; p_vendor_id: string }; Returns: undefined };
       vendor_date_status: { Args: { p_day: string; p_vendor_id: string }; Returns: string };
       vendor_public_stats: {
