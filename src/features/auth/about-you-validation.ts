@@ -15,8 +15,9 @@ export type AboutYouValues = {
   city: string;
   /** E.164, e.g. "+15305550101". A 10-digit number is taken as US/Canada. */
   phone: string;
-  /** Trimmed and lowercased. */
-  email: string;
+  /** Trimmed and lowercased; null when the account has none (phone sign-in).
+   * Never saved to the profile: it's the account's own email. */
+  email: string | null;
   /** The form never submits unless the 18+ box is ticked. */
   isAdult: true;
 };
@@ -29,7 +30,6 @@ export type AboutYouErrorKey =
   | 'cityRequired'
   | 'phoneRequired'
   | 'phoneInvalid'
-  | 'emailRequired'
   | 'emailInvalid'
   | 'adultRequired';
 
@@ -71,7 +71,11 @@ export function isValidEmail(email: string): boolean {
   return EMAIL.test(email);
 }
 
-/** Every field is required: the errors to show, or the cleaned values when there are none. */
+/**
+ * Name, city, phone and the 18+ box are required; email is optional (phone,
+ * Apple and Google accounts may have none) but must look right when given.
+ * The errors to show, or the cleaned values when there are none.
+ */
 export function validateAboutYou(draft: AboutYouDraft): {
   errors: AboutYouErrors;
   values: AboutYouValues | null;
@@ -88,9 +92,8 @@ export function validateAboutYou(draft: AboutYouDraft): {
   if (!draft.phone.trim()) errors.phone = 'phoneRequired';
   else if (!phone) errors.phone = 'phoneInvalid';
 
-  const email = draft.email.trim().toLowerCase();
-  if (!email) errors.email = 'emailRequired';
-  else if (!isValidEmail(email)) errors.email = 'emailInvalid';
+  const email = draft.email.trim().toLowerCase() || null;
+  if (email && !isValidEmail(email)) errors.email = 'emailInvalid';
 
   if (!draft.isAdult) errors.isAdult = 'adultRequired';
 

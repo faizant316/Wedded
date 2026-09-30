@@ -14,13 +14,18 @@ import {
 import { supabase } from '@/lib/supabase';
 import type { Database } from '@/types/database';
 
+import { nameFromMetadata, phoneFromAuth } from './auth-helpers';
+import { setNameHint, useNameHint } from './name-hint';
+
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 
 /**
  * - loading: checking the session saved on this device, or loading the profile
  * - signedOut: browsing without an account (everything but saving and asking a
- *   vendor works this way; nobody is asked to sign in up front)
- * - needsProfile: signed in with an email code, but About you isn't filled in
+ *   vendor works this way; the welcome screen offers sign-in first, with
+ *   "Just look around first" to skip it)
+ * - needsProfile: signed in (email or text code, Apple or Google), but About
+ *   you isn't filled in
  * - signedIn: signed in with a profile
  * - error: signed in, but the profile couldn't be loaded (usually offline)
  */
@@ -30,8 +35,14 @@ type SessionContextValue = {
   status: SessionStatus;
   session: Session | null;
   profile: Profile | null;
-  /** The email they signed in with. */
+  /** The account's email: the one they signed in with, or from Apple or
+   * Google (Apple's may be a private relay address). Null for phone accounts. */
   email: string | null;
+  /** The account's phone in E.164 when they signed in with a text code. */
+  phone: string | null;
+  /** A name to start About you with: the one Apple shared on this first
+   * sign-in, or the name on their Google account. */
+  nameHint: string | null;
   reloadProfile: () => void;
   /** The sign-in screen saved About you: use this row without refetching. */
   profileSaved: (profile: Profile) => void;
@@ -70,6 +81,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const pendingAction = useRef<(() => void) | null>(null);
 
   const userId = session?.user.id ?? null;
+  const appleHint = useNameHint();
 
   useEffect(() => {
     // INITIAL_SESSION arrives first with whatever was saved on the device.
@@ -119,6 +131,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     pendingAction.current = null;
+    setNameHint(null);
     await supabase.auth.signOut();
   }, []);
 
@@ -147,12 +160,30 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     pendingAction.current = null;
   }, []);
 
+  // Apple's name is only offered to the account with that Apple ID.
+  const user = session?.user;
+  const appleName =
+    appleHint &&
+    user?.identities?.some(
+      (identity) =>
+        identity.provider === 'apple' &&
+        (identity.id === appleHint.appleUser ||
+          identity.identity_data?.sub === appleHint.appleUser),
+    )
+      ? appleHint.name
+      : null;
+  const nameHint = appleName ?? nameFromMetadata(user?.user_metadata);
+  const email = user?.email || null;
+  const phone = phoneFromAuth(user?.phone);
+
   const value = useMemo<SessionContextValue>(
     () => ({
       status,
       session,
       profile,
-      email: session?.user.email ?? null,
+      email,
+      phone,
+      nameHint,
       reloadProfile,
       profileSaved,
       signOut,
@@ -164,6 +195,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       status,
       session,
       profile,
+      email,
+      phone,
+      nameHint,
       reloadProfile,
       profileSaved,
       signOut,

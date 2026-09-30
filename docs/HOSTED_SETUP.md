@@ -97,6 +97,45 @@ npm run demo:check -- --hall=<hall slug> --send
 
 Fix anything marked `✗`. Then do it by hand on a phone: sign in with a founder's email (the code arrives by email), fill in About you, find the hall from Home → Reception → Banquet hall, save it, send a **Book a tour** request, and check the booking sheet arrives in the Resend account's inbox. Then **Profile → My inquiries** shows it as sent.
 
+## 10. Sign-in methods: Apple, Google and phone (you)
+
+The app offers **Continue with Apple** (iPhone only), **Google**, **phone** and **email**. Email works once step 3 is done. Each of the others needs an account with Apple, Google or a text-message company. Until one is set up its button says "Coming soon" (the app asks the project which methods are on), so nothing breaks while you do these one at a time.
+
+On the laptop, everything but Google already works without any accounts: Apple in Expo Go on an iPhone, and phone with the test numbers in `supabase/config.toml` (type (530) 555-0100, then code 123456; no text is sent).
+
+Never run `supabase config push` from the laptop: it would copy the local test numbers and dummy text-message settings to the hosted project. Set these in the dashboard.
+
+### Apple
+
+1. Join the **Apple Developer Program** ($99 a year; the App Store needs it anyway). Enrol as the LLC, not a person, so the store shows the business as the seller; that needs the LLC's D-U-N-S number.
+2. For Expo Go (the demo): in the Supabase dashboard, **Authentication → Sign In / Providers → Apple**: turn it on and put `host.exp.Exponent` under **Client IDs**. Leave the secret empty. That's Expo Go's own app id, which is who Apple issues the sign-in to while we're in Expo Go.
+3. Before the first real build: pick the bundle id (for example `com.weddedapp.app`) and add it to `app.json` as `ios.bundleIdentifier` (`ios.usesAppleSignIn` is already on, so EAS turns on the Sign in with Apple capability when it builds). Then add it to **Client IDs**, comma-separated: `host.exp.Exponent,com.weddedapp.app`, and the same in `supabase/config.toml`.
+4. **Hide My Email**: people can give Apple's relay address (`…@privaterelay.appleid.com`). Our emails (sign-in codes, chat notices) only reach it once the sending domain is registered: developer.apple.com → **Certificates, IDs & Profiles → Services → Sign in with Apple for Email Communication**, add the domain and the From address. Needs the domain (Phase 5).
+5. **Before submitting to the App Store**: Apple requires that deleting an account also revokes the person's Apple sign-in (the Sign in with Apple REST API, using a key from step 6). The app doesn't do that yet; it's a server job for the `delete-account` function once there's a key.
+6. Later, for Apple on the web and Android (not needed for the demo): create a **Services ID** (for example `com.weddedapp.web`) with Sign in with Apple on, domain `<project-ref>.supabase.co` and return URL `https://<project-ref>.supabase.co/auth/v1/callback`. Create a **Key** with Sign in with Apple, download the `.p8` once (keep it in the password manager, never in git), and note the Key ID and Team ID. Supabase's Apple provider page turns these into the **Secret Key**; add the Services ID to **Client IDs**. The secret expires every 6 months: put a reminder in the calendar.
+
+### Google
+
+1. [console.cloud.google.com](https://console.cloud.google.com) with the founders' account: create a project, `Wedded App`.
+2. **Google Auth Platform → Branding**: app name, support email, and later the logo, privacy policy and terms links. **Audience**: External. While it's in Testing, only the Google accounts under **Test users** can sign in (add both founders and anyone trying the demo; up to 100).
+3. **Clients → Create client → Web application** (one web client covers iPhone, Android and the web, because sign-in happens in the browser). **Authorized redirect URIs**: `https://<project-ref>.supabase.co/auth/v1/callback`. To try it in the web build on the laptop, also `http://127.0.0.1:54321/auth/v1/callback` (see `supabase/config.toml`; it can't work on a phone against the laptop). Copy the **Client ID** and **Client secret**.
+4. Supabase dashboard, **Authentication → Sign In / Providers → Google**: turn it on and paste both.
+5. **Authentication → URL Configuration → Redirect URLs**, add `exp://**` (Expo Go), `weddingapp://**` (real builds) and, once there's a domain, `https://<domain>/**` (the web build). Without these, Google sends people to the Site URL instead of back to the app.
+6. Before launch: publish the app (**Audience → Publish app**) so anyone can sign in, and get the branding verified so the consent screen shows our name and logo. The button uses a one-colour G for now; the store build needs Google's official four-colour G from their branding guidelines.
+
+### Phone (text-message codes)
+
+Every text costs money, and US carriers have rules for business texting. Needs the LLC (see the 2026-09-29 sign-in decision in DECISIONS.md).
+
+1. Pick the provider (founders' call; check current prices):
+   - **Twilio Verify**: Twilio sends the code from its own registered senders, so there's usually no A2P 10DLC registration; priced per successful check (a few US cents) plus carrier fees.
+   - **Twilio Programmable Messaging**: our own number, but US texting needs A2P 10DLC registration of the business (LLC, EIN) and the use case, which can take days to weeks (or a toll-free number with toll-free verification).
+2. Create the Twilio account with the founders' email and upgrade it (a trial account only texts numbers you've verified). For Verify, create a **Verify Service** and note its SID (`VA…`); for Messaging, a **Messaging Service** (`MG…`). Note the Account SID and Auth Token (a secret: password manager only).
+3. In Twilio, **Messaging → Settings → Geo permissions**: allow only the US and Canada (add India or others only if families need them). This blocks "SMS pumping" fraud, where bots request codes to expensive foreign numbers. Set a usage alert in Billing.
+4. Supabase dashboard, **Authentication → Sign In / Providers → Phone**: turn it on, pick Twilio Verify or Twilio, and paste the SIDs and token. OTP length 6. Message: `Your Wedded App code is {{ .Code }}` (Twilio Verify uses its own wording).
+5. **Authentication → Rate Limits**: "SMS messages sent per hour" is for the whole project (30 by default). Raise it as families sign up; each number can already only ask once a minute. If bots show up, turn on the CAPTCHA option there.
+6. **Test numbers** (same page as step 4): add `15305550100=123456`. Apple's App Review needs a way to sign in; give them that number and code in App Store Connect's review notes. It never sends a text.
+
 ## Founders' tools on the hosted database
 
 With `SUPABASE_URL` and `SUPABASE_SECRET_KEY` set in your shell as in step 7, these work on the hosted project too (leave off `--local`):

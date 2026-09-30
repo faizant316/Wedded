@@ -1,4 +1,5 @@
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
+import { View } from 'react-native';
 
 import {
   GlassTabBar,
@@ -8,6 +9,7 @@ import {
 } from '@/components/tab-bar';
 import { Sizes, Spacing, useColors } from '@/constants/theme';
 import { useUnreadCount } from '@/data/chat';
+import { useOnboardingGate } from '@/features/onboarding/gate';
 import { useLocale } from '@/i18n/locale-context';
 
 const TABS: (Omit<TabSpec, 'label'> & { labelKey: string })[] = [
@@ -40,6 +42,10 @@ export default function TabsLayout() {
     label: t(labelKey),
     badge: tab.name === 'profile' ? unread : undefined,
   }));
+  // The first time the app opens: the welcome screen, or the first questions.
+  const gate = useOnboardingGate();
+  if (gate === 'wait') return <View style={{ flex: 1, backgroundColor: Colors.canvas }} />;
+  if (gate) return <Redirect href={gate} />;
 
   return (
     <TabBarSpaceProvider value={Sizes.tabBar + offset + Spacing.sm}>

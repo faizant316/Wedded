@@ -100,6 +100,9 @@ function AppShell() {
       <WebFrame>
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Colors.bg } }}>
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="welcome" options={{ animation: 'fade', gestureEnabled: false }} />
+          <Stack.Screen name="auth-callback" options={{ animation: 'none' }} />
+          <Stack.Screen name="onboarding" options={{ animation: 'fade', gestureEnabled: false }} />
           <Stack.Screen name="sign-in" options={{ presentation: 'modal' }} />
           <Stack.Screen name="save-vendor" options={{ presentation: 'modal' }} />
           <Stack.Screen name="menu" options={{ presentation: 'modal' }} />

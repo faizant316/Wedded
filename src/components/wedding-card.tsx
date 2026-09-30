@@ -8,7 +8,9 @@ import { CheckCircle } from '@/components/check-circle';
 import { groupIcon } from '@/components/group-icon';
 import { Icon } from '@/components/icon';
 import { makeStyles, Radius, Sizes, Spacing, useColors } from '@/constants/theme';
+import { resetAnswers, setAnswers } from '@/features/onboarding/answers';
 import { CountdownCard } from '@/features/planner/countdown-card';
+import { findForPlan } from '@/features/planner/find-for-plan';
 import { usePlanView } from '@/features/planner/use-plan-view';
 import { localized } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
@@ -47,9 +49,14 @@ export function WeddingCard({ compact = false }: { compact?: boolean }) {
         <View style={styles.panel}>
           <AppText color="text2">{t('planner.pickEventsRow')}</AppText>
           <Button
-            label={plan.weddingDate ? t('planner.chooseEvents') : t('planner.startPlanning')}
+            label={t('planner.startPlanning')}
             icon="sparkles-outline"
-            onPress={() => router.push(plan.weddingDate ? '/plan-events' : '/plan')}
+            onPress={() => {
+              // The first questions again, starting from what the plan already has.
+              resetAnswers();
+              setAnswers({ weddingDate: plan.weddingDate });
+              router.push('/onboarding/who');
+            }}
           />
         </View>
       )}
@@ -97,10 +104,12 @@ export function WeddingCard({ compact = false }: { compact?: boolean }) {
                   hitSlop={6}
                   onPress={() => {
                     selectionHaptic();
-                    router.push({
-                      pathname: '/c/[category]',
-                      params: { category: need.categorySlug, event: eventSlug },
-                    });
+                    findForPlan(
+                      need.categorySlug,
+                      need.groupSlug,
+                      eventSlug,
+                      plan.guests?.[eventSlug],
+                    );
                   }}
                   style={({ pressed }) => [styles.find, pressed && styles.pressed]}
                 >

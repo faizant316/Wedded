@@ -10,4 +10,6 @@ export const StorageKeys = {
   haptics: 'settings.haptics',
   /** My Wedding planner, as JSON (src/features/planner). */
   weddingPlan: 'planner.wedding',
+  /** The welcome screen and first questions: "seen" (they chose to browse) or "done". */
+  onboarding: 'settings.onboarding',
 } as const;

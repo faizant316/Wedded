@@ -117,6 +117,8 @@ const SF_SYMBOLS: Partial<Record<IconName, SFSymbol>> = {
   'star-outline': 'star',
   'arrow-forward': 'arrow.right',
   'pencil-outline': 'pencil',
+  'person-outline': 'person',
+  'logo-apple': 'apple.logo',
 };
 
 export type IconProps = {

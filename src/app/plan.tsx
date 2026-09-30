@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -26,6 +26,7 @@ import type { EventNeed, EventNeedsSection, TraditionEvent } from '@/data/refere
 import { GUEST_BANDS } from '@/features/inquiry/inquiry-helpers';
 import { CountdownCard } from '@/features/planner/countdown-card';
 import { FamilyShortlist } from '@/features/planner/family-shortlist';
+import { findForPlan } from '@/features/planner/find-for-plan';
 import { essentialNeeds } from '@/features/planner/plan';
 import { PlanTogether } from '@/features/planner/plan-together';
 import { usePlanView } from '@/features/planner/use-plan-view';
@@ -65,6 +66,31 @@ export default function PlanScreen() {
     setOpen(openSlugs.includes(slug) ? openSlugs.filter((s) => s !== slug) : [...openSlugs, slug]);
 
   const openPicker = () => router.push('/plan-events');
+
+  // Booking an event's last essential: say so, fold it away and open the
+  // next event with something left, so there's always a clear next step.
+  const [cheer, setCheer] = useState<{ done: string; next: string | null } | null>(null);
+  useEffect(() => {
+    if (!cheer) return;
+    const timer = setTimeout(() => setCheer(null), 5000);
+    return () => clearTimeout(timer);
+  }, [cheer]);
+  function eventCompleted(slug: string) {
+    const done = chosen.find((event) => event.slug === slug);
+    const next = chosen.find(
+      (event) =>
+        event.slug !== slug &&
+        essentialNeeds(needsByEvent[event.slug]).some(
+          (need) => !(plan.booked[event.slug] ?? []).includes(need.categorySlug),
+        ),
+    );
+    successHaptic();
+    setCheer({
+      done: done ? localized(done.name, locale) : '',
+      next: next ? localized(next.name, locale) : null,
+    });
+    setTimeout(() => setOpen(next ? [next.slug] : []), 700);
+  }
 
   return (
     <NavScreen title={t('planner.title')} subtitle={t('planner.subtitle')}>
@@ -128,6 +154,31 @@ export default function PlanScreen() {
               ].join(' · ')}
             </AppText>
           </View>
+          {cheer && (
+            <Animated.View
+              entering={Motion.rise}
+              exiting={Motion.exit}
+              layout={Motion.layout}
+              style={styles.cheer}
+              accessibilityLiveRegion="polite"
+            >
+              <View style={styles.cheerIcon}>
+                <Icon name="checkmark" size={20} color={Colors.onPrimary} weight="bold" />
+              </View>
+              <View style={styles.grow}>
+                <AppText weight={700}>
+                  {cheer.next
+                    ? t('planner.cheerDone', { event: cheer.done })
+                    : t('planner.cheerAll')}
+                </AppText>
+                {cheer.next && (
+                  <AppText variant="label" weight={400} color="text2">
+                    {t('planner.cheerNext', { event: cheer.next })}
+                  </AppText>
+                )}
+              </View>
+            </Animated.View>
+          )}
           {chosen.map((event) => (
             <EventPlan
               key={event.slug}
@@ -139,6 +190,7 @@ export default function PlanScreen() {
               canEdit={canEdit}
               open={openSlugs.includes(event.slug)}
               onToggle={() => toggleOpen(event.slug)}
+              onComplete={() => eventCompleted(event.slug)}
               onToggleBooked={(category) => view.toggleBooked(event.slug, category)}
               onGuests={(band) => view.setEventGuests(event.slug, band)}
             />
@@ -162,6 +214,7 @@ function EventPlan({
   canEdit,
   open,
   onToggle,
+  onComplete,
   onToggleBooked,
   onGuests,
 }: {
@@ -173,6 +226,8 @@ function EventPlan({
   canEdit: boolean;
   open: boolean;
   onToggle: () => void;
+  /** Its last essential was just booked. */
+  onComplete: () => void;
   onToggleBooked: (categorySlug: string) => void;
   onGuests: (band: string | null) => void;
 }) {
@@ -187,6 +242,12 @@ function EventPlan({
   const complete = essential.length > 0 && done === essential.length;
   const name = localized(event.name, locale);
 
+  const wasComplete = useRef(complete);
+  useEffect(() => {
+    if (complete && !wasComplete.current) onComplete();
+    wasComplete.current = complete;
+  }, [complete, onComplete]);
+
   const turn = useSharedValue(open ? 1 : 0);
   useEffect(() => {
     turn.value = reduceMotion ? (open ? 1 : 0) : withSpring(open ? 1 : 0, Springs.snappy);
@@ -200,6 +261,7 @@ function EventPlan({
       eventSlug={event.slug}
       booked={booked.includes(need.categorySlug)}
       bookedWith={bookedVendors[`${event.slug}/${need.categorySlug}`]?.name ?? null}
+      guests={guests}
       essential={isEssential}
       canEdit={canEdit}
       onToggle={() => onToggleBooked(need.categorySlug)}
@@ -307,6 +369,7 @@ function NeedRow({
   eventSlug,
   booked,
   bookedWith,
+  guests,
   essential,
   canEdit,
   onToggle,
@@ -316,6 +379,8 @@ function NeedRow({
   booked: boolean;
   /** The vendor's name, when the booking names one. */
   bookedWith: string | null;
+  /** The event's guest band, which Find turns into filters. */
+  guests: string | null;
   essential: boolean;
   canEdit: boolean;
   onToggle: () => void;
@@ -361,12 +426,7 @@ function NeedRow({
         accessibilityRole="link"
         accessibilityLabel={t('planner.find', { name })}
         hitSlop={6}
-        onPress={() =>
-          router.push({
-            pathname: '/c/[category]',
-            params: { category: need.categorySlug, event: eventSlug },
-          })
-        }
+        onPress={() => findForPlan(need.categorySlug, need.groupSlug, eventSlug, guests)}
         style={({ pressed }) => [styles.find, pressed && styles.findPressed]}
       >
         <AppText variant="label" weight={600} color="primary">
@@ -415,6 +475,25 @@ const useStyles = makeStyles((Colors) => ({
   },
   pressed: {
     opacity: 0.5,
+  },
+  cheer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    padding: Spacing.lg,
+    borderRadius: Radius.card,
+    borderCurve: 'continuous',
+    backgroundColor: Colors.surface,
+    borderWidth: 1.5,
+    borderColor: Colors.success,
+  },
+  cheerIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.success,
   },
   eventCard: {
     borderRadius: Radius.card,

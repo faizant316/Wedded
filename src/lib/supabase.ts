@@ -10,7 +10,7 @@
 import './install-local-storage';
 
 import { createClient } from '@supabase/supabase-js';
-import { AppState } from 'react-native';
+import { AppState, Platform } from 'react-native';
 
 import type { Database } from '@/types/database';
 
@@ -25,6 +25,9 @@ if (!supabaseUrl || !supabasePublishableKey) {
   );
 }
 
+/** The project's address and publishable key, e.g. for GET /auth/v1/settings. */
+export const supabaseConfig = { url: supabaseUrl, publishableKey: supabasePublishableKey };
+
 // The web build pre-renders pages in Node, where there is no localStorage;
 // phones (via the install import above) and browsers have one.
 const storage = typeof localStorage === 'undefined' ? undefined : localStorage;
@@ -34,7 +37,12 @@ export const supabase = createClient<Database>(supabaseUrl, supabasePublishableK
     storage,
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: false,
+    // Google sign-in on the web comes back to /auth-callback with the tokens
+    // in the address (#access_token=…), and the client reads them there. On
+    // phones the app reads them itself (features/auth/providers.ts). The
+    // client only looks when there's a real browser window, so the web
+    // build's pre-render in Node is unaffected.
+    detectSessionInUrl: Platform.OS === 'web',
   },
 });
 

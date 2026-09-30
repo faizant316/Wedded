@@ -40,6 +40,9 @@ export type AboutYouFormProps = {
   error?: string;
   /** Show the email read-only: it's the one they signed in with. */
   emailLocked?: boolean;
+  /** Leave the email out: the account has none (phone sign-in). It's optional
+   * anyway, since it isn't saved to the profile. */
+  emailHidden?: boolean;
   /** They already confirmed 18+ (editing an existing profile): hide the box. */
   confirmedAdult?: boolean;
   /** Button text; defaults to "Create account". */
@@ -50,7 +53,8 @@ export type AboutYouFormProps = {
 const FIELD_ORDER: AboutYouField[] = ['name', 'city', 'phone', 'email', 'isAdult'];
 
 /**
- * "About you" (vision doc S14): name, city, phone, email and the 18+ box, then
+ * "About you" (vision doc S14): name, city, phone, email (when the account
+ * has one) and the 18+ box, then
  * "Create account". It scrolls and keeps the focused field above the keyboard,
  * so it can fill a screen or a sheet; give it horizontal padding from the parent.
  * No placeholders, on purpose: grey example text reads as already filled in.
@@ -63,6 +67,7 @@ export function AboutYouForm({
   submitting = false,
   error,
   emailLocked = false,
+  emailHidden = false,
   confirmedAdult = false,
   submitLabel,
   style,
@@ -89,6 +94,8 @@ export function AboutYouForm({
   };
 
   const { errors, values } = validateAboutYou(draft);
+  // The phone is the last box when the email is read-only or left out.
+  const phoneIsLast = emailLocked || emailHidden;
   const errorFor = (field: AboutYouField) => {
     const key = attempted ? errors[field] : undefined;
     return key && t(`aboutYou.errors.${key}`);
@@ -153,23 +160,25 @@ export function AboutYouForm({
         onChangeText={setField('phone')}
         error={errorFor('phone')}
         maxLength={20}
-        returnKeyType={emailLocked ? 'done' : 'next'}
-        submitBehavior={emailLocked ? 'blurAndSubmit' : 'submit'}
-        onSubmitEditing={() => !emailLocked && emailRef.current?.focus()}
+        returnKeyType={phoneIsLast ? 'done' : 'next'}
+        submitBehavior={phoneIsLast ? 'blurAndSubmit' : 'submit'}
+        onSubmitEditing={() => !phoneIsLast && emailRef.current?.focus()}
       />
-      <TextField
-        ref={emailRef}
-        type="email"
-        label={t('aboutYou.email')}
-        hint={emailLocked ? t('aboutYou.emailLockedHint') : undefined}
-        value={draft.email}
-        onChangeText={setField('email')}
-        editable={!emailLocked}
-        error={errorFor('email')}
-        maxLength={254}
-        returnKeyType="done"
-        submitBehavior="blurAndSubmit"
-      />
+      {!emailHidden && (
+        <TextField
+          ref={emailRef}
+          type="email"
+          label={t('aboutYou.email')}
+          hint={emailLocked ? t('aboutYou.emailLockedHint') : undefined}
+          value={draft.email}
+          onChangeText={setField('email')}
+          editable={!emailLocked}
+          error={errorFor('email')}
+          maxLength={254}
+          returnKeyType="done"
+          submitBehavior="blurAndSubmit"
+        />
+      )}
       {!confirmedAdult && (
         <Checkbox
           label={t('aboutYou.isAdult')}

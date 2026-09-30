@@ -5,6 +5,8 @@ import { makeStyles, Sizes } from '@/constants/theme';
 
 type ScreenProps = ViewProps & {
   edges?: readonly Edge[];
+  /** A plain white page (black in dark mode) instead of the grouped grey: the welcome screen and first questions. */
+  plain?: boolean;
 };
 
 /**
@@ -12,10 +14,10 @@ type ScreenProps = ViewProps & {
  * simple pages. Scrolling pages with a title use NavScreen (components/nav)
  * instead, which scrolls under a floating bar.
  */
-export function Screen({ edges = ['top'], style, children, ...rest }: ScreenProps) {
+export function Screen({ edges = ['top'], plain, style, children, ...rest }: ScreenProps) {
   const styles = useStyles();
   return (
-    <SafeAreaView edges={edges} style={styles.safeArea}>
+    <SafeAreaView edges={edges} style={[styles.safeArea, plain && styles.plain]}>
       <View style={[styles.content, style]} {...rest}>
         {children}
       </View>
@@ -27,6 +29,9 @@ const useStyles = makeStyles((Colors) => ({
   safeArea: {
     flex: 1,
     backgroundColor: Colors.bg,
+  },
+  plain: {
+    backgroundColor: Colors.canvas,
   },
   content: {
     flex: 1,

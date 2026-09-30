@@ -32,4 +32,6 @@ export const Motion = {
     .stiffness(Springs.snappy.stiffness)
     .damping(Springs.snappy.damping),
   popOut: ZoomOut.duration(140),
+  /** The nth item of a list arriving just after the one before it. */
+  stagger: (index: number) => FadeInDown.duration(320).delay(80 + index * 55),
 };

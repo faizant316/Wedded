@@ -97,7 +97,12 @@ export function useIsVendor() {
     staleTime: 10 * 60 * 1000,
   });
   const vendorIds = query.data ?? [];
-  return { vendorIds, isVendor: vendorIds.length > 0 };
+  return {
+    vendorIds,
+    isVendor: vendorIds.length > 0,
+    /** Still checking (signed in, not answered yet). */
+    isPending: userId.length > 0 && query.isPending,
+  };
 }
 
 // Conversations ----------------------------------------------------------------------------

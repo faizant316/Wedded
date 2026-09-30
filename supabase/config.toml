@@ -159,7 +159,14 @@ site_url = "http://127.0.0.1:3000"
 # The public URL that Auth serves on. Defaults to the API external URL with `/auth/v1` appended.
 # external_url = ""
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["https://127.0.0.1:3000"]
+# Google sign-in comes back to the app's /auth-callback (Linking.createURL): exp:// in Expo Go,
+# weddingapp:// in a build, and the web build on the laptop (`npx expo start --web`).
+additional_redirect_urls = [
+  "https://127.0.0.1:3000",
+  "exp://**",
+  "weddingapp://**",
+  "http://localhost:8081/**",
+]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # JWT issuer URL. If not set, defaults to auth.external_url.
@@ -266,19 +273,25 @@ content_path = "./supabase/templates/sign-in-code.html"
 # subject = "Your password has been changed"
 # content_path = "./supabase/templates/password_changed_notification.html"
 
+# Sign-in by text message: a 6-digit code, like the email one. Locally no text is ever sent:
+# use the test numbers below. The hosted project needs a real SMS provider (docs/HOSTED_SETUP.md).
 [auth.sms]
 # Allow/disallow new user signups via SMS to your project.
-enable_signup = false
+enable_signup = true
 # If enabled, users need to confirm their phone number before signing in.
 enable_confirmations = false
 # Template for sending OTP to users
-template = "Your code is {{ .Code }}"
+template = "Your Wedded App code is {{ .Code }}"
 # Controls the minimum amount of time that must pass before sending another sms otp.
 max_frequency = "5s"
 
-# Use pre-defined map of phone number to OTP for testing.
-# [auth.sms.test_otp]
-# 4152127777 = "123456"
+# Test numbers (without the +) and their fixed codes. Auth returns these codes before it calls
+# the SMS provider, so they work locally with the dummy Twilio settings below. 555-01xx numbers
+# are reserved for fiction and never reach a real phone. In the app: (530) 555-0100, code 123456.
+[auth.sms.test_otp]
+15305550100 = "123456"
+15305550101 = "123456"
+15305550102 = "123456"
 
 # Configure logged in session timeouts.
 # [auth.sessions]
@@ -298,12 +311,16 @@ max_frequency = "5s"
 # uri = "pg-functions://<database>/<schema>/<hook_name>"
 
 # Configure one of the supported SMS providers: `twilio`, `twilio_verify`, `messagebird`, `textlocal`, `vonage`.
+# LOCAL ONLY: dummy values. Auth won't turn phone sign-in on without a provider, and it answers the
+# test numbers above before ever calling it, so nothing here is used. Any other number fails with
+# "sms_send_failed". The hosted project needs a real provider set in the dashboard (Twilio, or
+# Twilio Verify, which may avoid US A2P 10DLC registration; the founders' call). Never
+# `supabase config push` this section to the hosted project.
 [auth.sms.twilio]
-enabled = false
-account_sid = ""
-message_service_sid = ""
-# DO NOT commit your Twilio auth token to git. Use environment variable substitution instead:
-auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
+enabled = true
+account_sid = "local-dummy-not-a-twilio-account"
+message_service_sid = "local-dummy-not-a-twilio-service"
+auth_token = "local-dummy-not-a-twilio-token"
 
 # Multi-factor-authentication is available to Supabase Pro plan.
 [auth.mfa]
@@ -331,9 +348,14 @@ max_frequency = "5s"
 # Use an external OAuth provider. The full list of providers are: `apple`, `azure`, `bitbucket`,
 # `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`, `linkedin_oidc`, `notion`, `twitch`,
 # `twitter`, `x`, `slack`, `spotify`, `workos`, `zoom`.
+# Sign in with Apple, native on iPhone (signInWithIdToken): client_id lists the app ids whose Apple
+# tokens are accepted. In Expo Go that's Expo Go's own bundle id. Later, comma-separated, add the
+# app's bundle id for builds, and the Services ID for Apple on the web and Android:
+#   client_id = "host.exp.Exponent,<bundle id>,<services id>"
+# The secret (a JWT made from the .p8 key) is only for the web and Android browser flow.
 [auth.external.apple]
-enabled = false
-client_id = ""
+enabled = true
+client_id = "host.exp.Exponent"
 # DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead:
 secret = "env(SUPABASE_AUTH_EXTERNAL_APPLE_SECRET)"
 # Overrides the default auth callback URL derived from auth.external_url.
@@ -345,6 +367,18 @@ url = ""
 skip_nonce_check = false
 # If enabled, it will allow the user to successfully authenticate when the provider does not return an email address.
 email_optional = false
+
+# Sign in with Google, the browser flow (the app shows "Coming soon" while it's off). To try it
+# locally, create a Google Cloud web client (docs/HOSTED_SETUP.md) with the redirect URI
+# http://127.0.0.1:54321/auth/v1/callback, put SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID and
+# SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET in .env.local (the CLI reads it), set enabled = true and
+# restart with `supabase stop` and `supabase start`. Locally it only works in the web build on this
+# computer: a phone can't reach 127.0.0.1, and Google refuses private addresses.
+[auth.external.google]
+enabled = false
+client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
+skip_nonce_check = false
 
 # Allow Solana wallet holders to sign in to your project via the Sign in with Solana (SIWS, EIP-4361) standard.
 # You can configure "web3" rate limit in the [auth.rate_limit] section and set up [auth.captcha] if self-hosting.

@@ -189,7 +189,7 @@
     "textSize": "Text size",
     "account": {
       "signInTitle": "Save vendors and ask about prices",
-      "signInBody": "Make a free account with just your email. You can keep browsing without one.",
+      "signInBody": "Make a free account with Apple, Google, your phone or your email. You can keep browsing without one.",
       "signIn": "Sign in",
       "finishTitle": "Finish setting up your account",
       "finishBody": "Add your name, city and phone so vendors can reach you.",
@@ -308,8 +308,32 @@
       "codeWrong": "That code didn't work. It may be old or mistyped. Check the email, or send a new code.",
       "tooMany": "Please wait a minute, then ask for a new code.",
       "network": "We couldn't reach the internet. Check your connection and try again.",
-      "generic": "Something went wrong. Please try again."
-    }
+      "generic": "Something went wrong. Please try again.",
+      "codeWrongPhone": "That code didn't work. It may be old or mistyped. Check the text message, or send a new code.",
+      "smsFailed": "We couldn't send a text to that number. Check it, or sign in with email instead.",
+      "phoneOff": "Signing in by text isn't ready yet. Please use email for now.",
+      "emailOff": "Signing in by email isn't available right now. Please try another way.",
+      "appleFailed": "We couldn't sign you in with Apple. Please try again, or use another way.",
+      "googleFailed": "We couldn't sign you in with Google. Please try again, or use another way.",
+      "appleOff": "Sign in with Apple isn't ready yet. Please use another way for now.",
+      "googleOff": "Sign in with Google isn't ready yet. Please use another way for now."
+    },
+    "why": "Save vendors, ask for prices and plan with family.",
+    "withApple": "Continue with Apple",
+    "withGoogle": "Continue with Google",
+    "withPhone": "Continue with phone",
+    "withEmail": "Continue with email",
+    "otherWays": "Other ways to sign in",
+    "phoneTitle": "Sign in with your phone",
+    "phoneSubtitle": "We'll text you a 6-digit code. No password needed.",
+    "phone": "Your mobile number",
+    "phoneHint": "For a number outside the US or Canada, start with + and the country code.",
+    "textCode": "Text me a code",
+    "checkPhone": "Check your messages",
+    "codeTextedTo": "We texted a 6-digit code to {{phone}}.",
+    "newCodeTexted": "We sent a new code. Check your messages.",
+    "textDelay": "Texts can take a minute to arrive.",
+    "changePhone": "Use a different number"
   },
   "saveVendor": {
     "title": "Save to which event?",
@@ -485,7 +509,16 @@
     "codeSent": "To make sure it's you, we sent a 6-digit code to {{email}}. Type it to delete your account.",
     "confirm": "Delete my account now",
     "keep": "Keep my account",
-    "failed": "We couldn't delete your account. Check your internet and try again."
+    "failed": "We couldn't delete your account. Check your internet and try again.",
+    "codeTexted": "To make sure it's you, we texted a 6-digit code to {{phone}}. Type it to delete your account.",
+    "reauthApple": "To make sure it's you, we'll ask you to sign in with Apple again.",
+    "reauthGoogle": "To make sure it's you, we'll ask you to sign in with Google again.",
+    "confirmAccount": "You're signed in again. This deletes the account for {{account}}, and it can't be undone.",
+    "confirmNow": "You're signed in again. This deletes your account, and it can't be undone.",
+    "otherAccount": "That was a different account. Sign in with the one you use in Wedded App, then try again.",
+    "tooSlow": "That took more than 10 minutes. Please show it's you again.",
+    "cantConfirm": "We can't check it's you on this device. To delete your account, open Wedded App on the iPhone you signed up on.",
+    "signInFirst": "Sign in to delete your account."
   },
   "myInquiries": {
     "title": "My inquiries",
@@ -621,7 +654,10 @@
         "one": "Done · {{count}} event",
         "other": "Done · {{count}} events"
       }
-    }
+    },
+    "cheerDone": "{{event}} is all booked!",
+    "cheerNext": "Next up: {{event}}",
+    "cheerAll": "Every event is booked. Congratulations!"
   },
   "filters": {
     "title": "Filters",
@@ -855,6 +891,60 @@
       "title": "Send a menu",
       "hint": "Tap a menu to send it as a card.",
       "none": "You have no menus yet. Text the founders to add them."
+    }
+  },
+  "welcome": {
+    "title": "Plan your family's wedding, together.",
+    "subtitle": "Halls, caterers, DJs, dhol and mehndi artists across Northern California, and one plan the whole family can share.",
+    "browse": "Just look around first",
+    "terms": "By continuing, you agree to our Terms and Privacy Policy."
+  },
+  "onboarding": {
+    "close": "Not now",
+    "skip": "Skip for now",
+    "continue": "Continue",
+    "stepOf": "{{step}} of {{total}}",
+    "preferNot": "Prefer not to say",
+    "who": {
+      "title": "Whose wedding are we planning?",
+      "subtitle": "Just 6 quick questions, and your plan is ready.",
+      "self": "My own",
+      "child": "My son's or daughter's",
+      "sibling": "My brother's or sister's",
+      "relative": "Someone else in the family",
+      "friend": "A friend's",
+      "vendorPrompt": "Run a wedding business?",
+      "vendorLink": "List it free for families"
+    },
+    "date": {
+      "title": "When is the big day?",
+      "subtitle": "We'll start your countdown. The main wedding day is enough.",
+      "notYet": "We haven't picked a date yet",
+      "notYetDetail": "You can add it any time in My Wedding."
+    },
+    "background": {
+      "title": "Where are the families from?",
+      "subtitle": "Pick all that fit: two families can have two answers. We only use this to suggest your events, and we don't save it."
+    },
+    "faith": {
+      "title": "Which traditions will the wedding follow?",
+      "subtitle": "So we suggest the right ceremonies, like a Nikah, an Anand Karaj or Pheras. Pick all that fit. We don't save this either."
+    },
+    "events": {
+      "title": "Which events are you having?",
+      "subtitle": "We've ticked the usual ones for {{traditions}}. Untick any you're skipping, or add more."
+    },
+    "place": {
+      "title": "Where will the wedding be?",
+      "subtitle": "Roughly is fine. We'll show vendors near you first.",
+      "finish": "Make my plan"
+    },
+    "ready": {
+      "title": "Congratulations! Your plan is ready.",
+      "subtitle": "Here's your wedding. Tick things off as you book them.",
+      "events": "Your events",
+      "firstUp": "First things to book",
+      "go": "Take me to my wedding"
     }
   }
 }

@@ -75,6 +75,10 @@ const light = {
   onHero: '#FFFFFF',
   onHero2: 'rgba(255, 255, 255, 0.86)', // secondary text on the card, 4.7:1 on heroTo
   heroTrack: 'rgba(255, 255, 255, 0.28)', // the empty part of its progress bar
+  // The welcome screen and first questions: a plain white page (Fezy asked for
+  // white), with grey cards on it instead of the usual grey page and white rows.
+  canvas: '#FFFFFF',
+  canvasCard: '#F2F2F7',
 };
 
 export type Palette = Record<keyof typeof light, string>;
@@ -132,6 +136,8 @@ const dark: Palette = {
   onHero: '#FFFFFF',
   onHero2: 'rgba(255, 255, 255, 0.86)',
   heroTrack: 'rgba(255, 255, 255, 0.24)',
+  canvas: '#000000',
+  canvasCard: '#1C1C1E',
 };
 
 export type Scheme = 'light' | 'dark';

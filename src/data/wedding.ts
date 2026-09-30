@@ -25,6 +25,7 @@ import {
   setWeddingDate as setLocalDate,
   toggleBooked as toggleLocalBooked,
   toggleEvent as toggleLocalEvent,
+  setTraditions as setLocalTraditions,
   toggleTradition as toggleLocalTradition,
   usePlan,
   type WeddingPlan,
@@ -343,6 +344,7 @@ export function useWeddingPlan() {
       canEdit: true,
       saveFailed: false,
       setWeddingDate: setLocalDate,
+      setTraditions: setLocalTraditions,
       toggleTradition: toggleLocalTradition,
       toggleEvent: toggleLocalEvent,
       addEvents: addLocalEvents,
@@ -358,6 +360,7 @@ export function useWeddingPlan() {
     canEdit: wedding.role !== 'viewer',
     saveFailed: edit.isError,
     setWeddingDate: (date: string | null) => change({ kind: 'date', date }),
+    setTraditions: (slugs: string[]) => change({ kind: 'traditions', slugs }),
     /** `current` is what the screen shows (see pickTradition). */
     toggleTradition: (slug: string, current: string[]) => {
       const slugs = pickTradition(wedding.traditions, current, slug);
@@ -387,7 +390,8 @@ export function useWeddingPlan() {
 export function useStartWedding() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (plan: WeddingPlan): Promise<string> => {
+    /** `planningFor` is who it's for (weddings.planning_for), from the first questions. */
+    mutationFn: async (plan: WeddingPlan & { planningFor?: string | null }): Promise<string> => {
       const { data: auth } = await supabase.auth.getSession();
       const userId = auth.session?.user.id;
       if (!userId) throw new Error('not_signed_in');
@@ -395,6 +399,7 @@ export function useStartWedding() {
       if (existing[0]) return existing[0].id;
       const { data, error } = await supabase.rpc('create_wedding', {
         p_wedding_date: plan.weddingDate ?? undefined,
+        p_planning_for: plan.planningFor ?? undefined,
         p_events: plan.events,
         p_booked: plan.booked,
       });
