@@ -525,7 +525,9 @@
     "doubleTapHint": "ਸੰਭਾਲਣ ਲਈ ਦੋ ਵਾਰ ਛੂਹੋ",
     "askLabel": "{{name}} ਨੂੰ ਕੀਮਤ ਅਤੇ ਤਾਰੀਖ਼ ਬਾਰੇ ਪੁੱਛੋ",
     "shareLabel": "{{name}} ਭੇਜੋ",
-    "andMore": "{{names}} ਅਤੇ {{count}} ਹੋਰ"
+    "andMore": "{{names}} ਅਤੇ {{count}} ਹੋਰ",
+    "ask": "ਪੁੱਛੋ",
+    "share": "ਸਾਂਝਾ ਕਰੋ"
   },
   "story": {
     "previous": "ਪਿਛਲੀ ਫ਼ੋਟੋ",
