@@ -984,12 +984,16 @@ export type Database = {
           category_slug?: string;
           event_slug?: string;
           include_travelers?: boolean;
+          language?: string;
           lat?: number;
           lng?: number;
           max_miles?: number;
+          max_price?: number;
+          min_guests?: number;
           query?: string;
           result_limit?: number;
           result_offset?: number;
+          sort?: string;
         };
         Returns: {
           city: string;

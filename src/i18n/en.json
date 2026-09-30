@@ -594,5 +594,26 @@
       "one": "{{count}} booked",
       "other": "{{count}} booked"
     }
+  },
+  "filters": {
+    "title": "Filters",
+    "button": "Filters",
+    "buttonCount": "Filters ({{count}})",
+    "any": "Any",
+    "guests": "How many guests?",
+    "guestsStep": "{{count}}+",
+    "price": "Most you'd pay to start",
+    "pricePlateHint": "The starting price per plate or person.",
+    "priceEventHint": "The starting price for the event.",
+    "upTo": "Up to {{price}}",
+    "language": "Speaks",
+    "sort": "Show first",
+    "sorts": {
+      "distance": "Nearest",
+      "price_low": "Lowest price",
+      "founding": "Founding vendors"
+    },
+    "show": "Show results",
+    "clear": "Clear filters"
   }
 }
