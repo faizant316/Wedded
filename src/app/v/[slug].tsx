@@ -459,6 +459,11 @@ export default function VendorProfileScreen() {
           )}
           <AppText color="text2">{[categoryNames.join(', '), v.city].join(' · ')}</AppText>
           {/* Quiet trust lines, shown only once 5+ families are behind each. */}
+          {stats.data?.bookedBy != null && (
+            <IconLine icon="checkmark-circle-outline" color="text2">
+              {t('vendorStats.bookedBy', { count: stats.data.bookedBy })}
+            </IconLine>
+          )}
           {stats.data?.savedBy != null && (
             <IconLine icon="heart-outline" color="text2">
               {t('vendorStats.savedBy', { count: stats.data.savedBy })}
