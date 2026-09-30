@@ -75,7 +75,7 @@ export default function GalleryScreen() {
         }}
       >
         {photos.isPending ? (
-          <StateView state="loading" />
+          <StateView state="loading" look="spinner" />
         ) : list.length === 0 ? (
           <StateView state="error" onRetry={() => void photos.refetch()} />
         ) : width === 0 ? null : (

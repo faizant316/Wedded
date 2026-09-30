@@ -196,7 +196,7 @@ export default function SearchScreen() {
   }
 
   return (
-    <NavScreen title={t('tabs.search')} back={false} keyboardDismissMode="on-drag">
+    <NavScreen title={t('tabs.search')} keyboardDismissMode="on-drag">
       <SearchField ref={inputRef} value={query} onChangeText={setQuery} />
       {body}
     </NavScreen>

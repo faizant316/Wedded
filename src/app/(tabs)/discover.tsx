@@ -5,7 +5,7 @@ import Animated from 'react-native-reanimated';
 import { FeedPost } from '@/components/feed-post';
 import { LargeTitle, NavBar, useNavScroll, useNavTop } from '@/components/nav';
 import { StateView } from '@/components/state-view';
-import { StoriesRow } from '@/components/stories-row';
+import { RealWeddingCards } from '@/components/real-wedding-cards';
 import { useBottomSpace } from '@/components/tab-bar';
 import { makeStyles, Sizes, Spacing, useColors } from '@/constants/theme';
 import { useFeed } from '@/data/feed';
@@ -13,9 +13,8 @@ import { useSavedVendors, useSaveVendor } from '@/data/saved';
 import { useLocale } from '@/i18n/locale-context';
 
 /**
- * Discover: the vendors' photos as a feed, with stories along the top, the
- * way families already browse Instagram. Tap a story for the full-screen
- * viewer; swipe a post's photos; double-tap to save; Ask straight from the
+ * Discover: the vendors' photos as a feed, with big "Real weddings" cards
+ * along the top, one per event. Tap a card for the full-screen viewer; swipe a post's photos; double-tap to save; Ask straight from the
  * post. Every post opens the vendor's profile.
  */
 export default function DiscoverScreen() {
@@ -42,7 +41,7 @@ export default function DiscoverScreen() {
   const header = (
     <View style={styles.header}>
       <LargeTitle scroll={scroll} title={t('discover.title')} eyebrow={t('discover.eyebrow')} />
-      {posts.length > 0 && <StoriesRow posts={posts} />}
+      {posts.length > 0 && <RealWeddingCards posts={posts} />}
     </View>
   );
 

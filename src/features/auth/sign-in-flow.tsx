@@ -84,7 +84,7 @@ export function SignInFlow({ mode }: { mode: SignInMode }) {
   } else if (status === 'error') {
     content = <StateView state="error" onRetry={reloadProfile} />;
   } else if (status === 'signedIn' || (step === 'code' && status === 'loading')) {
-    content = <StateView state="loading" message={t('signIn.signingIn')} />;
+    content = <StateView state="loading" look="spinner" message={t('signIn.signingIn')} />;
   } else if (step === 'email') {
     content = (
       <EmailStep

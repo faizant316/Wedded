@@ -25,7 +25,9 @@
     "forVendors": "ਕੀ ਤੁਸੀਂ ਵੈਂਡਰ ਹੋ? ਆਪਣਾ ਕਾਰੋਬਾਰ ਜੋੜੋ",
     "featured": "ਮੋਢੀ ਵੈਂਡਰ",
     "seeAll": "ਸਾਰੇ ਵੇਖੋ",
-    "watchStories": "ਅਸਲ ਵਿਆਹ ਵੇਖੋ"
+    "watchStories": "ਅਸਲ ਵਿਆਹ ਵੇਖੋ",
+    "whatDoYouNeed": "ਤੁਹਾਨੂੰ ਕੀ ਚਾਹੀਦਾ ਹੈ?",
+    "allTypes": "ਸਾਰੀਆਂ ਕਿਸਮਾਂ"
   },
   "event": {
     "needsTitle": "ਤੁਹਾਨੂੰ ਲੋੜੀਂਦੇ ਵੈਂਡਰ",
@@ -112,7 +114,8 @@
     "pageTitle": "{{name}}, {{city}} ਵਿੱਚ {{category}}",
     "openInApp": "ਐਪ ਹੈ? ਇਹ ਪੰਨਾ ਐਪ ਵਿੱਚ ਖੋਲ੍ਹੋ",
     "allPhotos": "ਸਾਰੀਆਂ ਫ਼ੋਟੋਆਂ",
-    "highlightSpoken": "{{name}}, {{event}} ਦੀਆਂ ਫ਼ੋਟੋਆਂ"
+    "highlightSpoken": "{{name}}, {{event}} ਦੀਆਂ ਫ਼ੋਟੋਆਂ",
+    "moreContact": "ਸੰਪਰਕ ਦੇ ਹੋਰ ਤਰੀਕੇ"
   },
   "gallery": {
     "close": "ਬੰਦ ਕਰੋ",
@@ -521,7 +524,8 @@
     "photoOf": "{{total}} ਵਿੱਚੋਂ ਫ਼ੋਟੋ {{number}}, {{name}}",
     "doubleTapHint": "ਸੰਭਾਲਣ ਲਈ ਦੋ ਵਾਰ ਛੂਹੋ",
     "askLabel": "{{name}} ਨੂੰ ਕੀਮਤ ਅਤੇ ਤਾਰੀਖ਼ ਬਾਰੇ ਪੁੱਛੋ",
-    "shareLabel": "{{name}} ਭੇਜੋ"
+    "shareLabel": "{{name}} ਭੇਜੋ",
+    "andMore": "{{names}} ਅਤੇ {{count}} ਹੋਰ"
   },
   "story": {
     "previous": "ਪਿਛਲੀ ਫ਼ੋਟੋ",

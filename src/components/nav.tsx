@@ -17,6 +17,7 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/app-text';
+import { Aurora } from '@/components/aurora';
 import { BackButton } from '@/components/back-button';
 import { useBottomSpace } from '@/components/tab-bar';
 import { makeStyles, Sizes, Spacing } from '@/constants/theme';
@@ -143,6 +144,7 @@ export function LargeTitle({
   style,
 }: LargeTitleProps) {
   const styles = useStyles();
+  const top = useNavTop();
   const { scrollY } = scroll;
   const stretch = useAnimatedStyle(() => ({
     transform: [
@@ -154,6 +156,8 @@ export function LargeTitle({
 
   return (
     <Animated.View onLayout={scroll.onTitleLayout} style={[styles.largeTitle, stretch, style]}>
+      {/* Reaches up under the status bar and out past the page gutter. */}
+      <Aurora style={[styles.aurora, { top: -top, height: top + AURORA_BELOW }]} />
       {eyebrow ? (
         <AppText variant="label" weight={600} color="text2">
           {eyebrow}
@@ -238,6 +242,8 @@ export function NavScreen({
 // and fading out below the bar, like iOS 26's scroll edge effect. The web
 // also blurs what's behind it.
 const FADE = 20;
+// How far the aurora glow reaches below the top of the large title.
+const AURORA_BELOW = 220;
 const backdropStyle = (scrollEdge: string) =>
   (Platform.OS === 'web'
     ? {
@@ -304,5 +310,9 @@ const useStyles = makeStyles((Colors) => ({
   largeTitle: {
     gap: 2,
     transformOrigin: 'left center',
+  },
+  aurora: {
+    left: -Sizes.pageGutter,
+    right: -Sizes.pageGutter,
   },
 }));

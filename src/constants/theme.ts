@@ -67,6 +67,14 @@ const light = {
   qrLight: '#FFFFFF',
   desk: '#E8E8ED', // around the phone frame in a computer's browser
   thumb: '#FFFFFF', // the selected half of a segmented control, and a switch's knob
+  // Aurora (2026-09-30): soft glows of the brand colours drifting behind large
+  // titles. Fills only, low opacity; text never sits on a glow alone.
+  auroraMaroon: 'rgba(138, 28, 48, 0.20)',
+  auroraMarigold: 'rgba(240, 160, 48, 0.28)',
+  auroraPink: 'rgba(180, 51, 92, 0.18)',
+  auroraFade: 'linear-gradient(to bottom, rgba(242, 242, 247, 0) 45%, rgba(242, 242, 247, 1) 100%)',
+  // The glyph disc on Home's vendor-type tiles: white icon on a maroon sheen.
+  glyphFill: 'linear-gradient(135deg, #A0233A 0%, #8A1C30 55%, #B4335C 100%)',
 };
 
 export type Palette = Record<keyof typeof light, string>;
@@ -118,6 +126,11 @@ const dark: Palette = {
   qrLight: '#FFFFFF',
   desk: '#101012',
   thumb: '#636366',
+  auroraMaroon: 'rgba(242, 113, 138, 0.20)',
+  auroraMarigold: 'rgba(242, 176, 74, 0.14)',
+  auroraPink: 'rgba(255, 107, 154, 0.14)',
+  auroraFade: 'linear-gradient(to bottom, rgba(0, 0, 0, 0) 45%, rgba(0, 0, 0, 1) 100%)',
+  glyphFill: 'linear-gradient(135deg, #C23E58 0%, #B8354E 55%, #C9457A 100%)',
 };
 
 export type Scheme = 'light' | 'dark';
@@ -193,12 +206,12 @@ export const Radius = {
 /** Minimum sizes from the design rules: nothing tappable is under 48. */
 export const Sizes = {
   tapTarget: 48,
-  button: 52,
-  input: 52, // text fields and the checkbox row
+  button: 48,
+  input: 48, // text fields and the checkbox row
   search: 48, // the capsule search field
   chip: 40, // visual height; a hit slop tops the tap target up to 48
   checkbox: 28,
-  row: 60, // a grouped list row with one line
+  row: 52, // a grouped list row with one line
   rowIcon: 30, // the glyph slot at the start of a row
   eventTile: 96, // Home event card, minimum height
   eventTilePhoto: 132, // the same card with a photo
@@ -224,22 +237,23 @@ export const BorderWidth = {
 } as const;
 
 /**
- * Type scale, mirroring iOS Dynamic Type at the default size (Large Title 34,
- * Title 1 28, Title 3 20, Body 17, Subheadline 15, Footnote 13), with a 19
- * point body for the names elders scan for. Gurmukhi letterforms hang from
+ * Type scale, a notch under iOS Dynamic Type's defaults so the app doesn't
+ * feel zoomed in (DECISIONS 2026-09-30): Large Title 30, Title 26, headings
+ * 20, body 16 (CLAUDE.md's minimum) and 17 for the names elders scan for.
+ * Dynamic Type and Settings > Text size still make it all larger. Gurmukhi letterforms hang from
  * the headline and read smaller at the same nominal size, so Punjabi text
  * renders ~8% bigger with taller line height (vowel marks stack above and
  * below and clip when line height is tight).
  */
 export const Typography = {
-  display: { size: 34, weight: 700, lineHeight: 1.2, lineHeightPa: 1.35, maxScale: 1.6 },
-  title: { size: 28, weight: 700, lineHeight: 1.2, lineHeightPa: 1.35, maxScale: 1.8 },
-  section: { size: 22, weight: 700, lineHeight: 1.25, lineHeightPa: 1.4, maxScale: 1.8 },
+  display: { size: 30, weight: 700, lineHeight: 1.2, lineHeightPa: 1.35, maxScale: 1.6 },
+  title: { size: 26, weight: 700, lineHeight: 1.2, lineHeightPa: 1.35, maxScale: 1.8 },
+  section: { size: 21, weight: 700, lineHeight: 1.25, lineHeightPa: 1.4, maxScale: 1.8 },
   heading: { size: 20, weight: 600, lineHeight: 1.25, lineHeightPa: 1.45, maxScale: 2 },
-  bodyLg: { size: 19, weight: 400, lineHeight: 1.3, lineHeightPa: 1.6, maxScale: 2 },
-  body: { size: 17, weight: 400, lineHeight: 1.33, lineHeightPa: 1.6, maxScale: 2 },
-  label: { size: 15, weight: 500, lineHeight: 1.33, lineHeightPa: 1.55, maxScale: 1.6 },
-  button: { size: 17, weight: 600, lineHeight: 1.3, lineHeightPa: 1.5, maxScale: 1.6 },
+  bodyLg: { size: 17, weight: 400, lineHeight: 1.3, lineHeightPa: 1.6, maxScale: 2 },
+  body: { size: 16, weight: 400, lineHeight: 1.33, lineHeightPa: 1.6, maxScale: 2 },
+  label: { size: 14, weight: 500, lineHeight: 1.33, lineHeightPa: 1.55, maxScale: 1.6 },
+  button: { size: 16, weight: 600, lineHeight: 1.3, lineHeightPa: 1.5, maxScale: 1.6 },
   caption: { size: 13, weight: 400, lineHeight: 1.35, lineHeightPa: 1.55, maxScale: 1.5 },
 } as const;
 
@@ -288,6 +302,13 @@ export function fontStyle(script: 'en' | 'pa', weight: FontWeight) {
   return fontFamily === 'System'
     ? { fontFamily, fontWeight: String(weight) as `${FontWeight}` }
     : { fontFamily };
+}
+
+/** A CSS gradient as a background: experimental_backgroundImage on phones, backgroundImage on the web. */
+export function gradient(value: string): ViewStyle {
+  return Platform.OS === 'web'
+    ? ({ backgroundImage: value } as ViewStyle)
+    : { experimental_backgroundImage: value };
 }
 
 /**
