@@ -1,6 +1,6 @@
 @AGENTS.md
 
-# Wedding Vendor Booking App
+# Wedded App
 
 ## Start here
 Before planning any feature, read the part of the docs it touches. They are the source of truth; this file only summarizes them.
@@ -14,6 +14,7 @@ Before planning any feature, read the part of the docs it touches. They are the 
   - §13 The November prototype: demo scope, what is in and out, and the week-by-week plan
 - `docs/PROJECT_PLAN.md`: the 8-phase checklist. Tick a box in the same PR that finishes the task.
 - `docs/DECISIONS.md`: decisions already made. Don't reopen one without asking; add new ones at the top.
+- `docs/RESEARCH_GROWTH.md`: what successful apps do (Partiful, Meesho, Zola, The Knot, Thumbtack, Airbnb, Houzz) and the features we're building from it, in priority order.
 - `docs/HOSTED_SETUP.md`: setting up the hosted Supabase project (push, auth emails, secrets, functions, Vault), in order.
 
 ## Where things stand (2026-09-29; update this in the PR that changes it)

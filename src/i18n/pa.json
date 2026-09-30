@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Wedding Vendor App"
+    "name": "Wedded App"
   },
   "tabs": {
     "home": "ਘਰ",
@@ -524,8 +524,8 @@
     "viewProfile": "{{name}} ਦੀ ਪ੍ਰੋਫ਼ਾਈਲ ਖੋਲ੍ਹੋ"
   },
   "share": {
-    "vendor": "{{name}}, {{city}} ਵਿੱਚ {{category}}। ਵੈਡਿੰਗ ਵੈਂਡਰ ਐਪ 'ਤੇ ਲੱਭਿਆ।",
-    "vendorNoCategory": "{{name}}, {{city}}। ਵੈਡਿੰਗ ਵੈਂਡਰ ਐਪ 'ਤੇ ਲੱਭਿਆ।",
+    "vendor": "{{name}}, {{city}} ਵਿੱਚ {{category}}। Wedded App 'ਤੇ ਲੱਭਿਆ।",
+    "vendorNoCategory": "{{name}}, {{city}}। Wedded App 'ਤੇ ਲੱਭਿਆ।",
     "copied": "ਕਾਪੀ ਹੋ ਗਿਆ। ਇਸਨੂੰ WhatsApp ਜਾਂ ਮੈਸੇਜ ਵਿੱਚ ਪੇਸਟ ਕਰੋ।"
   },
   "settings": {

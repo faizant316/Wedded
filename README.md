@@ -1,11 +1,11 @@
-# Wedding Vendor App
+# Wedded App
 
-> Working name. The final name is picked in Phase 5 (see [Name Ideas](docs/PROJECT_PLAN.md#ongoing-name-ideas)).
+> The name is **Wedded App** ("App" is part of the name). The App Store, domain and trademark checks are still to do (Phase 5).
 
 A cross-platform mobile app (iOS and Android) for finding and booking every wedding vendor, organized by event: roka, mehndi, jaago, anand karaj, reception, and more.
 
 - **Founders:** Kirat and Fezy (50/50)
-- **Launch market:** Northern California Punjabi weddings (510, 916, 408, 209, 530)
+- **Launch market:** Northern California (510, 916, 408, 209, 530), starting with Punjabi wedding vendors. The brand is for every culture.
 - **Approach:** Build the app and prove it works with sample vendors first. Handle the name, LLC, and other official steps once the app is running.
 
 ## Stack
@@ -102,7 +102,7 @@ Settings for the hosted project (set once with `supabase secrets set NAME=value`
 | Name | What it's for |
 | --- | --- |
 | `RESEND_API_KEY` | Sending inquiry emails through Resend |
-| `INQUIRY_FROM` | The sender, e.g. `Wedding Vendor App <inquiries@mail.yourdomain.com>` (needs the verified domain, Phase 5) |
+| `INQUIRY_FROM` | The sender, e.g. `Wedded App <inquiries@mail.yourdomain.com>` (needs the verified domain, Phase 5) |
 | `FOUNDERS_EMAIL` | Founders' emails, comma-separated: a blind copy of every inquiry, and relayed inquiries for vendors who don't use email |
 | `INQUIRY_TEST_INBOX` | While testing, every vendor email goes here instead of to the vendor |
 
@@ -132,6 +132,7 @@ select vault.create_secret('<service role key>', 'service_role_key');
 - [Project plan and checklist](docs/PROJECT_PLAN.md): every phase and task, with checkboxes
 - [Product vision](docs/PRODUCT_VISION.md): how the app looks and works, screen by screen, and the November prototype plan
 - [Decisions log](docs/DECISIONS.md): what we decided and why
+- [Growth research](docs/RESEARCH_GROWTH.md): what successful apps do and what we're building from it
 - [Putting the app online](docs/HOSTED_SETUP.md): the hosted Supabase project, emails and server code, step by step
 
 ## How we work
