@@ -53,10 +53,10 @@ select is(
   'Five traditions: Punjabi Sikh, Punjabi Hindu, Pakistani, Muslim and Arab'
 );
 
-select is(
-  (select count(*)::int from public.backgrounds),
-  6,
-  'Six backgrounds to pick from: Punjabi, Pakistani, Indian, Arab, Afghan and Bangladeshi'
+select results_eq(
+  $$ select name ->> 'en' from public.backgrounds order by sort_order $$,
+  $$ values ('Punjab'), ('Pakistan'), ('India'), ('Middle East'), ('Afghanistan'), ('Bangladesh') $$,
+  'Six places the families can be from, named as places rather than nationalities'
 );
 
 select is(
