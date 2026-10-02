@@ -34,6 +34,8 @@ const SF_SYMBOLS: Partial<Record<IconName, SFSymbol>> = {
   checkmark: 'checkmark',
   'checkmark-sharp': 'checkmark',
   'checkmark-circle': 'checkmark.circle.fill',
+  'ellipse-outline': 'circle',
+  'bulb-outline': 'lightbulb',
   'checkmark-circle-outline': 'checkmark.circle',
   location: 'location.fill',
   'location-outline': 'mappin.and.ellipse',

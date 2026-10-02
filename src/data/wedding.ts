@@ -1,7 +1,8 @@
 /**
  * Plan together (docs/RESEARCH_GROWTH.md #1, vision S15b/S15c): My Wedding
- * saved to the account and shared with family. A wedding has members (owner,
- * planner, viewer); relatives join with an invite link sent in WhatsApp, which
+ * saved to the account and shared with family. A wedding has members (the
+ * owner, editors who change the plan, suggesters who suggest vendors, like
+ * sharing in Google Drive); relatives join with an invite link sent in WhatsApp, which
  * opens in the app or on the web (/join/{token}).
  *
  * Without an account, My Wedding lives on the phone (features/planner/plan.ts).
@@ -32,7 +33,9 @@ import {
 } from '@/features/planner/plan';
 import { supabase } from '@/lib/supabase';
 
-export type WeddingRole = 'owner' | 'planner' | 'viewer';
+export type WeddingRole = 'owner' | 'editor' | 'suggester';
+/** The roles an invite link can give. */
+export type InviteRole = 'editor' | 'suggester';
 
 /** A wedding the signed-in person is a member of, shaped like the phone's plan. */
 export type AccountWedding = {
@@ -57,10 +60,10 @@ export const weddingKeys = {
   invite: (token: string) => ['wedding-invite', token] as const,
 };
 
-const ROLE_ORDER: Record<WeddingRole, number> = { owner: 0, planner: 1, viewer: 2 };
+const ROLE_ORDER: Record<WeddingRole, number> = { owner: 0, editor: 1, suggester: 2 };
 
 function isRole(value: string): value is WeddingRole {
-  return value === 'owner' || value === 'planner' || value === 'viewer';
+  return value === 'owner' || value === 'editor' || value === 'suggester';
 }
 
 type MembershipRow = {
@@ -112,7 +115,7 @@ export function toAccountWedding(row: MembershipRow): AccountWedding | null {
   };
 }
 
-/** Their own weddings first (owner, then planner, then viewer), then the earliest joined. */
+/** Their own weddings first (owner, then editor, then suggester), then the earliest joined. */
 export function sortWeddings(weddings: AccountWedding[]): AccountWedding[] {
   return [...weddings].sort(
     (a, b) => ROLE_ORDER[a.role] - ROLE_ORDER[b.role] || a.joinedAt.localeCompare(b.joinedAt),
@@ -357,7 +360,7 @@ export function useWeddingPlan() {
   return {
     plan: toPlan(wedding),
     wedding,
-    canEdit: wedding.role !== 'viewer',
+    canEdit: wedding.role !== 'suggester',
     saveFailed: edit.isError,
     setWeddingDate: (date: string | null) => change({ kind: 'date', date }),
     setTraditions: (slugs: string[]) => change({ kind: 'traditions', slugs }),
@@ -474,6 +477,36 @@ export function useRemoveMember() {
   });
 }
 
+/**
+ * The owner changes someone's access (Can edit / Can suggest), or makes them
+ * the owner (the old owner becomes an editor).
+ */
+export function useSetMemberRole() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      weddingId,
+      userId,
+      role,
+    }: {
+      weddingId: string;
+      userId: string;
+      role: WeddingRole;
+    }) => {
+      const { error } = await supabase.rpc('set_wedding_member_role', {
+        p_wedding_id: weddingId,
+        p_user_id: userId,
+        p_role: role,
+      });
+      if (error) throw error;
+    },
+    onSuccess: (_data, { weddingId }) => {
+      void queryClient.invalidateQueries({ queryKey: weddingKeys.members(weddingId) });
+      void queryClient.invalidateQueries({ queryKey: weddingKeys.all });
+    },
+  });
+}
+
 // Invites ------------------------------------------------------------------------------
 
 /**
@@ -485,7 +518,7 @@ export function inviteLink(token: string): string {
   return SITE_URL_IS_PLACEHOLDER ? Linking.createURL(`/join/${token}`) : siteLink(`/join/${token}`);
 }
 
-/** Make a join link for relatives: role planner (can help) or viewer (can look). */
+/** Make a join link for relatives: role editor (changes the plan) or suggester (suggests vendors). */
 export function useCreateInvite() {
   return useMutation({
     mutationFn: async ({
@@ -493,7 +526,7 @@ export function useCreateInvite() {
       role,
     }: {
       weddingId: string;
-      role: 'planner' | 'viewer';
+      role: InviteRole;
     }): Promise<string> => {
       const { data, error } = await supabase.rpc('create_wedding_invite', {
         p_wedding_id: weddingId,
@@ -539,7 +572,7 @@ export type InvitePreview = {
   title: string | null;
   weddingDate: string | null;
   inviterName: string | null;
-  role: 'planner' | 'viewer' | null;
+  role: InviteRole | null;
 };
 
 /** What a relative sees before joining. Works logged out. */
@@ -556,7 +589,7 @@ export function useInvitePreview(token: string) {
         title: row?.title ?? null,
         weddingDate: row?.wedding_date ?? null,
         inviterName: row?.inviter_name ?? null,
-        role: row?.role === 'planner' || row?.role === 'viewer' ? row.role : null,
+        role: row?.role === 'editor' || row?.role === 'suggester' ? row.role : null,
       };
     },
     enabled: token.length > 0,

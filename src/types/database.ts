@@ -1475,6 +1475,70 @@ export type Database = {
           },
         ];
       };
+      wedding_suggestions: {
+        Row: {
+          category_slug: string;
+          created_at: string;
+          event_slug: string;
+          id: string;
+          note: string | null;
+          resolved_at: string | null;
+          resolved_by: string | null;
+          status: string;
+          suggested_by: string | null;
+          vendor_id: string;
+          wedding_id: string;
+        };
+        Insert: {
+          category_slug: string;
+          created_at?: string;
+          event_slug: string;
+          id?: string;
+          note?: string | null;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
+          status?: string;
+          suggested_by?: string | null;
+          vendor_id: string;
+          wedding_id: string;
+        };
+        Update: {
+          category_slug?: string;
+          created_at?: string;
+          event_slug?: string;
+          id?: string;
+          note?: string | null;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
+          status?: string;
+          suggested_by?: string | null;
+          vendor_id?: string;
+          wedding_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'wedding_suggestions_category_slug_fkey';
+            columns: ['category_slug'];
+            isOneToOne: false;
+            referencedRelation: 'categories';
+            referencedColumns: ['slug'];
+          },
+          {
+            foreignKeyName: 'wedding_suggestions_vendor_id_fkey';
+            columns: ['vendor_id'];
+            isOneToOne: false;
+            referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'wedding_suggestions_wedding_id_event_slug_fkey';
+            columns: ['wedding_id', 'event_slug'];
+            isOneToOne: false;
+            referencedRelation: 'wedding_events';
+            referencedColumns: ['wedding_id', 'event_slug'];
+          },
+        ];
+      };
       weddings: {
         Row: {
           created_at: string;
@@ -1611,6 +1675,10 @@ export type Database = {
         Args: { p_user_id: string; p_wedding_id: string };
         Returns: undefined;
       };
+      resolve_suggestion: {
+        Args: { p_accept: boolean; p_suggestion_id: string };
+        Returns: undefined;
+      };
       search_vendors: {
         Args: {
           available_on?: string;
@@ -1657,6 +1725,16 @@ export type Database = {
         Returns: undefined;
       };
       start_conversation: { Args: { p_vendor_id: string }; Returns: string };
+      suggest_vendor: {
+        Args: {
+          p_category_slug: string;
+          p_event_slug: string;
+          p_note?: string;
+          p_vendor_id: string;
+          p_wedding_id: string;
+        };
+        Returns: string;
+      };
       touch_vendor_calendar: { Args: { p_vendor_id: string }; Returns: undefined };
       track_vendor_activity: { Args: { p_kind: string; p_vendor_id: string }; Returns: undefined };
       vendor_date_status: { Args: { p_day: string; p_vendor_id: string }; Returns: string };
@@ -1724,6 +1802,7 @@ export type Database = {
           vendor_id: string;
         }[];
       };
+      withdraw_suggestion: { Args: { p_suggestion_id: string }; Returns: undefined };
     };
     Enums: {
       [_ in never]: never;
