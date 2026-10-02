@@ -1657,6 +1657,7 @@ export type Database = {
         Returns: undefined;
       };
       start_conversation: { Args: { p_vendor_id: string }; Returns: string };
+      touch_vendor_calendar: { Args: { p_vendor_id: string }; Returns: undefined };
       track_vendor_activity: { Args: { p_kind: string; p_vendor_id: string }; Returns: undefined };
       vendor_date_status: { Args: { p_day: string; p_vendor_id: string }; Returns: string };
       vendor_public_stats: {
