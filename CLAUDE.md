@@ -3,6 +3,7 @@
 # Wedded App
 
 ## Start here
+
 Before planning any feature, read the part of the docs it touches. They are the source of truth; this file only summarizes them.
 
 - `docs/PRODUCT_VISION.md`: the full rundown of the app. It is about 150 KB, so read the section you need rather than the whole file:
@@ -18,7 +19,9 @@ Before planning any feature, read the part of the docs it touches. They are the 
 - `docs/HOSTED_SETUP.md`: setting up the hosted Supabase project (push, auth emails, secrets, functions, Vault), in order.
 
 ## Where things stand (2026-10-01; update this in the PR that changes it)
+
 - Done: Phase 1 tech setup (ESLint, Prettier, CI), the product vision, the app shell (Home, Search, Saved and Profile tabs, theme tokens, `AppText`, English/Punjabi toggle), a local Supabase with the typed client in `src/lib/supabase.ts`, and the reference data (#10): `cultures`, `events`, `culture_events` (each culture's order and grouping, plus `local_name` and `is_core`), `category_groups`, `categories`, `event_categories` (essential / nice to have), with RLS (read-only for everyone) and pgTAP tests. Five cultures: Punjabi Sikh (the default), Punjabi Hindu, Pakistani, Muslim and Arab; `script` is gurmukhi, shahmukhi, devanagari, arabic or latin. Each culture names its `background_slug` (`backgrounds`: Punjabi, Pakistani, Indian, Arab, Afghan, Bangladeshi) and `faith_slug` (`faiths`: Sikh, Hindu, Muslim, Christian), read with `useBackgrounds()` / `useFaiths()`; `traditionsFor(backgrounds, faiths, traditions)` in `plan-helpers.ts` turns a family's answers into traditions. The answers themselves are never stored.
+- Logo and opening (2026-10-01): the ribbon knot (`assets/images/ribbon.png` and `ribbon-white.png`, cut from the drafts in Downloads/wedded-app-logos-v3) is the app icon and `AppIntro` (`src/components/app-intro.tsx`, over the root layout): loose ribbons fly in, twirl and tie in about a second, once per launch, then the logo zooms away; Reduce Motion just fades it, and the web skips it. The ribbons are still SVG frames (`react-native-svg`) that are only moved and swapped, because redrawing a path every frame stalls while the first screen mounts. The native splash is plain white / black.
 - Look (2026-09-29): iOS 26 system design, tokens in `src/constants/theme.ts` (grouped grey `bg`, white `surface`, maroon `primary` as the one tint, `Springs` for Reanimated; DECISIONS.md has the rules). Pages with a title use `NavScreen` from `src/components/nav.tsx` (large title that collapses into the glass nav bar; for lists use `useNavScroll()`, `LargeTitle` and `NavBar` directly); grouped rows are `ListSection` / `ListRow` / `SectionTitle` in `src/components/list.tsx`; sheets start with `SheetHeader`. `Glass` is Liquid Glass on iOS 26 (a blurred layer on the web, milky elsewhere), for floating chrome only; `GlassButton` is the round glass icon button. `Icon` takes an Ionicons name and draws the SF Symbol on iPhone (add new ones to its map). The tab bar is `GlassTabBar` in `src/components/tab-bar.tsx`; scroll views inside the tabs pad their bottom with `useBottomSpace()`. `PressableScale` is the spring press for cards. Haptics are in `src/lib/haptics.ts` (off when Settings says so). On a computer's browser `WebFrame` shows the app inside an iPhone-sized frame.
 - Dark mode and settings (2026-09-30): light and dark palettes share keys in `constants/theme.ts`; never import colours directly: `const Colors = useColors()` in components and `const useStyles = makeStyles((Colors) => ({...}))` for sheets (the text on filled buttons uses `primaryFill`/`errorFill`). `SettingsProvider` (`src/features/settings/settings.tsx`, in the root layout) holds appearance, text size and haptics, saved on the phone, and provides the scheme and text scale; `AppText` and `useFontScale()` apply the text size. Settings screen: `src/app/settings.tsx` (the gear on Profile). `Switch` and `Segmented` are the iOS controls.
 - Discover (2026-09-30): the `discover` tab is an Instagram-style feed (`FeedPost`: header, photo carousel, double-tap to save, Ask bar, Save/Ask/Share, caption) from `useFeed()` in `src/data/feed.ts` (one post per vendor with photos). Stories: `StoriesRow`/`StoryRing` (also on Home) open `/story?vendor={slug}&photo={id}` (full screen: progress bars, tap zones, hold to pause, swipe down, next vendor after the last photo; watched rings turn grey via `features/discover/seen-stories.ts`). Vendor profiles have story highlights by event and a Share button (`shareVendor()` in `features/vendors/share.ts`). Home also has stories and a founding-vendors shelf (`VendorShelf`). Profile is Instagram-shaped: avatar, Saved/Asked/Booked counts, two buttons, the countdown (`<WeddingCard compact />`) and a grid of saved vendors.
@@ -62,31 +65,37 @@ Before planning any feature, read the part of the docs it touches. They are the 
 - Chat and vendor accounts (2026-09-30, DECISIONS.md): `vendor_members` (owner / staff; founders add them with `npm run vendors:invite -- --vendor=<slug> --email=<email> [--role=staff] [--remove] [--list]`, which creates the account if needed; vendors sign in with the same email code). `conversations` (one per family and vendor; family short name "Harjit K.", removed on account deletion; read and notified times per side) and `messages` (text and photo from either side, quote {amount, unit, …} and menu {menuId} from the vendor, booking from inquiries). Only the family and the vendor's members read them; writes go through `start_conversation()`, `send_message()` (checks the sender, kind and 120 an hour) and `mark_conversation_read()`; `my_conversations()` is the inbox with the last message and unread count for either side. Every inquiry adds a `booking` message to the family's conversation with that vendor (trigger `private.inquiry_to_conversation`). Photos go in the private `chat-media` bucket under `<conversation id>/` (only the two sides). Realtime is on `messages` and `conversations`. App: `src/data/chat.ts` (`useIsVendor`, `useConversations` (live), `useUnreadCount`, `useStartConversation`, `useConversation(id)` (live, marks read), `useSendMessage` (optimistic), `uploadChatPhoto`, `useChatPhotoUrl`, `sendErrorKind`); shapes `Conversation` and `Message` match Tab B's chat components. Timestamps use clock_timestamp so read markers order correctly. Unread emails: `claim_chat_notifications(quiet_minutes)` (service role only) finds conversations with messages unread for 3 minutes and not yet emailed, stamps them and returns the recipients (a vendor's account emails, or its listing email when it has no account yet; the family's sign-in email); the `notify-chat` Edge Function sends one email per side ("Harjit K. sent you a message…", "Open Wedded App to reply", or for a vendor without an account "Claim your free listing" with the founders on bcc and reply-to), and pg_cron calls it every 2 minutes through Vault like send-queued-inquiries. Links use the `SITE_URL` secret once there's a domain.
 - Unit tests: Jest with `jest-expo` (`npm test`, `npm run test:watch`). Tests sit next to the code they test as `*.test.ts` (never in `src/app`, where every file is a route), in `src/` or `scripts/`. Mock `@/lib/supabase` with `jest.mock` (factory variables must start with `mock`). CI runs them in the lint job.
 - Queued inquiries: `public.inquiry_emails_left_today()` is the one daily-cap count (by the California day each email was sent); `create_inquiry` queues when it's 0. pg_cron runs `send-queued-inquiries` at 08:05 UTC through pg_net, with the URL and service role key from Vault (`project_url`, `service_role_key`; README). The inquiry email code is shared in `supabase/functions/_shared/`.
-- Next (§13 and docs/RESEARCH_GROWTH.md): the founders pick the logo (black-and-white drafts in Downloads; one symbol for the app icon, the opening animation and the brand), then the icon and a quick X-style opening animation; the founders review Tab B's design drafts (#72 simpler look, #75 Discover buttons, #79 colour options, #84 iOS 26 glass and motion); rich WhatsApp link previews (og:image) for vendor, plan and join pages. Waiting on the founders: the real hall's details and photos, a hosted Supabase project (docs/HOSTED_SETUP.md) and Resend. Later: a web page for Google Play deletion requests (needs the domain).
+- Next (§13 and docs/RESEARCH_GROWTH.md): the founders review Tab B's design drafts (#72 simpler look, #75 Discover buttons, #79 colour options, #84 iOS 26 glass and motion); rich WhatsApp link previews (og:image) for vendor, plan and join pages. Waiting on the founders: the real hall's details and photos, a hosted Supabase project (docs/HOSTED_SETUP.md) and Resend. Later: a web page for Google Play deletion requests (needs the domain).
 - Local database: `npm run db:start`, `db:status`, `db:reset`, `db:test`, `db:types`, `db:stop` (setup steps are in the README). After a schema change, run `db:types` and commit `src/types/database.ts`.
 - Both founders build with Claude Code. Run `gh pr list` before starting so two branches don't build the same thing.
 
 ## Stack
+
 - **Frontend**: React Native + Expo (SDK 57) with Expo Router
 - **Backend/DB**: Supabase (Postgres + Auth + Storage)
 - **Platforms**: iOS and Android (cross-platform first; web is secondary)
 - Until the November demo, everything must run in Expo Go: no libraries that need a development build (§13)
 
 ## User base
+
 Users include elders who may not be tech-savvy. UI must:
+
 - Use large, readable text (minimum 16sp body, 20sp+ headings)
 - Keep interactions simple — no multi-step flows without clear progress indicators
 - Avoid jargon; use plain, warm language
 
 ## Data-driven content
+
 Cultures, event types, and vendor categories must come from the database — never hardcode them in the app. This ensures the app supports any culture or event type without a code change.
 
 ## Privacy & security
+
 - Collect only the minimum personal data needed for a feature to work
 - Never commit secrets, API keys, or credentials — use `.env.local` (gitignored) for local secrets and EAS Secrets for CI/build secrets
 - `.env.example` documents the required env vars with empty values
 
 ## Git workflow
+
 Pull requests merge themselves. When the checks pass, the `Merge when checks pass` job in `.github/workflows/ci.yml` squash-merges the PR into `main`. Nobody has to approve or click merge.
 
 1. Start from a fresh `main`: `git switch main && git pull`
@@ -105,5 +114,6 @@ Pull requests merge themselves. When the checks pass, the `Merge when checks pas
 - GitHub CLI on a Mac: `brew install gh`, then `gh auth login` once
 
 ## Co-founders
+
 - Gurkirat Bagri — grrcarrotb2022@gmail.com
 - Fezy — faizant316 (GitHub: faizant316)
