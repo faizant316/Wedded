@@ -28,7 +28,7 @@ describe('toAccountWedding', () => {
   it('turns the API rows into the plan shape', () => {
     expect(
       toAccountWedding({
-        role: 'planner',
+        role: 'editor',
         joined_at: '2026-09-30T08:00:00Z',
         wedding: {
           id: 'w1',
@@ -51,7 +51,7 @@ describe('toAccountWedding', () => {
       id: 'w1',
       title: 'Jaspreet & Amrit',
       weddingDate: '2027-06-12',
-      role: 'planner',
+      role: 'editor',
       joinedAt: '2026-09-30T08:00:00Z',
       traditions: ['punjabi-sikh', 'pakistani'],
       events: ['reception', 'jaago'],
@@ -68,7 +68,7 @@ describe('toAccountWedding', () => {
 
 describe('sortWeddings', () => {
   it('puts their own wedding before ones they only view', () => {
-    const cousins = { ...wedding, id: 'w2', role: 'viewer' as const, joinedAt: '2026-01-01' };
+    const cousins = { ...wedding, id: 'w2', role: 'suggester' as const, joinedAt: '2026-01-01' };
     expect(sortWeddings([cousins, wedding]).map((w) => w.id)).toEqual(['w1', 'w2']);
   });
 });
