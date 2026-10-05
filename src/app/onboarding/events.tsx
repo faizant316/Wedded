@@ -43,9 +43,14 @@ export default function EventsStep() {
   // The first time the list is ready, tick the main events for them.
   useEffect(() => {
     if (answers.events === null && main.length > 0) {
-      setAnswers({ events: main.map((event) => event.slug) });
+      const ticked = main.map((event) => event.slug);
+      // Events they named in a search are ticked too
+      const named = answers.extraEvents.filter(
+        (slug) => !ticked.includes(slug) && events.some((event) => event.slug === slug),
+      );
+      setAnswers({ events: [...ticked, ...named] });
     }
-  }, [answers.events, main]);
+  }, [answers.events, answers.extraEvents, events, main]);
 
   const grid = (list: TraditionEvent[]) => (
     <View style={styles.grid}>

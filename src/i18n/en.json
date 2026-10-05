@@ -167,7 +167,13 @@
     "allCategories": "All categories A to Z",
     "noMatch": "Nothing matches “{{query}}”. Try another word, like dhol or hall.",
     "types": "Vendor types",
-    "vendors": "Vendors"
+    "vendors": "Vendors",
+    "plan": {
+      "title": "Plan this wedding",
+      "body": "We'll set up your plan from what you typed. You can change anything as you go.",
+      "build": "Build my plan",
+      "guests": "{{band}} guests"
+    }
   },
   "saved": {
     "empty": "Nothing saved yet. Tap the heart on any vendor to keep them here, grouped by event.",

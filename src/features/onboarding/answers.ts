@@ -6,6 +6,8 @@
  */
 import { useSyncExternalStore } from 'react';
 
+import type { GuestBand } from '@/data/inquiries';
+
 /** Who the wedding is for, as weddings.planning_for stores it. */
 export type PlanningFor = 'self' | 'child' | 'sibling' | 'relative' | 'friend';
 
@@ -20,6 +22,10 @@ export type Answers = {
   events: string[] | null;
   /** An area-code chip (area_codes.code) for where to search. */
   areaCode: string | null;
+  /** Events named in a search ("mehndi and jaago"), ticked along with the main ones. */
+  extraEvents: string[];
+  /** A guest count from a search ("for 300 people"), for every event. */
+  guestBand: GuestBand | null;
 };
 
 const EMPTY: Answers = {
@@ -30,6 +36,8 @@ const EMPTY: Answers = {
   faiths: [],
   events: null,
   areaCode: null,
+  extraEvents: [],
+  guestBand: null,
 };
 
 let answers: Answers = EMPTY;

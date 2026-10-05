@@ -33,6 +33,9 @@ export function useFinishOnboarding() {
     wedding.setTraditions(picked.map((tradition) => tradition.slug));
     if (answers.weddingDate) wedding.setWeddingDate(answers.weddingDate);
     if (events.length > 0) wedding.addEvents(events);
+    if (answers.guestBand) {
+      for (const event of events) wedding.setEventGuests(event, answers.guestBand);
+    }
 
     const area = areaCodes.data?.find((a) => a.code === answers.areaCode);
     if (area) {
