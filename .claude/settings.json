@@ -1,5 +1,19 @@
 {
   "enabledPlugins": {
     "expo@claude-plugins-official": true
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/scripts/session-briefing.sh\" 2>/dev/null || true",
+            "timeout": 20,
+            "statusMessage": "Checking what's in flight on GitHub..."
+          }
+        ]
+      }
+    ]
   }
 }

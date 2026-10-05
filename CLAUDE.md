@@ -67,7 +67,7 @@ Before planning any feature, read the part of the docs it touches. They are the 
 - Queued inquiries: `public.inquiry_emails_left_today()` is the one daily-cap count (by the California day each email was sent); `create_inquiry` queues when it's 0. pg_cron runs `send-queued-inquiries` at 08:05 UTC through pg_net, with the URL and service role key from Vault (`project_url`, `service_role_key`; README). The inquiry email code is shared in `supabase/functions/_shared/`.
 - Next (§13 and docs/RESEARCH_GROWTH.md): the founders review Tab B's design drafts (#72 simpler look, #75 Discover buttons, #79 colour options, #84 iOS 26 glass and motion); rich WhatsApp link previews (og:image) for vendor, plan and join pages. Waiting on the founders: the real hall's details and photos, a hosted Supabase project (docs/HOSTED_SETUP.md) and Resend. Later: a web page for Google Play deletion requests (needs the domain).
 - Local database: `npm run db:start`, `db:status`, `db:reset`, `db:test`, `db:types`, `db:stop` (setup steps are in the README). After a schema change, run `db:types` and commit `src/types/database.ts`.
-- Both founders build with Claude Code. Run `gh pr list` before starting so two branches don't build the same thing.
+- Both founders build with Claude Code. Every session in this repo starts with a briefing of the open PRs, open issues (ideas and plans, with who's assigned) and the latest on main (`scripts/session-briefing.sh`, a SessionStart hook in `.claude/settings.json`). Read it before starting, and if your task overlaps an open PR or issue, build on that branch or ask first. Big ideas get a GitHub issue assigned to whoever is building them.
 
 ## Stack
 
