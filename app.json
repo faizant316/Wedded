@@ -18,7 +18,9 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "blockedPermissions": ["android.permission.ACCESS_FINE_LOCATION"]
+      "blockedPermissions": [
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
     },
     "web": {
       "output": "static",
@@ -39,8 +41,14 @@
         "expo-localization",
         {
           "supportedLocales": {
-            "ios": ["en", "pa"],
-            "android": ["en", "pa"]
+            "ios": [
+              "en",
+              "pa"
+            ],
+            "android": [
+              "en",
+              "pa"
+            ]
           }
         }
       ],
@@ -55,7 +63,8 @@
           "isIosBackgroundLocationEnabled": false,
           "isAndroidBackgroundLocationEnabled": false
         }
-      ]
+      ],
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true,
