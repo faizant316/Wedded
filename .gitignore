@@ -67,3 +67,6 @@ example
 
 # The Punjabi review sheet (npm run i18n:review); regenerate it any time
 /punjabi-review.csv
+
+# AWS CDK output (cd infra && npx cdk synth)
+cdk.out/

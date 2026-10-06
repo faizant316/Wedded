@@ -5,7 +5,8 @@ module.exports = [
   ...expo,
   prettier,
   {
-    // Edge Functions are Deno code, checked with deno check and deno lint
-    ignores: ['dist/**', 'node_modules/**', '.expo/**', 'supabase/functions/**'],
+    // Edge Functions are Deno code, checked with deno check and deno lint.
+    // infra/ has its own packages and is checked by its own CI job
+    ignores: ['dist/**', 'node_modules/**', '.expo/**', 'supabase/functions/**', 'infra/**'],
   },
 ];
