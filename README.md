@@ -124,6 +124,8 @@ photos/
 
 Then run `npm run photos:upload -- photos --local` for your local database, or with `SUPABASE_URL` and `SUPABASE_SECRET_KEY` set for the hosted one. Each photo is resized to 400, 1080 and 1600 wide WebP with a blurhash, uploaded, and registered. Running it again updates photos instead of duplicating them. Keep real vendor photos out of git.
 
+**Through AWS:** add `--aws` to either command (`npm run photos:samples -- --aws`) to send the photos through the AWS pipeline in [infra/](infra/README.md) instead. Each original goes to S3, a Lambda makes the same three sizes, and CloudFront serves them. It needs `aws login --region us-east-2 --profile wedded` (or `AWS_PROFILE`). Then set `EXPO_PUBLIC_MEDIA_URL` in `.env.local` to the stack's `MediaUrl`, and the app loads every vendor photo from CloudFront. Send all of them through AWS before setting it, because a photo that's only in Supabase won't load.
+
 ### Edge Functions (server code)
 
 `supabase/functions/` holds the server code, written for Deno. `npm run db:start` serves it locally at `http://127.0.0.1:54321/functions/v1/<name>`, and emails it sends land in Mailpit. To check a function, install Deno (`brew install deno`) and run `deno check index.ts && deno lint && deno fmt --check` in its folder. CI runs the same. After adding a new function (or if a local function answers 404 or 503), restart with `npm run db:stop && npm run db:start`.
