@@ -405,3 +405,107 @@ export function useDeleteReel() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: reelKeys.all }),
   });
 }
+
+// Posting ----------------------------------------------------------------------------------------
+
+/** Longest clip and biggest file a reel can be (the bucket's limit is 50 MB). */
+export const REEL_MAX_SECONDS = 60;
+export const REEL_MAX_BYTES = 50 * 1024 * 1024;
+
+export type ClipProblem = 'tooLong' | 'tooBig' | 'notVideo';
+
+/** Why a picked clip can't be posted, or null. Duration in ms, as the picker gives it. */
+export function clipProblem(clip: {
+  durationMs: number | null;
+  fileSize: number | null;
+  mimeType: string | null;
+}): ClipProblem | null {
+  if (clip.mimeType && !clip.mimeType.startsWith('video/')) return 'notVideo';
+  if (clip.durationMs && clip.durationMs > (REEL_MAX_SECONDS + 1) * 1000) return 'tooLong';
+  if (clip.fileSize && clip.fileSize > REEL_MAX_BYTES) return 'tooBig';
+  return null;
+}
+
+export type PostError =
+  'notSignedIn' | 'consent' | 'tooMany' | 'limit' | 'vendorGone' | 'tooBig' | 'failed';
+
+/** Which message to show when posting fails (the database's error names). */
+export function postErrorKind(error: unknown): PostError {
+  const message = error instanceof Error ? error.message : String(error ?? '');
+  if (message.includes('not_signed_in')) return 'notSignedIn';
+  if (message.includes('consent_required')) return 'consent';
+  if (message.includes('too_many_tags')) return 'tooMany';
+  if (message.includes('reel_limit')) return 'limit';
+  if (message.includes('vendor_not_found')) return 'vendorGone';
+  if (/maximum allowed size|payload too large|413/i.test(message)) return 'tooBig';
+  return 'failed';
+}
+
+export type ReelDraft = {
+  /** The clip and its first-second thumbnail, as bytes. */
+  video: { bytes: ArrayBuffer; mimeType: string };
+  thumb: ArrayBuffer | null;
+  durationS: number;
+  width: number | null;
+  height: number | null;
+  caption: string;
+  eventSlug: string | null;
+  vendorIds: string[];
+  /** Post as this business (you're one of its people), or null for yourself. */
+  asVendorId: string | null;
+  consent: boolean;
+};
+
+// create_reel takes SQL null for the optional parts; the generated types
+// list every argument as required, so null goes through this.
+const sqlNull = <T>(value: T | null): T => value as T;
+
+/** Uploads the clip to your own folder, then posts it. Returns the reel's id. */
+export function usePostReel() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (draft: ReelDraft): Promise<string> => {
+      // Read at the moment of posting: it may follow a sign-in started by Post
+      const { data: auth } = await supabase.auth.getSession();
+      const me = auth.session?.user.id;
+      if (!me) throw new Error('not_signed_in');
+      const stem = `${me}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const ext = draft.video.mimeType.includes('quicktime') ? 'mov' : 'mp4';
+      const videoPath = `${stem}.${ext}`;
+      const bucket = supabase.storage.from('reels');
+      const upload = await bucket.upload(videoPath, draft.video.bytes, {
+        contentType: draft.video.mimeType,
+        upsert: false,
+      });
+      if (upload.error) throw new Error(upload.error.message);
+      let thumbPath: string | null = null;
+      if (draft.thumb) {
+        const thumb = await bucket.upload(`${stem}.jpg`, draft.thumb, {
+          contentType: 'image/jpeg',
+          upsert: false,
+        });
+        // A reel without a thumbnail still plays
+        if (!thumb.error) thumbPath = `${stem}.jpg`;
+      }
+      const { data, error } = await supabase.rpc('create_reel', {
+        p_video_path: videoPath,
+        p_thumb_path: sqlNull(thumbPath),
+        p_duration_s: Math.min(90, Math.max(0.1, Math.round(draft.durationS * 100) / 100)),
+        p_width: sqlNull(draft.width),
+        p_height: sqlNull(draft.height),
+        p_caption: sqlNull(draft.caption.trim() || null),
+        p_event_slug: sqlNull(draft.eventSlug),
+        p_vendor_ids: draft.vendorIds,
+        p_vendor_id: sqlNull(draft.asVendorId),
+        p_consent: draft.consent,
+      });
+      if (error) {
+        // Don't leave the files behind when the post itself is refused
+        await bucket.remove([videoPath, ...(thumbPath ? [thumbPath] : [])]);
+        throw new Error(error.message);
+      }
+      return data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: reelKeys.all }),
+  });
+}

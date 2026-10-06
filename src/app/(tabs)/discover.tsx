@@ -81,6 +81,20 @@ export default function ReelsScreen() {
       />
 
       <View style={[styles.top, { paddingTop: insets.top + Spacing.xs }]} pointerEvents="box-none">
+        {/* Post a reel: top right, where Instagram's Reels camera sits */}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('reels.create')}
+          onPress={() => requireSignIn(() => router.push('/post-reel'))}
+          hitSlop={8}
+          style={({ pressed }) => [
+            styles.create,
+            { top: insets.top + Spacing.xs },
+            pressed && styles.pressed,
+          ]}
+        >
+          <Icon name="camera-outline" size={28} color={REEL_INK} style={styles.iconShadow} />
+        </Pressable>
         <View style={styles.tabs} accessibilityRole="tablist">
           {(['following', 'for_you'] as const).map((m) => (
             <Pressable
@@ -155,6 +169,19 @@ const styles = StyleSheet.create({
   tabs: {
     flexDirection: 'row',
     gap: Spacing.xl,
+  },
+  create: {
+    position: 'absolute',
+    right: Spacing.md,
+    width: 48,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconShadow: {
+    textShadowColor: 'rgba(0,0,0,0.45)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   tab: {
     minHeight: 44,

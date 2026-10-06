@@ -75,6 +75,8 @@ const SF_SYMBOLS: Partial<Record<IconName, SFSymbol>> = {
   'print-outline': 'printer',
   'phone-portrait-outline': 'iphone',
   'add-circle-outline': 'plus.circle',
+  'add-circle': 'plus.circle.fill',
+  'arrow-up-circle': 'arrow.up.circle.fill',
   'globe-outline': 'globe',
   'share-outline': 'square.and.arrow.up',
   'compass-outline': 'safari',
@@ -110,6 +112,7 @@ const SF_SYMBOLS: Partial<Record<IconName, SFSymbol>> = {
   'chevron-up': 'chevron.up',
   add: 'plus',
   'images-outline': 'photo.on.rectangle',
+  'videocam-outline': 'video',
   flame: 'flame',
   wifi: 'wifi',
   cellular: 'cellularbars',
@@ -139,11 +142,26 @@ export type IconProps = {
 /** An icon that is an SF Symbol on iPhone and an Ionicon everywhere else. */
 export function Icon({ name, size, color, weight = 'regular', style }: IconProps) {
   const symbol = Platform.OS === 'ios' ? SF_SYMBOLS[name] : undefined;
-  const ionicon = <Ionicons name={name} size={size} color={color} style={style} />;
+  // Icons sit next to words that say the same thing, so screen readers skip
+  // them (VoiceOver would otherwise read the symbol's name, "photo.on.rectangle")
+  const ionicon = (
+    <Ionicons
+      name={name}
+      size={size}
+      color={color}
+      style={style}
+      accessible={false}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    />
+  );
   if (!symbol) return ionicon;
 
   return (
     <SymbolView
+      accessible={false}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
       name={symbol}
       size={size}
       tintColor={color}

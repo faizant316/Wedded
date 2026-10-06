@@ -1,4 +1,4 @@
-import { compactCount, toReel } from './reels';
+import { clipProblem, compactCount, postErrorKind, REEL_MAX_BYTES, toReel } from './reels';
 
 jest.mock('@/lib/supabase', () => ({
   supabase: {
@@ -73,5 +73,29 @@ describe('reels', () => {
     expect(compactCount(2450)).toBe('2.5K');
     expect(compactCount(12_400)).toBe('12K');
     expect(compactCount(1_200_000)).toBe('1.2M');
+  });
+
+  it('turns away clips that are too long, too big or not videos', () => {
+    const ok = { durationMs: 30_000, fileSize: 20_000_000, mimeType: 'video/mp4' };
+    expect(clipProblem(ok)).toBeNull();
+    // The trimmer can land a few frames over the minute
+    expect(clipProblem({ ...ok, durationMs: 60_400 })).toBeNull();
+    expect(clipProblem({ ...ok, durationMs: 75_000 })).toBe('tooLong');
+    expect(clipProblem({ ...ok, fileSize: REEL_MAX_BYTES + 1 })).toBe('tooBig');
+    expect(clipProblem({ ...ok, mimeType: 'image/jpeg' })).toBe('notVideo');
+    expect(
+      clipProblem({ durationMs: null, fileSize: null, mimeType: 'video/quicktime' }),
+    ).toBeNull();
+  });
+
+  it('explains a refused post in words', () => {
+    expect(postErrorKind(new Error('consent_required'))).toBe('consent');
+    expect(postErrorKind(new Error('reel_limit'))).toBe('limit');
+    expect(postErrorKind(new Error('too_many_tags'))).toBe('tooMany');
+    expect(postErrorKind(new Error('vendor_not_found'))).toBe('vendorGone');
+    expect(postErrorKind(new Error('The object exceeded the maximum allowed size'))).toBe('tooBig');
+    expect(postErrorKind(new Error('not_signed_in'))).toBe('notSignedIn');
+    expect(postErrorKind(new Error('Network request failed'))).toBe('failed');
+    expect(postErrorKind(undefined)).toBe('failed');
   });
 });
