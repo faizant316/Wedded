@@ -3,12 +3,22 @@ import { useRouter } from 'expo-router';
 import { useEventListener } from 'expo';
 import { type VideoPlayer, useVideoPlayer, VideoView } from 'expo-video';
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import {
+  type GestureResponderEvent,
+  Platform,
+  Pressable,
+  StyleSheet,
+  View,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import Animated, {
+  type AnimatedStyle,
+  Easing,
+  Keyframe,
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
-  withDelay,
   withSequence,
   withSpring,
   withTiming,
@@ -26,11 +36,32 @@ import { saveHaptic } from '@/lib/haptics';
 // them are always white with a soft shadow, like TikTok's and Instagram's.
 export const REEL_INK = '#FFFFFF';
 export const REEL_DIM = 'rgba(255,255,255,0.78)';
-const SHADE = 'rgba(0,0,0,0.38)';
 const PILL = 'rgba(255,255,255,0.18)';
 const LIKED = '#FF3B5C';
 
-const DOUBLE_TAP_MS = 280;
+const DOUBLE_TAP_MS = 300;
+// After a double tap, every quick tap adds another heart (TikTok's combo)
+const COMBO_MS = 700;
+const HEART_MS = 900;
+const HEART_SIZE = 96;
+
+// Soft shades behind the words, so they read over any video
+const gradient = (css: string) =>
+  (Platform.OS === 'web'
+    ? { backgroundImage: css }
+    : { experimental_backgroundImage: css }) as ViewStyle;
+const bottomShade = gradient('linear-gradient(to top, rgba(0,0,0,0.62), rgba(0,0,0,0))');
+const topShade = gradient('linear-gradient(to bottom, rgba(0,0,0,0.35), rgba(0,0,0,0))');
+
+// A heart where you tapped: pops, then floats up and fades
+const heartPop = new Keyframe({
+  0: { opacity: 0, transform: [{ translateY: 0 }, { scale: 0.3 }] },
+  20: { opacity: 1, transform: [{ translateY: 0 }, { scale: 1.15 }] },
+  40: { opacity: 1, transform: [{ translateY: 0 }, { scale: 1 }] },
+  100: { opacity: 0, transform: [{ translateY: -110 }, { scale: 1.35 }] },
+}).duration(HEART_MS);
+
+type TapHeart = { id: number; x: number; y: number; tilt: number };
 
 // The player is an object the hook owns; these change it from effects.
 function setSound(player: VideoPlayer, muted: boolean) {
@@ -54,11 +85,14 @@ export type ReelActions = {
 };
 
 /**
- * One reel, filling the screen: the clip (looping, playing only while it's
- * the one on screen), a tap to pause, a double tap to like with a heart
- * burst, the action rail on the right (poster with follow, like, comment,
- * share, more) and, at the bottom, who posted it, the caption, the event and
- * the vendors tagged in it, each opening that vendor's page.
+ * One reel, filling the screen, made to feel like TikTok and Instagram: the
+ * clip loops and plays only while it's on screen, with a thin progress line
+ * along the bottom. A tap pauses; a double tap likes, with hearts where you
+ * tapped (keep tapping for more); holding pauses and hides everything so the
+ * video shows whole. The rail on the right has the poster (with follow),
+ * like, comments, share, sound and more; at the bottom are who posted it,
+ * the caption (two lines, then "more"), the event and the vendors tagged in
+ * it, each opening that vendor's page. Wide clips show whole, not cropped.
  */
 export function ReelItem({
   reel,
@@ -85,18 +119,35 @@ export function ReelItem({
   const { t } = useLocale();
   const reduceMotion = useReducedMotion();
   const [paused, setPaused] = useState(false);
+  const [holding, setHolding] = useState(false);
   const [ready, setReady] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [captionLines, setCaptionLines] = useState(0);
+  const [hearts, setHearts] = useState<TapHeart[]>([]);
   const lastTap = useRef(0);
+  const comboUntil = useRef(0);
+  const heartId = useRef(0);
   const singleTap = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const burst = useSharedValue(0);
+  const timers = useRef(new Set<ReturnType<typeof setTimeout>>());
+  const progress = useSharedValue(0);
+  const likePop = useSharedValue(1);
+  const chrome = useSharedValue(1);
 
   const player = useVideoPlayer(reel.videoUrl, (p) => {
     p.loop = true;
     p.muted = true;
+    p.timeUpdateEventInterval = 0.25;
   });
   useEventListener(player, 'statusChange', ({ status }) => {
     if (status === 'readyToPlay') setReady(true);
+  });
+  // The progress line: glides between updates, jumps back when it loops
+  useEventListener(player, 'timeUpdate', ({ currentTime }) => {
+    const length = player.duration || reel.durationS;
+    if (!length) return;
+    const next = Math.min(1, currentTime / length);
+    if (next < progress.get()) progress.set(next);
+    else progress.set(withTiming(next, { duration: 250, easing: Easing.linear }));
   });
 
   // Scrolled away: start fresh, unpaused, next time it's on screen
@@ -107,45 +158,75 @@ export function ReelItem({
   }
 
   useEffect(() => setSound(player, muted), [player, muted]);
-  useEffect(() => playOrPause(player, active && !paused, !active), [active, paused, player]);
-
   useEffect(
-    () => () => {
-      if (singleTap.current) clearTimeout(singleTap.current);
-    },
-    [],
+    () => playOrPause(player, active && !paused && !holding, !active),
+    [active, paused, holding, player],
   );
 
-  const burstStyle = useAnimatedStyle(() => ({
-    opacity: burst.value,
-    transform: [{ scale: 0.4 + burst.value * 0.8 }],
-  }));
-
-  // One tap pauses; two quick taps like (never unlike), with a heart burst
-  const onVideoPress = () => {
-    const now = Date.now();
-    if (now - lastTap.current < DOUBLE_TAP_MS) {
-      lastTap.current = 0;
+  useEffect(() => {
+    const pending = timers.current;
+    return () => {
       if (singleTap.current) clearTimeout(singleTap.current);
-      if (!reduceMotion) {
-        burst.set(
-          withSequence(
-            withSpring(1, Springs.pop),
-            withDelay(350, withTiming(0, { duration: 220 })),
-          ),
-        );
-      }
-      if (!reel.liked) {
-        saveHaptic();
-        actions.onLike(reel, true);
-      }
+      for (const timer of pending) clearTimeout(timer);
+    };
+  }, []);
+
+  const progressStyle = useAnimatedStyle(() => ({ width: `${progress.value * 100}%` }));
+  const likeStyle = useAnimatedStyle<ViewStyle>(() => ({ transform: [{ scale: likePop.value }] }));
+  const chromeStyle = useAnimatedStyle(() => ({ opacity: chrome.value }));
+
+  const popLike = () => {
+    if (reduceMotion) return;
+    likePop.set(withSequence(withSpring(1.3, Springs.pop), withSpring(1, Springs.snappy)));
+  };
+
+  const like = () => {
+    if (reel.liked) return;
+    saveHaptic();
+    popLike();
+    actions.onLike(reel, true);
+  };
+
+  const addHeart = (event: GestureResponderEvent) => {
+    if (reduceMotion) return;
+    const id = ++heartId.current;
+    const { locationX, locationY } = event.nativeEvent;
+    setHearts((all) => [
+      ...all,
+      { id, x: locationX, y: locationY, tilt: Math.round(Math.random() * 40 - 20) },
+    ]);
+    const timer = setTimeout(() => {
+      timers.current.delete(timer);
+      setHearts((all) => all.filter((h) => h.id !== id));
+    }, HEART_MS + 50);
+    timers.current.add(timer);
+  };
+
+  // One tap pauses; two quick taps like (never unlike) with a heart where you
+  // tapped, and each quick tap after that adds another heart
+  const onVideoPress = (event: GestureResponderEvent) => {
+    const now = Date.now();
+    if (now < comboUntil.current || now - lastTap.current < DOUBLE_TAP_MS) {
+      lastTap.current = 0;
+      comboUntil.current = now + COMBO_MS;
+      if (singleTap.current) clearTimeout(singleTap.current);
+      addHeart(event);
+      like();
       return;
     }
     lastTap.current = now;
     singleTap.current = setTimeout(() => setPaused((p) => !p), DOUBLE_TAP_MS);
   };
 
+  // Holding pauses and clears the screen, as on Instagram; letting go plays on
+  const hold = (on: boolean) => {
+    setHolding(on);
+    chrome.set(withTiming(on ? 0 : 1, { duration: 180 }));
+  };
+
   const poster = reel.vendor?.name ?? reel.authorName ?? t('reels.someone');
+  // Wide clips show whole with bars, as TikTok does; upright ones fill the screen
+  const fit = reel.width && reel.height && reel.width > reel.height ? 'contain' : 'cover';
   const openPoster = () =>
     reel.vendor
       ? router.push({ pathname: '/v/[slug]', params: { slug: reel.vendor.slug } })
@@ -155,40 +236,65 @@ export function ReelItem({
     <View style={[styles.page, { height }]}>
       <Pressable
         onPress={onVideoPress}
+        onLongPress={() => hold(true)}
+        onPressOut={() => {
+          if (holding) hold(false);
+        }}
+        delayLongPress={300}
         accessibilityRole="button"
         accessibilityLabel={paused ? t('reels.play') : t('reels.pause')}
+        accessibilityHint={t('reels.doubleTapHint')}
         style={StyleSheet.absoluteFill}
       >
         <VideoView
           player={player}
           style={StyleSheet.absoluteFill}
-          contentFit="cover"
+          contentFit={fit}
           nativeControls={false}
           allowsPictureInPicture={false}
           surfaceType="textureView"
         />
         {/* The thumbnail until the first frame is ready */}
         {!ready && reel.thumbUrl && (
-          <Image
-            source={{ uri: reel.thumbUrl }}
-            contentFit="cover"
-            style={StyleSheet.absoluteFill}
-          />
+          <Image source={{ uri: reel.thumbUrl }} contentFit={fit} style={StyleSheet.absoluteFill} />
         )}
-        {paused && (
+        {paused && !holding && (
           <View style={styles.center} pointerEvents="none">
-            <Icon name="play" size={64} color={REEL_DIM} />
+            <Icon name="play" size={72} color={REEL_DIM} />
           </View>
         )}
-        <Animated.View style={[styles.center, burstStyle]} pointerEvents="none">
-          <Icon name="heart" size={110} color={LIKED} />
-        </Animated.View>
+        {hearts.map((h) => (
+          <View
+            key={h.id}
+            pointerEvents="none"
+            style={[
+              styles.heart,
+              {
+                left: h.x - HEART_SIZE / 2,
+                top: h.y - HEART_SIZE / 2,
+                transform: [{ rotate: `${h.tilt}deg` }],
+              },
+            ]}
+          >
+            <Animated.View entering={heartPop}>
+              <Icon name="heart" size={HEART_SIZE} color={LIKED} />
+            </Animated.View>
+          </View>
+        ))}
       </Pressable>
 
-      {/* Shade under the words so they read over any video */}
-      <View pointerEvents="none" style={[styles.shade, { height: 260 + bottomSpace }]} />
+      <Animated.View pointerEvents="none" style={[styles.topShade, topShade, chromeStyle]} />
+      <Animated.View
+        pointerEvents="none"
+        style={[styles.shade, bottomShade, { height: 300 + bottomSpace }, chromeStyle]}
+      />
+      {/* Long captions open over a darker screen */}
+      {expanded && <View pointerEvents="none" style={styles.dim} />}
 
-      <View style={[styles.rail, { bottom: bottomSpace + Spacing.lg }]}>
+      <Animated.View
+        pointerEvents={holding ? 'none' : 'box-none'}
+        style={[styles.rail, { bottom: bottomSpace + Spacing.lg }, chromeStyle]}
+      >
         <View style={styles.posterButton}>
           <Pressable
             accessibilityRole="button"
@@ -221,9 +327,10 @@ export function ReelItem({
           color={reel.liked ? LIKED : REEL_INK}
           label={compactCount(reel.likeCount)}
           spoken={reel.liked ? t('reels.unlike') : t('reels.like')}
+          iconStyle={likeStyle}
           onPress={() => {
-            if (!reel.liked) saveHaptic();
-            actions.onLike(reel, !reel.liked);
+            if (reel.liked) actions.onLike(reel, false);
+            else like();
           }}
         />
         <RailButton
@@ -250,9 +357,12 @@ export function ReelItem({
           spoken={t('reels.more')}
           onPress={() => actions.onMore(reel)}
         />
-      </View>
+      </Animated.View>
 
-      <View style={[styles.info, { bottom: bottomSpace + Spacing.md }]}>
+      <Animated.View
+        pointerEvents={holding ? 'none' : 'box-none'}
+        style={[styles.info, { bottom: bottomSpace + Spacing.lg }, chromeStyle]}
+      >
         <Pressable accessibilityRole="link" onPress={openPoster} style={styles.posterRow}>
           <AppText variant="bodyLg" weight={700} numberOfLines={1} style={styles.ink}>
             {poster}
@@ -266,8 +376,28 @@ export function ReelItem({
           )}
         </Pressable>
         {reel.caption && (
-          <Pressable onPress={() => setExpanded((e) => !e)} accessibilityRole="button">
-            <AppText numberOfLines={expanded ? 8 : 2} style={styles.ink}>
+          <Pressable
+            onPress={() => setExpanded((e) => !e)}
+            disabled={captionLines <= 2}
+            accessibilityRole={captionLines > 2 ? 'button' : 'text'}
+            accessibilityState={captionLines > 2 ? { expanded } : undefined}
+          >
+            <AppText numberOfLines={expanded ? 12 : 2} style={styles.ink}>
+              {reel.caption}
+            </AppText>
+            {captionLines > 2 && (
+              <AppText weight={700} style={[styles.ink, styles.more]}>
+                {expanded ? t('reels.less') : t('reels.moreCaption')}
+              </AppText>
+            )}
+            {/* The whole caption, unseen, to know whether it needs "more" */}
+            <AppText
+              aria-hidden
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+              onTextLayout={(e) => setCaptionLines(e.nativeEvent.lines.length)}
+              style={[styles.ink, styles.measure]}
+            >
               {reel.caption}
             </AppText>
           </Pressable>
@@ -299,7 +429,15 @@ export function ReelItem({
             ))}
           </View>
         )}
-      </View>
+      </Animated.View>
+
+      {/* How far into the clip, along the bottom like TikTok's */}
+      <Animated.View
+        pointerEvents="none"
+        style={[styles.track, { bottom: bottomSpace }, chromeStyle]}
+      >
+        <Animated.View style={[styles.progress, progressStyle]} />
+      </Animated.View>
     </View>
   );
 }
@@ -309,12 +447,14 @@ function RailButton({
   label,
   spoken,
   color = REEL_INK,
+  iconStyle,
   onPress,
 }: {
   icon: Parameters<typeof Icon>[0]['name'];
   label: string;
   spoken: string;
   color?: string;
+  iconStyle?: StyleProp<AnimatedStyle<ViewStyle>>;
   onPress: () => void;
 }) {
   return (
@@ -325,7 +465,9 @@ function RailButton({
       hitSlop={6}
       style={({ pressed }) => [styles.railButton, pressed && styles.pressed]}
     >
-      <Icon name={icon} size={32} color={color} />
+      <Animated.View style={iconStyle}>
+        <Icon name={icon} size={32} color={color} />
+      </Animated.View>
       {label.length > 0 && (
         <AppText variant="caption" weight={700} style={styles.ink}>
           {label}
@@ -347,13 +489,48 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  heart: {
+    position: 'absolute',
+    width: HEART_SIZE,
+    height: HEART_SIZE,
+  },
   shade: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: SHADE,
-    opacity: 0.55,
+  },
+  topShade: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 160,
+  },
+  dim: {
+    position: 'absolute',
+    inset: 0,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+  },
+  more: {
+    marginTop: 2,
+  },
+  measure: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    opacity: 0,
+  },
+  track: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 2,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+  },
+  progress: {
+    height: 2,
+    backgroundColor: REEL_INK,
   },
   ink: {
     color: REEL_INK,

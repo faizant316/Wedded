@@ -1000,7 +1000,11 @@
     "followButton": "Follow",
     "youBlocked": "You blocked this person.",
     "noReelsYet": "No reels yet.",
-    "create": "Post a reel"
+    "create": "Post a reel",
+    "doubleTapHint": "Double tap to like. Hold to see the whole video.",
+    "moreCaption": "more",
+    "less": "less",
+    "swipeHint": "Swipe up for more"
   },
   "postReel": {
     "title": "New reel",

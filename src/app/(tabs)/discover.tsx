@@ -77,6 +77,7 @@ export default function ReelsScreen() {
         key={mode}
         feed={{ mode }}
         height={height}
+        swipeHint
         empty={mode === 'following' ? emptyFollowing : emptyForYou}
       />
 
