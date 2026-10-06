@@ -77,6 +77,7 @@
     "db:test": "supabase test db",
     "photos:upload": "tsx scripts/upload-vendor-photos.ts",
     "photos:samples": "tsx scripts/upload-vendor-photos.ts --samples --local",
+    "photos:to-aws": "tsx scripts/copy-photos-to-aws.ts",
     "vendors:import": "tsx scripts/import-vendors.ts",
     "vendors:invite": "tsx scripts/invite-vendor.ts",
     "i18n:review": "tsx scripts/punjabi-review.ts",
