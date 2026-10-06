@@ -64,6 +64,8 @@ example
 
 # Real vendor details for the import script (emails, owner notes: never commit them)
 /vendor-data/
+# Sample reel clips for npm run reels:samples (videos stay out of git)
+/reel-samples/
 
 # The Punjabi review sheet (npm run i18n:review); regenerate it any time
 /punjabi-review.csv

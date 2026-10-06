@@ -1,99 +1,209 @@
-import { useState } from 'react';
-import { RefreshControl, View } from 'react-native';
-import Animated from 'react-native-reanimated';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { setStatusBarStyle } from 'expo-status-bar';
+import { useCallback, useState } from 'react';
+import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { FeedPost } from '@/components/feed-post';
-import { LargeTitle, NavBar, useNavScroll, useNavTop } from '@/components/nav';
-import { StateView } from '@/components/state-view';
-import { StoriesRow } from '@/components/stories-row';
-import { useBottomSpace } from '@/components/tab-bar';
-import { makeStyles, Sizes, Spacing, useColors } from '@/constants/theme';
-import { useFeed } from '@/data/feed';
-import { useSavedVendors, useSaveVendor } from '@/data/saved';
+import { AppText } from '@/components/app-text';
+import { Icon } from '@/components/icon';
+import { Radius, Spacing, useScheme } from '@/constants/theme';
+import type { FeedMode } from '@/data/reels';
+import { useSession } from '@/features/auth/session';
+import { REEL_DIM, REEL_INK } from '@/features/reels/reel-item';
+import { ReelsPager } from '@/features/reels/reels-pager';
 import { useLocale } from '@/i18n/locale-context';
+import { selectionHaptic } from '@/lib/haptics';
 
 /**
- * Discover: the vendors' photos as a feed, with stories along the top, the
- * way families already browse Instagram. Tap a story for the full-screen
- * viewer; swipe a post's photos; double-tap to save; Ask straight from the
- * post. Every post opens the vendor's profile.
+ * Reels (the Discover tab; DECISIONS.md 2026-10-05): wedding clips from
+ * families and vendors, one per screen, swipe up for the next. Following
+ * shows the people and vendors you follow; For you shows everything. The
+ * vendors tagged in each clip are one tap away.
  */
-export default function DiscoverScreen() {
-  const Colors = useColors();
-  const styles = useStyles();
+export default function ReelsScreen() {
   const { t } = useLocale();
-  const scroll = useNavScroll();
-  const top = useNavTop();
-  const bottom = useBottomSpace();
-  const feed = useFeed();
-  const saves = useSavedVendors();
-  const { toggleSave } = useSaveVendor();
-  const [refreshing, setRefreshing] = useState(false);
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
+  const { status, requireSignIn } = useSession();
+  const [mode, setMode] = useState<FeedMode>('for_you');
+  const scheme = useScheme();
 
-  const savedIds = new Set((saves.data ?? []).map((save) => save.vendorId));
-  const posts = feed.data ?? [];
-
-  async function onRefresh() {
-    setRefreshing(true);
-    await feed.refetch();
-    setRefreshing(false);
-  }
-
-  const header = (
-    <View style={styles.header}>
-      <LargeTitle scroll={scroll} title={t('discover.title')} eyebrow={t('discover.eyebrow')} />
-      {posts.length > 0 && <StoriesRow posts={posts} />}
-    </View>
+  // White clock and battery over the videos; back to the app's on the way out
+  useFocusEffect(
+    useCallback(() => {
+      setStatusBarStyle('light');
+      return () => setStatusBarStyle(scheme === 'dark' ? 'light' : 'dark');
+    }, [scheme]),
   );
 
-  let empty = null;
-  if (feed.isPending) empty = <StateView state="loading" />;
-  else if (feed.isError) empty = <StateView state="error" onRetry={() => void feed.refetch()} />;
-  else empty = <StateView state="empty" icon="images-outline" message={t('discover.empty')} />;
+  const choose = (next: FeedMode) => {
+    if (next === mode) return;
+    selectionHaptic();
+    setMode(next);
+  };
+
+  const emptyFollowing =
+    status === 'signedIn' ? (
+      <Empty
+        icon="people-outline"
+        title={t('reels.followingEmptyTitle')}
+        body={t('reels.followingEmptyBody')}
+        action={t('reels.goForYou')}
+        onAction={() => setMode('for_you')}
+      />
+    ) : (
+      <Empty
+        icon="people-outline"
+        title={t('reels.followingSignInTitle')}
+        body={t('reels.followingSignInBody')}
+        action={t('reels.signIn')}
+        onAction={() => requireSignIn()}
+      />
+    );
+  const emptyForYou = (
+    <Empty
+      icon="film-outline"
+      title={t('reels.emptyTitle')}
+      body={t('reels.emptyBody')}
+      action={t('reels.browseVendors')}
+      onAction={() => router.push('/search')}
+    />
+  );
 
   return (
     <View style={styles.screen}>
-      <Animated.FlatList
-        data={posts}
-        keyExtractor={(post) => post.vendorId}
-        onScroll={scroll.onScroll}
-        scrollEventThrottle={16}
-        ListHeaderComponent={header}
-        ListEmptyComponent={empty}
-        renderItem={({ item }) => (
-          <FeedPost
-            post={item}
-            saved={savedIds.has(item.vendorId)}
-            onToggleSave={() => toggleSave(item.vendorId)}
-          />
-        )}
-        initialNumToRender={3}
-        windowSize={5}
-        contentContainerStyle={[styles.content, { paddingTop: top, paddingBottom: bottom }]}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={Colors.chevron}
-            colors={[Colors.primary]}
-          />
-        }
+      <ReelsPager
+        key={mode}
+        feed={{ mode }}
+        height={height}
+        empty={mode === 'following' ? emptyFollowing : emptyForYou}
       />
-      <NavBar scroll={scroll} title={t('discover.title')} back={false} />
+
+      <View style={[styles.top, { paddingTop: insets.top + Spacing.xs }]} pointerEvents="box-none">
+        <View style={styles.tabs} accessibilityRole="tablist">
+          {(['following', 'for_you'] as const).map((m) => (
+            <Pressable
+              key={m}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: mode === m }}
+              onPress={() => choose(m)}
+              hitSlop={8}
+              style={styles.tab}
+            >
+              <AppText
+                variant="bodyLg"
+                weight={mode === m ? 700 : 600}
+                style={[styles.tabText, mode !== m && styles.tabDim]}
+              >
+                {m === 'following' ? t('reels.following') : t('reels.forYou')}
+              </AppText>
+              <View style={[styles.underline, mode !== m && styles.hidden]} />
+            </Pressable>
+          ))}
+        </View>
+      </View>
     </View>
   );
 }
 
-const useStyles = makeStyles((Colors) => ({
+function Empty({
+  icon,
+  title,
+  body,
+  action,
+  onAction,
+}: {
+  icon: Parameters<typeof Icon>[0]['name'];
+  title: string;
+  body: string;
+  action: string;
+  onAction: () => void;
+}) {
+  return (
+    <View style={styles.empty}>
+      <Icon name={icon} size={48} color={REEL_INK} />
+      <AppText variant="heading" weight={700} style={[styles.tabText, styles.centerText]}>
+        {title}
+      </AppText>
+      <AppText style={[styles.dimText, styles.centerText]}>{body}</AppText>
+      <Pressable
+        accessibilityRole="button"
+        onPress={onAction}
+        style={({ pressed }) => [styles.emptyButton, pressed && styles.pressed]}
+      >
+        <AppText weight={700} style={styles.emptyButtonText}>
+          {action}
+        </AppText>
+      </Pressable>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: Colors.bg,
+    backgroundColor: '#000000',
   },
-  content: {
+  top: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+  tabs: {
+    flexDirection: 'row',
     gap: Spacing.xl,
-    paddingHorizontal: Sizes.pageGutter,
   },
-  header: {
-    gap: Spacing.lg,
+  tab: {
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
   },
-}));
+  tabText: {
+    color: REEL_INK,
+    textShadowColor: 'rgba(0,0,0,0.45)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  tabDim: {
+    color: REEL_DIM,
+  },
+  underline: {
+    width: 24,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: REEL_INK,
+  },
+  hidden: {
+    opacity: 0,
+  },
+  empty: {
+    alignItems: 'center',
+    gap: Spacing.md,
+    paddingHorizontal: Spacing.xxl,
+  },
+  centerText: {
+    textAlign: 'center',
+  },
+  dimText: {
+    color: REEL_DIM,
+  },
+  emptyButton: {
+    minHeight: 48,
+    paddingHorizontal: Spacing.xl,
+    marginTop: Spacing.sm,
+    borderRadius: Radius.chip,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: REEL_INK,
+  },
+  emptyButtonText: {
+    color: '#000000',
+  },
+  pressed: {
+    opacity: 0.6,
+  },
+});
