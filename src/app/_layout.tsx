@@ -1,3 +1,4 @@
+import { Fraunces_500Medium, Fraunces_600SemiBold } from '@expo-google-fonts/fraunces';
 import {
   Inter_400Regular,
   Inter_500Medium,
@@ -22,7 +23,7 @@ import { Platform } from 'react-native';
 
 import { AppIntro } from '@/components/app-intro';
 import { WebFrame } from '@/components/web-frame';
-import { useColors, useScheme } from '@/constants/theme';
+import { Radius, useColors, useScheme } from '@/constants/theme';
 import { queryClient } from '@/data/query-client';
 import { WeddingSync } from '@/data/wedding';
 import { SessionProvider } from '@/features/auth/session';
@@ -49,6 +50,9 @@ export default function RootLayout() {
     MuktaMahee_600SemiBold,
     MuktaMahee_700Bold,
     MuktaMahee_800ExtraBold,
+    // The display serif for the welcome and phone sign-in screens.
+    Fraunces_500Medium,
+    Fraunces_600SemiBold,
   });
 
   useEffect(() => {
@@ -105,6 +109,7 @@ function AppShell() {
           <Stack.Screen name="auth-callback" options={{ animation: 'none' }} />
           <Stack.Screen name="onboarding" options={{ animation: 'fade', gestureEnabled: false }} />
           <Stack.Screen name="sign-in" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="phone-sign-in" options={{ presentation: 'fullScreenModal' }} />
           <Stack.Screen name="save-vendor" options={{ presentation: 'modal' }} />
           <Stack.Screen name="suggest" options={{ presentation: 'modal' }} />
           <Stack.Screen name="menu" options={{ presentation: 'modal' }} />
@@ -115,6 +120,19 @@ function AppShell() {
           <Stack.Screen name="delete-account" options={{ presentation: 'modal' }} />
           <Stack.Screen name="chat-quote" options={{ presentation: 'modal' }} />
           <Stack.Screen name="chat-menu" options={{ presentation: 'modal' }} />
+          {/* Half height over the reel, which keeps playing above it */}
+          <Stack.Screen
+            name="reel-comments"
+            options={{
+              presentation: 'formSheet',
+              sheetAllowedDetents: [0.62, 1],
+              sheetGrabberVisible: true,
+              sheetCornerRadius: Radius.sheet,
+            }}
+          />
+          <Stack.Screen name="reel-report" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="reels-viewer" options={{ animation: 'fade' }} />
+          <Stack.Screen name="post-reel" options={{ presentation: 'modal' }} />
           <Stack.Screen name="my-inquiries" />
           <Stack.Screen name="settings" />
           <Stack.Screen name="plan" />

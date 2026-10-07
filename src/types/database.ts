@@ -464,6 +464,35 @@ export type Database = {
         };
         Relationships: [];
       };
+      follows: {
+        Row: {
+          created_at: string;
+          follower_id: string;
+          user_id: string | null;
+          vendor_id: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          follower_id?: string;
+          user_id?: string | null;
+          vendor_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          follower_id?: string;
+          user_id?: string | null;
+          vendor_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'follows_vendor_id_fkey';
+            columns: ['vendor_id'];
+            isOneToOne: false;
+            referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       inquiries: {
         Row: {
           channel: string;
@@ -631,6 +660,217 @@ export type Database = {
         };
         Relationships: [];
       };
+      reel_comments: {
+        Row: {
+          body: string;
+          created_at: string;
+          hidden: boolean;
+          id: string;
+          reel_id: string;
+          user_id: string;
+        };
+        Insert: {
+          body: string;
+          created_at?: string;
+          hidden?: boolean;
+          id?: string;
+          reel_id: string;
+          user_id: string;
+        };
+        Update: {
+          body?: string;
+          created_at?: string;
+          hidden?: boolean;
+          id?: string;
+          reel_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'reel_comments_reel_id_fkey';
+            columns: ['reel_id'];
+            isOneToOne: false;
+            referencedRelation: 'reels';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      reel_likes: {
+        Row: {
+          created_at: string;
+          reel_id: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          reel_id: string;
+          user_id?: string;
+        };
+        Update: {
+          created_at?: string;
+          reel_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'reel_likes_reel_id_fkey';
+            columns: ['reel_id'];
+            isOneToOne: false;
+            referencedRelation: 'reels';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      reel_reports: {
+        Row: {
+          comment_id: string | null;
+          created_at: string;
+          id: string;
+          note: string | null;
+          reason: string;
+          reel_id: string | null;
+          reported_user_id: string | null;
+          reporter_id: string | null;
+          status: string;
+        };
+        Insert: {
+          comment_id?: string | null;
+          created_at?: string;
+          id?: string;
+          note?: string | null;
+          reason: string;
+          reel_id?: string | null;
+          reported_user_id?: string | null;
+          reporter_id?: string | null;
+          status?: string;
+        };
+        Update: {
+          comment_id?: string | null;
+          created_at?: string;
+          id?: string;
+          note?: string | null;
+          reason?: string;
+          reel_id?: string | null;
+          reported_user_id?: string | null;
+          reporter_id?: string | null;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'reel_reports_comment_id_fkey';
+            columns: ['comment_id'];
+            isOneToOne: false;
+            referencedRelation: 'reel_comments';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reel_reports_reel_id_fkey';
+            columns: ['reel_id'];
+            isOneToOne: false;
+            referencedRelation: 'reels';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      reel_vendor_tags: {
+        Row: {
+          created_at: string;
+          decided_at: string | null;
+          reel_id: string;
+          status: string;
+          vendor_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          decided_at?: string | null;
+          reel_id: string;
+          status?: string;
+          vendor_id: string;
+        };
+        Update: {
+          created_at?: string;
+          decided_at?: string | null;
+          reel_id?: string;
+          status?: string;
+          vendor_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'reel_vendor_tags_reel_id_fkey';
+            columns: ['reel_id'];
+            isOneToOne: false;
+            referencedRelation: 'reels';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reel_vendor_tags_vendor_id_fkey';
+            columns: ['vendor_id'];
+            isOneToOne: false;
+            referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      reels: {
+        Row: {
+          author_id: string;
+          caption: string | null;
+          created_at: string;
+          duration_s: number;
+          event_slug: string | null;
+          height: number | null;
+          id: string;
+          status: string;
+          thumb_path: string | null;
+          vendor_id: string | null;
+          video_path: string;
+          width: number | null;
+        };
+        Insert: {
+          author_id: string;
+          caption?: string | null;
+          created_at?: string;
+          duration_s: number;
+          event_slug?: string | null;
+          height?: number | null;
+          id?: string;
+          status?: string;
+          thumb_path?: string | null;
+          vendor_id?: string | null;
+          video_path: string;
+          width?: number | null;
+        };
+        Update: {
+          author_id?: string;
+          caption?: string | null;
+          created_at?: string;
+          duration_s?: number;
+          event_slug?: string | null;
+          height?: number | null;
+          id?: string;
+          status?: string;
+          thumb_path?: string | null;
+          vendor_id?: string | null;
+          video_path?: string;
+          width?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'reels_event_slug_fkey';
+            columns: ['event_slug'];
+            isOneToOne: false;
+            referencedRelation: 'events';
+            referencedColumns: ['slug'];
+          },
+          {
+            foreignKeyName: 'reels_vendor_id_fkey';
+            columns: ['vendor_id'];
+            isOneToOne: false;
+            referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       saved_vendors: {
         Row: {
           created_at: string;
@@ -669,6 +909,24 @@ export type Database = {
             referencedColumns: ['id'];
           },
         ];
+      };
+      user_blocks: {
+        Row: {
+          blocked_id: string;
+          blocker_id: string;
+          created_at: string;
+        };
+        Insert: {
+          blocked_id: string;
+          blocker_id?: string;
+          created_at?: string;
+        };
+        Update: {
+          blocked_id?: string;
+          blocker_id?: string;
+          created_at?: string;
+        };
+        Relationships: [];
       };
       vendor_activity_daily: {
         Row: {
@@ -1599,6 +1857,7 @@ export type Database = {
     };
     Functions: {
       accept_wedding_invite: { Args: { p_token: string }; Returns: string };
+      add_reel_comment: { Args: { p_body: string; p_reel_id: string }; Returns: string };
       claim_chat_notifications: {
         Args: { p_quiet_minutes?: number };
         Returns: {
@@ -1635,6 +1894,21 @@ export type Database = {
         };
         Returns: Json;
       };
+      create_reel: {
+        Args: {
+          p_caption: string;
+          p_consent: boolean;
+          p_duration_s: number;
+          p_event_slug: string;
+          p_height: number;
+          p_thumb_path: string;
+          p_vendor_id: string;
+          p_vendor_ids: string[];
+          p_video_path: string;
+          p_width: number;
+        };
+        Returns: string;
+      };
       create_wedding: {
         Args: {
           p_booked?: Json;
@@ -1646,6 +1920,11 @@ export type Database = {
         Returns: string;
       };
       create_wedding_invite: { Args: { p_role?: string; p_wedding_id: string }; Returns: string };
+      decide_reel_tag: {
+        Args: { p_approve: boolean; p_reel_id: string; p_vendor_id: string };
+        Returns: undefined;
+      };
+      hide_reel_comment: { Args: { p_comment_id: string }; Returns: undefined };
       inquiry_emails_left_today: { Args: Record<PropertyKey, never>; Returns: number };
       mark_conversation_read: { Args: { p_conversation_id: string }; Returns: undefined };
       my_conversations: {
@@ -1667,12 +1946,85 @@ export type Database = {
           vendor_slug: string;
         }[];
       };
+      pending_reel_tags: {
+        Args: { p_vendor_id: string };
+        Returns: {
+          author_name: string;
+          caption: string;
+          created_at: string;
+          reel_id: string;
+          thumb_path: string;
+        }[];
+      };
       react_to_vendor: {
         Args: { p_reaction: string; p_vendor_id: string; p_wedding_id: string };
         Returns: undefined;
       };
+      reel_comments_list: {
+        Args: { p_reel_id: string };
+        Returns: {
+          body: string;
+          created_at: string;
+          id: string;
+          is_mine: boolean;
+          name: string;
+          user_id: string;
+        }[];
+      };
+      reel_person: {
+        Args: { p_user_id: string };
+        Returns: {
+          blocked: boolean;
+          follower_count: number;
+          following: boolean;
+          following_count: number;
+          name: string;
+          reel_count: number;
+        }[];
+      };
+      reels_feed: {
+        Args: {
+          p_before?: string;
+          p_limit?: number;
+          p_mode?: string;
+          p_user_id?: string;
+          p_vendor_id?: string;
+        };
+        Returns: {
+          author_id: string;
+          author_name: string;
+          caption: string;
+          comment_count: number;
+          created_at: string;
+          duration_s: number;
+          event_slug: string;
+          following: boolean;
+          height: number;
+          id: string;
+          is_mine: boolean;
+          like_count: number;
+          liked: boolean;
+          tags: Json;
+          thumb_path: string;
+          vendor_id: string;
+          vendor_name: string;
+          vendor_slug: string;
+          video_path: string;
+          width: number;
+        }[];
+      };
       remove_wedding_member: {
         Args: { p_user_id: string; p_wedding_id: string };
+        Returns: undefined;
+      };
+      report_reel_content: {
+        Args: {
+          p_comment_id?: string;
+          p_note?: string;
+          p_reason?: string;
+          p_reel_id?: string;
+          p_user_id?: string;
+        };
         Returns: undefined;
       };
       resolve_suggestion: {
