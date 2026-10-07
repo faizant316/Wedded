@@ -119,6 +119,17 @@ export function toReel(row: FeedRow): Reel {
   };
 }
 
+export type ReelVendor = { id: string; slug: string; name: string };
+
+/** The vendors a family can book from a reel: the one who posted it, then the ones tagged. */
+export function reelVendors(reel: Pick<Reel, 'vendor' | 'tags'>): ReelVendor[] {
+  const all = [
+    ...(reel.vendor ? [reel.vendor] : []),
+    ...reel.tags.map((tag) => ({ id: tag.vendorId, slug: tag.slug, name: tag.name })),
+  ];
+  return all.filter((v, i) => all.findIndex((other) => other.slug === v.slug) === i);
+}
+
 /** "2.4K", "12K", "1.2M": counts as people read them under a reel. */
 export function compactCount(n: number): string {
   if (n < 1000) return String(n);
