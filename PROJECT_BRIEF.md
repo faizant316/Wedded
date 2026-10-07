@@ -1,12 +1,12 @@
 # Wedded App: Project Brief
 
-A complete picture of the app for someone planning features without access to the code. Written 2026-10-06 from the `main` branch on GitHub (`faizant316/Wedded`, formerly `wedding-vendor-app`), plus the open pull requests, which are marked as such. The source of truth inside the repo is `docs/PRODUCT_VISION.md` (about 150 KB), `docs/DECISIONS.md`, `docs/PROJECT_PLAN.md` and `docs/RESEARCH_GROWTH.md`.
+A complete picture of the app for someone planning features without access to the code. Written 2026-10-06 from the `main` branch on GitHub (`wedded-app/Wedded`, formerly `faizant316/Wedded` and `wedding-vendor-app`), plus the open pull requests, which are marked as such. The source of truth inside the repo is `docs/PRODUCT_VISION.md` (about 150 KB), `docs/DECISIONS.md`, `docs/PROJECT_PLAN.md` and `docs/RESEARCH_GROWTH.md`.
 
 ---
 
 ## Tabs: who's working on what
 
-The work board is on GitHub: every task is an issue, and the board (BOARD_URL_PENDING) shows them as cards in To do, In progress and Done. The tasks come from Kirat's build plan of 2026-10-06; its research, business model details and application answers stay in Kirat's private build plan doc.
+The work board is on GitHub: every task is an issue, and the board ([github.com/orgs/wedded-app/projects/1](https://github.com/orgs/wedded-app/projects/1)) shows them as cards in To do, In progress and Done. The tasks come from Kirat's build plan of 2026-10-06; its research, business model details and application answers stay in Kirat's private build plan doc.
 
 Each founder runs two Claude Code tabs, split by the kind of work so two agents never edit the same files:
 

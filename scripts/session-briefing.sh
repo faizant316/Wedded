@@ -6,7 +6,7 @@
 
 cd "$(dirname "$0")/.." || exit 0
 
-BOARD_URL="BOARD_URL_PENDING"
+BOARD_URL="https://github.com/orgs/wedded-app/projects/1"
 
 echo "== Wedded App: work in flight (from GitHub, $(date '+%a %b %-d, %-I:%M %p')) =="
 echo "Both founders build with Claude Code. The founder names your tab (\"You're Fezy Tab 1\");"
