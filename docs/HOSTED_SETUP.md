@@ -148,5 +148,5 @@ Everything added since this guide was written (Plan together, the family shortli
 
 ## Still open
 
-- The app still runs through Expo Go and the laptop's dev server. For the demo at the hall, the phone should open the app without the laptop; decide between an EAS Update the phone opens in Expo Go and a development build before demo week (check the current Expo docs first).
+- Decided 2026-10-06: the phone opens the app as an EAS Update in Expo Go, published on every merge to `main` by `.github/workflows/demo.yml` (see CLAUDE.md, "Shared demo"). A development build is only needed once a library Expo Go doesn't include comes in.
 - A separate development project (Phase 1, "separate development and production environments") can wait until after the demo. Until then, the local database is development.
