@@ -7,7 +7,7 @@
     "search": "Search",
     "saved": "Saved",
     "profile": "Profile",
-    "discover": "Discover"
+    "discover": "Reels"
   },
   "home": {
     "headline": "Every vendor for every event of your wedding",
@@ -333,7 +333,11 @@
     "codeTextedTo": "We texted a 6-digit code to {{phone}}.",
     "newCodeTexted": "We sent a new code. Check your messages.",
     "textDelay": "Texts can take a minute to arrive.",
-    "changePhone": "Use a different number"
+    "changePhone": "Use a different number",
+    "signInWithApple": "Sign in with Apple",
+    "signInWithGoogle": "Sign in with Google",
+    "signInWithPhone": "Sign in with phone number",
+    "signInWithEmail": "Sign in with email"
   },
   "saveVendor": {
     "title": "Save to which event?",
@@ -657,7 +661,10 @@
     },
     "cheerDone": "{{event}} is all booked!",
     "cheerNext": "Next up: {{event}}",
-    "cheerAll": "Every event is booked. Congratulations!"
+    "cheerAll": "Every event is booked. Congratulations!",
+    "startCardTitle": "Plan your wedding",
+    "startCardBody": "Your countdown, your events and what to book, shared with the family.",
+    "signInToPlan": "Sign in to start"
   },
   "filters": {
     "title": "Filters",
@@ -894,20 +901,30 @@
     }
   },
   "welcome": {
-    "title": "Plan your family's wedding, together.",
-    "subtitle": "Halls, caterers, DJs, dhol and mehndi artists across Northern California, and one plan the whole family can share.",
-    "browse": "Just look around first",
-    "terms": "By continuing, you agree to our Terms and Privacy Policy."
+    "browse": "Look around",
+    "brand": "Wedded",
+    "createAccount": "Create account",
+    "signIn": "Sign in",
+    "legal": "By tapping “Create account” or “Sign in”, you agree to our {{terms}}. Learn how we use your data in our {{privacy}}.",
+    "termsLink": "Terms of Service",
+    "privacyLink": "Privacy Policy",
+    "phrases": {
+      "plan": "Plan your family's wedding, together.",
+      "events": "Every event, every vendor, one plan.",
+      "vendors": "Find vendors your family will love.",
+      "ask": "Ask for prices and dates in one tap.",
+      "countdown": "Your countdown to the big day.",
+      "rituals": "Every ritual, beautifully planned."
+    }
   },
   "onboarding": {
     "close": "Not now",
     "skip": "Skip for now",
     "continue": "Continue",
     "stepOf": "{{step}} of {{total}}",
-    "preferNot": "Prefer not to say",
     "who": {
       "title": "Whose wedding are we planning?",
-      "subtitle": "Just 6 quick questions, and your plan is ready.",
+      "subtitle": "Just 3 quick questions, and your plan is ready.",
       "self": "My own",
       "child": "My son's or daughter's",
       "sibling": "My brother's or sister's",
@@ -916,35 +933,187 @@
       "vendorPrompt": "Run a wedding business?",
       "vendorLink": "List it free for families"
     },
+    "kind": {
+      "title": "What kind of wedding is it?",
+      "subtitle": "Pick all that fit: two families can pick two.",
+      "other": "Something else",
+      "otherDetail": "You can pick your events in My Wedding."
+    },
     "date": {
       "title": "When is the big day?",
       "subtitle": "We'll start your countdown. The main wedding day is enough.",
       "notYet": "We haven't picked a date yet",
-      "notYetDetail": "You can add it any time in My Wedding."
-    },
-    "background": {
-      "title": "Where are the families from?",
-      "subtitle": "Pick all that fit: two families can have two answers. We only use this to suggest your events, and we don't save it."
-    },
-    "faith": {
-      "title": "Which traditions will the wedding follow?",
-      "subtitle": "So we suggest the right ceremonies, like a Nikah, an Anand Karaj or Pheras. Pick all that fit. We don't save this either."
-    },
-    "events": {
-      "title": "Which events are you having?",
-      "subtitle": "We've ticked the usual ones for {{traditions}}. Untick any you're skipping, or add more."
-    },
-    "place": {
-      "title": "Where will the wedding be?",
-      "subtitle": "Roughly is fine. We'll show vendors near you first.",
-      "finish": "Make my plan"
+      "notYetDetail": "You can add it any time in My Wedding.",
+      "finish": "Make my plan",
+      "failed": "We couldn't save your plan. Check your internet and try again."
     },
     "ready": {
-      "title": "Congratulations! Your plan is ready.",
-      "subtitle": "Here's your wedding. Tick things off as you book them.",
+      "title": "Your plan is ready!",
+      "subtitle": {
+        "one": "We added {{count}} event to start you off. Change it any time in My Wedding.",
+        "other": "We added {{count}} events to start you off. Change them any time in My Wedding."
+      },
       "events": "Your events",
       "firstUp": "First things to book",
-      "go": "Take me to my wedding"
+      "go": "Take me to my wedding",
+      "subtitleNoEvents": "Pick your events in My Wedding to see what to book."
     }
+  },
+  "phoneSignIn": {
+    "title": "What’s your phone number?",
+    "subtitle": "We’ll text you a code to make sure it’s you.",
+    "placeholder": "Phone number",
+    "country": "Country code: {{country}}, +{{dial}}",
+    "countryTitle": "Country code",
+    "useEmail": "Use email instead",
+    "continue": "Continue",
+    "smallPrint": "We’ll text you a 6-digit code. Message and data rates may apply.",
+    "required": "Enter your phone number to continue.",
+    "invalid": "That number doesn’t look right. Check it and try again.",
+    "codeTitle": "Enter your verification code",
+    "sentTo": "Sent to {{phone}}",
+    "changeNumber": "Change number",
+    "didntGet": "Didn’t get a code?",
+    "countries": {
+      "US": "United States",
+      "CA": "Canada",
+      "IN": "India",
+      "PK": "Pakistan",
+      "GB": "United Kingdom",
+      "AE": "United Arab Emirates",
+      "AU": "Australia"
+    }
+  },
+  "reels": {
+    "someone": "Someone",
+    "reel": "Reel",
+    "play": "Play",
+    "pause": "Pause",
+    "follow": "Follow {{name}}",
+    "like": "Like",
+    "unlike": "Unlike",
+    "comments": "Comments: {{count}}",
+    "share": "Share",
+    "soundOff": "Muted",
+    "soundOn": "Sound",
+    "turnSoundOn": "Turn sound on",
+    "turnSoundOff": "Turn sound off",
+    "more": "More",
+    "vendor": "Vendor",
+    "taggedVendor": "See {{name}}",
+    "shareMessage": "A wedding reel from {{name}} on Wedded App",
+    "delete": "Delete this reel",
+    "report": "Report",
+    "block": "Block {{name}}",
+    "unblock": "Unblock {{name}}",
+    "cancel": "Cancel",
+    "following": "Following",
+    "forYou": "For you",
+    "followingEmptyTitle": "Nobody to show yet",
+    "followingEmptyBody": "Follow vendors and families on For you, and their reels show up here.",
+    "goForYou": "Go to For you",
+    "followingSignInTitle": "See who you follow",
+    "followingSignInBody": "Sign in to follow vendors and families and see their reels here.",
+    "signIn": "Sign in",
+    "emptyTitle": "No reels yet",
+    "emptyBody": "Wedding clips from families and vendors will show up here.",
+    "browseVendors": "Browse vendors",
+    "commentLimit": "You've commented a lot this hour. Try again later.",
+    "commentFailed": "Your comment didn't post. Check your internet, then try again.",
+    "deleteComment": "Delete comment",
+    "hideComment": "Hide this comment",
+    "reportComment": "Report comment",
+    "noComments": "No comments yet. Be the first.",
+    "commentHint": "Hold for more",
+    "commentsTitle": "Comments",
+    "addComment": "Add a comment…",
+    "post": "Post",
+    "reportPerson": "Report",
+    "personGone": "This person isn't available.",
+    "reelsCount": "Reels",
+    "followers": "Followers",
+    "followingCount": "Following",
+    "followingButton": "Following",
+    "followButton": "Follow",
+    "youBlocked": "You blocked this person.",
+    "noReelsYet": "No reels yet.",
+    "create": "Post a reel",
+    "doubleTapHint": "Double tap to like. Hold to see the whole video.",
+    "moreCaption": "more",
+    "less": "less",
+    "swipeHint": "Swipe up for more"
+  },
+  "postReel": {
+    "title": "New reel",
+    "heading": "Share a moment from the wedding",
+    "fromLibrary": "Choose from my videos",
+    "record": "Record one now",
+    "privacy": "We open only the clip you pick. Nothing else on your phone is looked at or uploaded.",
+    "limits": "Up to {{seconds}} seconds. Videos filmed with the phone upright look best.",
+    "needLibrary": "To pick a clip, allow Wedded App to open your videos when your phone asks.",
+    "needCamera": "To record a clip, allow Wedded App to use the camera when your phone asks.",
+    "blockedLibrary": "Wedded App isn't allowed to open your videos. Turn on Photos for Wedded App in Settings.",
+    "blockedCamera": "Wedded App isn't allowed to use the camera. Turn on Camera and Microphone for Wedded App in Settings.",
+    "openSettings": "Open Settings",
+    "cantOpenLibrary": "Your videos didn't open. Try again.",
+    "cantOpenCamera": "The camera didn't open. Try again, or choose a video instead.",
+    "problems": {
+      "tooLong": "That clip is longer than {{seconds}} seconds. Trim it, then try again.",
+      "tooBig": "That clip is too big to send. Trim it shorter, then try again.",
+      "notVideo": "Pick a video."
+    },
+    "chosen": "Your clip",
+    "seconds": "{{seconds}} seconds",
+    "savedToPhotos": "Saved to your Photos",
+    "change": "Choose a different clip",
+    "caption": "Caption",
+    "captionPlaceholder": "What was happening?",
+    "whichEvent": "Which event was it?",
+    "moreEvents": "More events",
+    "tagTitle": "Tag your vendors",
+    "tagHint": "Tag the vendors who made the day. Their names show on your reel, and on their page once they say yes.",
+    "tagSearch": "Search vendors by name",
+    "tag": "Tag {{name}}",
+    "untag": "Remove {{name}}",
+    "noVendorFound": "No vendor by that name. Try another spelling.",
+    "postAs": "Post as",
+    "myself": "Myself",
+    "consent": "Everyone in this clip is okay with it being posted",
+    "rules": "Anyone can see reels. Don't show phone numbers or home addresses. We take down anything that breaks the rules.",
+    "preparing": "Getting your clip ready…",
+    "uploading": "Sending…",
+    "post": "Post reel",
+    "discardTitle": "Discard this reel?",
+    "discardBody": "Your clip and caption won't be posted.",
+    "keepEditing": "Keep editing",
+    "discard": "Discard",
+    "errors": {
+      "notSignedIn": "Sign in to post a reel.",
+      "consent": "Tick this box to say everyone in the clip is okay with it being posted.",
+      "tooMany": "You can tag up to 10 vendors.",
+      "limit": "You've posted a lot today. Try again tomorrow.",
+      "vendorGone": "A vendor you tagged isn't listed any more. Remove them, then try again.",
+      "tooBig": "That clip is too big to send. Trim it shorter, then try again.",
+      "failed": "Your reel didn't post. Check your internet, then try again."
+    }
+  },
+  "report": {
+    "limit": "You've sent a lot of reports today. Try again tomorrow.",
+    "failed": "Your report didn't send. Check your internet, then try again.",
+    "thanks": "Thanks for telling us",
+    "thanksBody": "We'll look at it soon and take it down if it breaks our rules.",
+    "done": "Done",
+    "title": "What's wrong?",
+    "subtitle": "We review every report. The person won't know who reported them.",
+    "reasons": {
+      "inappropriate": "Inappropriate or offensive",
+      "privacy": "Shows me or my family without permission",
+      "not_mine": "It's someone else's video",
+      "harassment": "Bullying or harassment",
+      "spam": "Spam or a scam",
+      "other": "Something else"
+    },
+    "noteLabel": "Anything else we should know? (optional)",
+    "send": "Send report"
   }
 }
