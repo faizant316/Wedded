@@ -579,6 +579,85 @@ export type Database = {
           },
         ];
       };
+      linked_account_tokens: {
+        Row: {
+          access_token: string;
+          account_id: string;
+          expires_at: string | null;
+          refresh_token: string | null;
+          scopes: string[];
+          updated_at: string;
+        };
+        Insert: {
+          access_token: string;
+          account_id: string;
+          expires_at?: string | null;
+          refresh_token?: string | null;
+          scopes?: string[];
+          updated_at?: string;
+        };
+        Update: {
+          access_token?: string;
+          account_id?: string;
+          expires_at?: string | null;
+          refresh_token?: string | null;
+          scopes?: string[];
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'linked_account_tokens_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: true;
+            referencedRelation: 'linked_accounts';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      linked_accounts: {
+        Row: {
+          external_id: string;
+          handle: string | null;
+          id: string;
+          last_synced_at: string | null;
+          linked_at: string;
+          platform: string;
+          status: string;
+          user_id: string;
+          vendor_id: string | null;
+        };
+        Insert: {
+          external_id: string;
+          handle?: string | null;
+          id?: string;
+          last_synced_at?: string | null;
+          linked_at?: string;
+          platform: string;
+          status?: string;
+          user_id: string;
+          vendor_id?: string | null;
+        };
+        Update: {
+          external_id?: string;
+          handle?: string | null;
+          id?: string;
+          last_synced_at?: string | null;
+          linked_at?: string;
+          platform?: string;
+          status?: string;
+          user_id?: string;
+          vendor_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'linked_accounts_vendor_id_fkey';
+            columns: ['vendor_id'];
+            isOneToOne: false;
+            referencedRelation: 'vendors';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       messages: {
         Row: {
           body: string | null;
@@ -816,42 +895,60 @@ export type Database = {
           author_id: string;
           caption: string | null;
           created_at: string;
-          duration_s: number;
+          credit_name: string | null;
+          duration_s: number | null;
           event_slug: string | null;
           height: number | null;
           id: string;
+          linked_account_id: string | null;
+          platform: string | null;
+          source: string;
+          source_id: string | null;
+          source_url: string | null;
           status: string;
           thumb_path: string | null;
           vendor_id: string | null;
-          video_path: string;
+          video_path: string | null;
           width: number | null;
         };
         Insert: {
           author_id: string;
           caption?: string | null;
           created_at?: string;
-          duration_s: number;
+          credit_name?: string | null;
+          duration_s?: number | null;
           event_slug?: string | null;
           height?: number | null;
           id?: string;
+          linked_account_id?: string | null;
+          platform?: string | null;
+          source?: string;
+          source_id?: string | null;
+          source_url?: string | null;
           status?: string;
           thumb_path?: string | null;
           vendor_id?: string | null;
-          video_path: string;
+          video_path?: string | null;
           width?: number | null;
         };
         Update: {
           author_id?: string;
           caption?: string | null;
           created_at?: string;
-          duration_s?: number;
+          credit_name?: string | null;
+          duration_s?: number | null;
           event_slug?: string | null;
           height?: number | null;
           id?: string;
+          linked_account_id?: string | null;
+          platform?: string | null;
+          source?: string;
+          source_id?: string | null;
+          source_url?: string | null;
           status?: string;
           thumb_path?: string | null;
           vendor_id?: string | null;
-          video_path?: string;
+          video_path?: string | null;
           width?: number | null;
         };
         Relationships: [
@@ -861,6 +958,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'events';
             referencedColumns: ['slug'];
+          },
+          {
+            foreignKeyName: 'reels_linked_account_id_fkey';
+            columns: ['linked_account_id'];
+            isOneToOne: false;
+            referencedRelation: 'linked_accounts';
+            referencedColumns: ['id'];
           },
           {
             foreignKeyName: 'reels_vendor_id_fkey';
@@ -1894,6 +1998,18 @@ export type Database = {
         };
         Returns: Json;
       };
+      create_linked_reel: {
+        Args: {
+          p_caption?: string;
+          p_consent?: boolean;
+          p_credit_name?: string;
+          p_event_slug?: string;
+          p_url: string;
+          p_vendor_id?: string;
+          p_vendor_ids?: string[];
+        };
+        Returns: string;
+      };
       create_reel: {
         Args: {
           p_caption: string;
@@ -1985,6 +2101,7 @@ export type Database = {
       reels_feed: {
         Args: {
           p_before?: string;
+          p_event_slug?: string;
           p_limit?: number;
           p_mode?: string;
           p_user_id?: string;
@@ -1996,6 +2113,7 @@ export type Database = {
           caption: string;
           comment_count: number;
           created_at: string;
+          credit_name: string;
           duration_s: number;
           event_slug: string;
           following: boolean;
@@ -2004,6 +2122,9 @@ export type Database = {
           is_mine: boolean;
           like_count: number;
           liked: boolean;
+          platform: string;
+          source: string;
+          source_url: string;
           tags: Json;
           thumb_path: string;
           vendor_id: string;
