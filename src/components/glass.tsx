@@ -2,7 +2,7 @@ import { GlassView, isGlassEffectAPIAvailable, isLiquidGlassAvailable } from 'ex
 import type { ReactNode } from 'react';
 import { Platform, View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { makeStyles, useColors, useScheme, type Palette } from '@/constants/theme';
+import { Palettes, useScheme, type Palette, type Scheme } from '@/constants/theme';
 
 // Real Liquid Glass needs iOS 26; some iOS 26 betas crash without the API
 // check. Everything else gets a stand-in drawn below.
@@ -18,6 +18,8 @@ export type GlassProps = {
   interactive?: boolean;
   /** For the one prominent action: tints the glass with the app colour. */
   tinted?: boolean;
+  /** Force light or dark glass, e.g. dark over the Reels videos. */
+  scheme?: Scheme;
 };
 
 /**
@@ -27,10 +29,10 @@ export type GlassProps = {
  * on the web a blurred, saturated translucent layer; on Android and older
  * iPhones a milky white that keeps the text on it readable.
  */
-export function Glass({ children, style, interactive, tinted }: GlassProps) {
-  const Colors = useColors();
-  const styles = useStyles();
-  const scheme = useScheme();
+export function Glass({ children, style, interactive, tinted, scheme: forced }: GlassProps) {
+  const appScheme = useScheme();
+  const scheme = forced ?? appScheme;
+  const Colors = Palettes[scheme];
   if (nativeGlass) {
     return (
       <GlassView
@@ -47,7 +49,11 @@ export function Glass({ children, style, interactive, tinted }: GlassProps) {
 
   return (
     <View
-      style={[Platform.OS === 'web' ? styles.web : styles.fallback, tinted && styles.tinted, style]}
+      style={[
+        Platform.OS === 'web' ? webStyle(Colors) : fallbackStyle(Colors),
+        tinted && { backgroundColor: Colors.primaryFill },
+        style,
+      ]}
     >
       {children}
     </View>
@@ -57,21 +63,17 @@ export function Glass({ children, style, interactive, tinted }: GlassProps) {
 const edge = (Colors: Palette) =>
   `0 0 0 0.5px rgba(0, 0, 0, 0.06), inset 0 1px 0 ${Colors.glassEdge}`;
 
-const useStyles = makeStyles((Colors) => ({
-  web: {
-    backgroundColor: Colors.glassWeb,
-    // Not in React Native's types; the web passes it through (with -webkit-).
-    ...({ backdropFilter: 'blur(24px) saturate(190%)' } as ViewStyle),
-    boxShadow: `0 8px 28px ${Colors.glassShadow}, ${edge(Colors)}`,
-  },
-  fallback: {
-    backgroundColor: Colors.glassFallback,
-    boxShadow: `0 6px 20px ${Colors.glassShadow}, ${edge(Colors)}`,
-  },
-  tinted: {
-    backgroundColor: Colors.primaryFill,
-  },
-}));
+const webStyle = (Colors: Palette): ViewStyle => ({
+  backgroundColor: Colors.glassWeb,
+  // Not in React Native's types; the web passes it through (with -webkit-).
+  ...({ backdropFilter: 'blur(24px) saturate(190%)' } as ViewStyle),
+  boxShadow: `0 8px 28px ${Colors.glassShadow}, ${edge(Colors)}`,
+});
+
+const fallbackStyle = (Colors: Palette): ViewStyle => ({
+  backgroundColor: Colors.glassFallback,
+  boxShadow: `0 6px 20px ${Colors.glassShadow}, ${edge(Colors)}`,
+});
 
 /** Whether this device draws real Liquid Glass (iOS 26 and later). */
 export const hasNativeGlass = nativeGlass;
