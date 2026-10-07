@@ -941,8 +941,8 @@
     "continue": "Continue",
     "stepOf": "{{step}} of {{total}}",
     "who": {
-      "title": "Whose wedding are we planning?",
-      "subtitle": "Just 3 quick questions, and your plan is ready.",
+      "title": "Congratulations! Whose wedding is it?",
+      "subtitle": "3 quick questions, and we'll set up your plan: your events, what to book first and a countdown to the day.",
       "self": "My own",
       "child": "My son's or daughter's",
       "sibling": "My brother's or sister's",
@@ -952,29 +952,64 @@
       "vendorLink": "List it free for families"
     },
     "kind": {
-      "title": "What kind of wedding is it?",
-      "subtitle": "Pick all that fit: two families can pick two.",
+      "title": "What kind of wedding will it be?",
+      "subtitle": "We'll line up the ceremonies, and the vendors who know them. Two families? Pick both.",
       "other": "Something else",
       "otherDetail": "You can pick your events in My Wedding."
     },
+    "roots": {
+      "title": "Where are the families from?",
+      "subtitle": "Every place celebrates a little differently, so we'll match your ceremonies.",
+      "elsewhere": "Somewhere else"
+    },
     "date": {
-      "title": "When is the big day?",
-      "subtitle": "We'll start your countdown. The main wedding day is enough.",
+      "title": "When's the big day?",
+      "subtitle": "We'll count down with you and show what to book first. The main day is enough.",
       "notYet": "We haven't picked a date yet",
       "notYetDetail": "You can add it any time in My Wedding.",
       "finish": "Make my plan",
       "failed": "We couldn't save your plan. Check your internet and try again."
     },
+    "plan": {
+      "label": "Your plan so far",
+      "untitled": "Your wedding plan",
+      "who": {
+        "self": "Your wedding",
+        "child": "Your son's or daughter's wedding",
+        "sibling": "Your brother's or sister's wedding",
+        "relative": "A wedding in the family",
+        "friend": "Your friend's wedding"
+      },
+      "eventsSoon": "Your events will show here",
+      "more": "+{{count}} more",
+      "dateSoon": "Your countdown will show here",
+      "noDate": "Date to come",
+      "date": {
+        "one": "{{date}} · {{count}} day to go",
+        "other": "{{date}} · {{count}} days to go"
+      },
+      "today": "{{date}} · today!"
+    },
     "ready": {
       "title": "Your plan is ready!",
-      "subtitle": {
-        "one": "We added {{count}} event to start you off. Change it any time in My Wedding.",
-        "other": "We added {{count}} events to start you off. Change them any time in My Wedding."
+      "subtitle": "Here's how we'll help from here.",
+      "events": {
+        "one": "{{count}} event, and what it needs",
+        "other": "{{count}} events, and what each one needs"
       },
-      "events": "Your events",
-      "firstUp": "First things to book",
-      "go": "Take me to my wedding",
-      "subtitleNoEvents": "Pick your events in My Wedding to see what to book."
+      "firstUp": "First up: {{need}} for the {{event}}",
+      "noEvents": "Pick your events",
+      "noEventsDetail": "In My Wedding. Then we'll show what each one needs.",
+      "vendorsNear": {
+        "one": "{{count}} vendor near {{city}}",
+        "other": "{{count}} vendors near {{city}}"
+      },
+      "vendorsNearMany": "{{count}}+ vendors near {{city}}",
+      "vendors": "Vendors who know your ceremonies",
+      "vendorsDetail": "Ask about prices and dates. It's free.",
+      "together": "Plan it together",
+      "togetherDetail": "Invite family from My Wedding. They can suggest vendors too.",
+      "go": "Take me to my wedding"
     }
   },
   "suggestions": {
