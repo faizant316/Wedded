@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# What the other founder is building, printed when a Claude Code session
+# What each founder's tabs are building, printed when a Claude Code session
 # starts in this repo (the SessionStart hook in .claude/settings.json), so
 # neither founder's Claude starts on something the other is already doing.
 # Read-only: it only asks GitHub and git. Never fails the session.
@@ -7,8 +7,23 @@
 cd "$(dirname "$0")/.." || exit 0
 
 echo "== Wedded App: work in flight (from GitHub, $(date '+%a %b %-d, %-I:%M %p')) =="
-echo "Both founders build with Claude Code. Before starting anything, check this list;"
-echo "if your task overlaps an open PR or issue, build on that branch or ask first."
+echo "Both founders build with Claude Code. Find your tab below and work only on it;"
+echo "if your task overlaps another tab, an open PR or an issue, ask first."
+echo
+
+git fetch -q origin main 2>/dev/null
+
+# The Tabs section of PROJECT_BRIEF.md as it is on main, so a session on an
+# older branch still sees the latest
+echo "-- Tabs: who's working on what (PROJECT_BRIEF.md on main) --"
+echo "This session is on branch: $(git branch --show-current 2>/dev/null)"
+echo
+tabs=$(git show origin/main:PROJECT_BRIEF.md 2>/dev/null | awk '/^## Tabs/ { on = 1; next } on && /^## / { exit } on')
+if [ -n "$tabs" ]; then
+  echo "$tabs"
+else
+  echo "(couldn't read the Tabs section of PROJECT_BRIEF.md on main; read it yourself)"
+fi
 echo
 
 if ! command -v gh >/dev/null 2>&1; then
@@ -31,7 +46,6 @@ gh issue list --state open --limit 15 \
 echo
 
 echo "-- Latest on main --"
-git fetch -q origin main 2>/dev/null
 git log --oneline -5 origin/main 2>/dev/null
 echo
 echo "Read an item with: gh pr view <n> / gh issue view <n>"
