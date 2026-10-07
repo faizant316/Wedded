@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText } from '@/components/app-text';
 import { Glass } from '@/components/glass';
 import { Icon, type IconName } from '@/components/icon';
-import { makeStyles, Sizes, Spacing, Springs, useColors } from '@/constants/theme';
+import { makeStyles, Palettes, Sizes, Spacing, Springs, useColors } from '@/constants/theme';
 
 export type TabBarProps = Parameters<NonNullable<ComponentProps<typeof Tabs>['tabBar']>>[0];
 
@@ -59,9 +59,12 @@ export function GlassTabBar({
   navigation,
   tabs,
 }: TabBarProps & { tabs: TabSpec[] }) {
-  const Colors = useColors();
+  const appColors = useColors();
   const styles = useStyles();
   const bottom = useTabBarOffset();
+  // Over the Reels videos the bar is always dark glass with light labels
+  const overVideo = state.routes[state.index]?.name === 'discover';
+  const Colors = overVideo ? Palettes.dark : appColors;
   const reduceMotion = useReducedMotion();
   const [width, setWidth] = useState(0);
   const itemWidth = width > 0 ? (width - PADDING * 2) / state.routes.length : 0;
@@ -80,14 +83,20 @@ export function GlassTabBar({
 
   return (
     <View style={[styles.wrap, { bottom }]}>
-      <Glass interactive style={styles.bar}>
+      <Glass interactive scheme={overVideo ? 'dark' : undefined} style={styles.bar}>
         <View
           style={styles.items}
           accessibilityRole="tablist"
           onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
         >
           {itemWidth > 0 && (
-            <Animated.View style={[styles.highlight, { width: itemWidth }, highlight]} />
+            <Animated.View
+              style={[
+                styles.highlight,
+                { width: itemWidth, backgroundColor: Colors.fillPressed },
+                highlight,
+              ]}
+            />
           )}
           {state.routes.map((route, index) => {
             const focused = state.index === index;
