@@ -54,6 +54,37 @@ describe('reels', () => {
     expect(reel.likeCount).toBe(12);
   });
 
+  it('says an upload came from here', () => {
+    const reel = toReel(row);
+    expect(reel.source).toBe('upload');
+    expect(reel.platform).toBeNull();
+    expect(reel.durationS).toBe(5);
+  });
+
+  it('turns a pasted link into a reel with no file of ours, crediting its maker', () => {
+    const reel = toReel({
+      ...row,
+      video_path: null,
+      thumb_path: null,
+      duration_s: null,
+      source: 'link',
+      platform: 'tiktok',
+      source_url: 'https://www.tiktok.com/@gabrudhol/video/7412345678901234567',
+      credit_name: '@gabrudhol',
+    });
+    expect(reel.videoUrl).toBeNull();
+    expect(reel.durationS).toBeNull();
+    expect(reel.source).toBe('link');
+    expect(reel.platform).toBe('tiktok');
+    expect(reel.sourceUrl).toBe('https://www.tiktok.com/@gabrudhol/video/7412345678901234567');
+    expect(reel.creditName).toBe('@gabrudhol');
+  });
+
+  it('names the link errors', () => {
+    expect(postErrorKind(new Error('unsupported_link'))).toBe('unsupportedLink');
+    expect(postErrorKind(new Error('already_added'))).toBe('alreadyAdded');
+  });
+
   it('keeps only usable tags, approved or still pending', () => {
     expect(toReel(row).tags).toEqual([
       { vendorId: 'v1', slug: 'gabru-dhol', name: 'Gabru Dhol Crew', approved: true },
