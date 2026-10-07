@@ -6,9 +6,11 @@
 
 cd "$(dirname "$0")/.." || exit 0
 
+BOARD_URL="https://github.com/orgs/wedded-app/projects/1"
+
 echo "== Wedded App: work in flight (from GitHub, $(date '+%a %b %-d, %-I:%M %p')) =="
-echo "Both founders build with Claude Code. Find your tab below and work only on it;"
-echo "if your task overlaps another tab, an open PR or an issue, ask first."
+echo "Both founders build with Claude Code. The founder names your tab (\"You're Fezy Tab 1\");"
+echo "work only on that tab's tasks below, and ask before touching anything else."
 echo
 
 git fetch -q origin main 2>/dev/null
@@ -38,11 +40,43 @@ gh pr list --state open --limit 20 \
   2>/dev/null || echo "(couldn't reach GitHub; run gh pr list yourself)"
 echo
 
-echo "-- Open issues: ideas and plans in progress --"
-gh issue list --state open --limit 15 \
-  --json number,title,assignees,updatedAt \
-  --template '{{range .}}#{{.number}} {{.title}}{{if .assignees}} (assigned: {{range $i, $a := .assignees}}{{if $i}}, {{end}}{{$a.login}}{{end}}){{end}}, updated {{timeago .updatedAt}}{{"\n"}}{{end}}' \
-  2>/dev/null || echo "(couldn't reach GitHub; run gh issue list yourself)"
+# The build plan: every open issue, grouped by founder and tab (labels tab-1,
+# tab-2, founders), now before next before later, with what each is waiting on
+# and any open PR that will close it
+echo "-- Build plan: open tasks by founder and tab (the board: $BOARD_URL) --"
+repo=$(gh repo view --json owner,name --jq '.owner.login + " " + .name' 2>/dev/null)
+gh api graphql -F owner="${repo% *}" -F name="${repo#* }" -f query='
+query($owner: String!, $name: String!) { repository(owner: $owner, name: $name) {
+  issues(first: 100, states: OPEN, orderBy: {field: CREATED_AT, direction: ASC}) { nodes {
+    number title
+    assignees(first: 1) { nodes { login } }
+    labels(first: 10) { nodes { name } }
+    blockedBy(first: 10) { nodes { number state } }
+    closedByPullRequestsReferences(first: 3, includeClosedPrs: false) { nodes { number } }
+  } } } }' --jq '
+  def founder: {"faizant316": "Fezy", "gurkiratbagri13-netizen": "Kirat"}[.] // .;
+  def tab: if index("tab-1") then "1" elif index("tab-2") then "2" elif index("founders") then "3" else null end;
+  def tabname: {"1": "Tab 1 (server and database)", "2": "Tab 2 (app screens)", "3": "Founders (a founder does these, not an agent)"}[.];
+  def when: if index("now") then "now" elif index("next") then "next" elif index("later") then "later" else "" end;
+  def rank: {"now": 0, "next": 1, "later": 2, "": 3}[.];
+  def nums: map("#\(.)") | join(" ");
+  [.data.repository.issues.nodes[] | (.labels.nodes | map(.name)) as $l | {
+    n: .number, t: .title, tab: ($l | tab), when: ($l | when),
+    who: ((.assignees.nodes[0].login // "nobody") | founder),
+    waiting: [.blockedBy.nodes[] | select(.state == "OPEN") | .number],
+    prs: [.closedByPullRequestsReferences.nodes[].number]
+  }] as $all
+  | ($all | map(select(.tab != null)) | group_by(.who + .tab)[]
+      | "\(.[0].who) · \(.[0].tab | tabname)",
+        (sort_by((.when | rank), .n)[]
+          | "  \((.when + "      ")[0:6])#\(.n) \(.t)"
+            + (if (.prs | length) > 0 then "  [in progress: PR \(.prs | nums)]"
+               elif (.waiting | length) > 0 then "  [waiting on \(.waiting | nums)]"
+               else "" end)),
+        ""),
+    "Other open issues:",
+    ($all | map(select(.tab == null))[] | "  #\(.n) \(.t) (\(.who))")
+' 2>/dev/null || echo "(couldn't reach GitHub; run gh issue list yourself)"
 echo
 
 echo "-- Latest on main --"

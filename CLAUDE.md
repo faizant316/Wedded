@@ -6,7 +6,7 @@
 
 Before planning any feature, read the part of the docs it touches. They are the source of truth; this file only summarizes them.
 
-- `PROJECT_BRIEF.md`: the whole app on one page, and at the top the **Tabs** section: which founder's Claude Code tab is working on what. Find your tab there (the founder names it, or match your branch), work only on it, and keep your entry current; the rules are at the top of that section.
+- `PROJECT_BRIEF.md`: the whole app on one page, and at the top the **Tabs** section: how the work is split. Every task is a GitHub issue on the build plan board; each founder has Tab 1 (server and database) and Tab 2 (app screens). The founder names your tab ("You're Fezy Tab 1"); work only on that tab's issues, and put `Closes #<issue>` in the PR that finishes one. The rules are at the top of that section.
 - `docs/PRODUCT_VISION.md`: the full rundown of the app. It is about 150 KB, so read the section you need rather than the whole file:
   - §3 Events and vendor categories: the data the whole app is built on
   - §4 How it looks: colour and type tokens, component sizes, accessibility
@@ -71,7 +71,7 @@ Before planning any feature, read the part of the docs it touches. They are the 
 - Queued inquiries: `public.inquiry_emails_left_today()` is the one daily-cap count (by the California day each email was sent); `create_inquiry` queues when it's 0. pg_cron runs `send-queued-inquiries` at 08:05 UTC through pg_net, with the URL and service role key from Vault (`project_url`, `service_role_key`; README). The inquiry email code is shared in `supabase/functions/_shared/`.
 - Next (§13 and docs/RESEARCH_GROWTH.md): the founders review Tab B's design drafts (#72 simpler look, #75 Discover buttons, #79 colour options, #84 iOS 26 glass and motion); rich WhatsApp link previews (og:image) for vendor, plan and join pages. Waiting on the founders: the real hall's details and photos, a hosted Supabase project (docs/HOSTED_SETUP.md) and Resend. Later: a web page for Google Play deletion requests (needs the domain).
 - Local database: `npm run db:start`, `db:status`, `db:reset`, `db:test`, `db:types`, `db:stop` (setup steps are in the README). After a schema change, run `db:types` and commit `src/types/database.ts`.
-- Both founders build with Claude Code. Every session in this repo starts with a briefing: the Tabs section of `PROJECT_BRIEF.md` as it is on main, the session's branch, the open PRs, open issues (ideas and plans, with who's assigned) and the latest on main (`scripts/session-briefing.sh`, a SessionStart hook in `.claude/settings.json`). Read it before starting, and if your task overlaps another tab, an open PR or an issue, build on that branch or ask first. Big ideas get a GitHub issue assigned to whoever is building them.
+- Both founders build with Claude Code. Every session in this repo starts with a briefing: the Tabs section of `PROJECT_BRIEF.md` as it is on main, the session's branch, the open PRs, every open task grouped by founder and tab (with what it's waiting on and any open PR) and the latest on main (`scripts/session-briefing.sh`, a SessionStart hook in `.claude/settings.json`). Read it before starting, and if your task overlaps another tab, an open PR or an issue, build on that branch or ask first. New work gets a GitHub issue with an assignee, a tab label and a when label.
 
 ## Stack
 

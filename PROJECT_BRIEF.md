@@ -1,61 +1,39 @@
 # Wedded App: Project Brief
 
-A complete picture of the app for someone planning features without access to the code. Written 2026-10-06 from the `main` branch on GitHub (`faizant316/Wedded`, formerly `wedding-vendor-app`), plus the open pull requests, which are marked as such. The source of truth inside the repo is `docs/PRODUCT_VISION.md` (about 150 KB), `docs/DECISIONS.md`, `docs/PROJECT_PLAN.md` and `docs/RESEARCH_GROWTH.md`.
+A complete picture of the app for someone planning features without access to the code. Written 2026-10-06 from the `main` branch on GitHub (`wedded-app/Wedded`, formerly `faizant316/Wedded` and `wedding-vendor-app`), plus the open pull requests, which are marked as such. The source of truth inside the repo is `docs/PRODUCT_VISION.md` (about 150 KB), `docs/DECISIONS.md`, `docs/PROJECT_PLAN.md` and `docs/RESEARCH_GROWTH.md`.
 
 ---
 
 ## Tabs: who's working on what
 
-Each founder runs a few Claude Code sessions ("tabs") at once. This section says what each tab is doing, so no two agents build the same thing. Every session prints it from `main` on GitHub when it starts (`scripts/session-briefing.sh`), so agents see the latest version whatever branch they're on.
+The work board is on GitHub: every task is an issue, and the board ([github.com/orgs/wedded-app/projects/1](https://github.com/orgs/wedded-app/projects/1)) shows them as cards in To do, In progress and Done. The tasks come from Kirat's build plan of 2026-10-06; its research, business model details and application answers stay in Kirat's private build plan doc.
+
+Each founder runs two Claude Code tabs, split by the kind of work so two agents never edit the same files:
+
+- **Tab 1** does server and database work: `supabase/`, the Edge Functions, `infra/`, `scripts/` and the data hooks in `src/data/`.
+- **Tab 2** does app screens: `src/app/`, `src/components/`, `src/features/` and the strings in `src/i18n/`.
+- **Founders** tasks are sign-ups, legal and paperwork. Only Kirat or Fezy can do them; agents never do.
+
+Each task's issue has the owner as its assignee, a tab label (`tab-1`, `tab-2` or `founders`), a when label (`now`, `next` or `later`) and "blocked by" links to the tasks it needs first. The session briefing lists every open task, grouped by founder and tab, with what it's waiting on and any open PR.
 
 **Rules for agents**
 
-1. **Find your tab.** The founder names it when starting the session ("You're Fezy · Tab B"). If they don't, match your branch to a tab's **Branch** line. No match: ask which tab, or add a tab if it's new work.
-2. **Stay on your tab's task.** Files under another tab's **Owns** belong to that tab: ask before changing them. Keep edits to files everyone touches (`CLAUDE.md`, `docs/DECISIONS.md`, `src/i18n/*.json`, `package.json`) small, and merge `main` often.
-3. **Keep your entry true.** Update it in the PR that changes your work (new branch, PR opened, merged, next step). Starting something new? Claim it first with a small PR that only edits your entry, so the other founder's agents see it within minutes.
-4. **Edit only your own entry.** A tab with nothing to do says **Free** and owns nothing. Remove a tab when its founder closes it.
+1. **Find your tab.** The founder says it when starting the session ("You're Fezy Tab 1"). Your tasks are the open issues assigned to that founder with that tab's label. If the founder didn't say, ask.
+2. **Pick the first `now` task that isn't waiting on anything.** Never start a task that's still waiting, already has an open PR, or belongs to the other founder.
+3. **Say which task a PR finishes.** Put `Closes #<issue>` in the PR description, so the task closes and its card moves to Done when the PR merges. A PR that does only part of a task says `Part of #<issue>`.
+4. **Stay in your tab's files.** If a task needs something on the other tab's side, keep it small, or add a task for that tab and tell the founder.
+5. **New work becomes a task:** `gh issue create --title "<what>" --assignee <login> --label tab-2,next` (Fezy is `faizant316`, Kirat is `gurkiratbagri13-netizen`). If it needs another task first, add a "blocked by" link on the issue page.
+6. **`founders` tasks are for the founder,** not you: remind them when one is blocking your work.
 
-Kirat's tabs were filled in from GitHub on 2026-10-06; Kirat, rename or correct them.
+**Product principles** (from the build plan; every task follows them):
 
-### Fezy · Tab A · Welcome and first questions
+- Vendors never pay to be listed. Listings, leads, chat and reels are free.
+- Money comes from ads that are always labeled: a vendor can boost a reel or take one "Sponsored" spot in search.
+- Wed AI is the headline: an AI planner that lives in the family's group chat and gets things done inside the plan.
+- Reels keep families coming back, and every reel is one tap from booking the vendor in it.
+- Trust is the promise: no fake leads, no spam, no contracts, no bought reviews.
 
-- **Doing:** Free. The video welcome, full-screen phone sign-in and the three first questions are on `main` (#115).
-- **Next:** the next plan the founders pick.
-- **Updated:** 2026-10-06
-
-### Fezy · Tab B · AWS
-
-- **Doing:** Vendor photos on AWS are on `main`: S3 uploads → Lambda resize → CloudFront (#116), and the app loads photos from CloudFront when `EXPO_PUBLIC_MEDIA_URL` is set, from Supabase Storage otherwise (#117).
-- **Branch / PR:** none open.
-- **Owns:** `infra/`, `scripts/aws-media.ts`, `scripts/copy-photos-to-aws.ts`, `photoUrl()` in `src/data/vendor-media.ts`.
-- **Next:** agree the plan for moving the backend to AWS with Kirat. Then vendor photo uploads from the app: a Lambda that checks the vendor's sign-in and returns a short-lived S3 upload link (needs a hosted backend and the My business screens).
-- **Updated:** 2026-10-06
-
-### Kirat · Tab A · My business (vendor screens)
-
-- **Doing:** the month grid for the vendor calendar.
-- **Branch / PR:** `feature/business-calendar-parts`, no PR yet.
-- **Owns:** the My business screens, `src/data/vendor-self.ts`.
-- **Updated:** 2026-10-06
-
-### Kirat · Tab B · Reels
-
-- **Doing:** Reels are on `main` (#113): the Following / For you feed, posting, likes, comments, follows, reports and blocks.
-- **Owns:** `src/features/reels/`, `src/data/reels.ts`, the reel screens (`post-reel`, `reel-comments`, `reel-report`, `reels-viewer`, `u/[id]`).
-- **Next:** vendors approve or decline the tags on reels.
-- **Updated:** 2026-10-06
-
-### Parked
-
-- **Link previews** (Kirat, `feature/link-previews`, paused for chat and menus): rich WhatsApp previews (og:image) for vendor, plan and join pages.
-
-### Up for grabs (no tab yet)
-
-- **AI wedding planner** (#107, assigned to Fezy; call Kirat first). Waits on paid API keys (DECISIONS.md).
-- **Sending photos in chat:** the image picker came with Reels, so `uploadChatPhoto()` can now be wired to the Composer's photo button.
-- **New chat features** the founders are about to lay out.
-- **A web page for Google Play deletion requests** (needs the domain).
-- Not code: the real hall's details and photos for the November demo.
+Not on the board: link previews (Kirat's `feature/link-previews`, paused).
 
 ---
 
