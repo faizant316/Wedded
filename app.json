@@ -18,7 +18,9 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "blockedPermissions": ["android.permission.ACCESS_FINE_LOCATION"]
+      "blockedPermissions": [
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
     },
     "web": {
       "output": "static",
@@ -39,8 +41,14 @@
         "expo-localization",
         {
           "supportedLocales": {
-            "ios": ["en", "pa"],
-            "android": ["en", "pa"]
+            "ios": [
+              "en",
+              "pa"
+            ],
+            "android": [
+              "en",
+              "pa"
+            ]
           }
         }
       ],
@@ -56,7 +64,23 @@
           "isAndroidBackgroundLocationEnabled": false
         }
       ],
-      "expo-video"
+      "expo-video",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Wedded App opens your videos only when you choose a clip to post as a reel. Nothing else in your photos is looked at or uploaded.",
+          "cameraPermission": "Wedded App uses the camera only while you record a reel.",
+          "microphonePermission": "Wedded App uses the microphone only while you record a reel, so your clip keeps its music and voices."
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Wedded App opens your videos only when you choose a clip to post as a reel. Nothing else in your photos is looked at or uploaded.",
+          "savePhotosPermission": "Wedded App saves the reels you record to your Photos, so you always keep a copy.",
+          "granularPermissions": []
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

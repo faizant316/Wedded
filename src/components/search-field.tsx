@@ -9,11 +9,13 @@ import { useLocale } from '@/i18n/locale-context';
 export type SearchFieldProps = {
   value: string;
   onChangeText: (text: string) => void;
+  /** What to search for; the Search tab's wording when left out. Also read aloud. */
+  placeholder?: string;
   ref?: Ref<TextInput>;
 };
 
 /** The Search tab's text box: the iOS search field, with a clear button once there's text. */
-export function SearchField({ value, onChangeText, ref }: SearchFieldProps) {
+export function SearchField({ value, onChangeText, placeholder, ref }: SearchFieldProps) {
   const Colors = useColors();
   const styles = useStyles();
   const { t } = useLocale();
@@ -27,9 +29,9 @@ export function SearchField({ value, onChangeText, ref }: SearchFieldProps) {
         ref={ref}
         value={value}
         onChangeText={onChangeText}
-        placeholder={t('search.placeholder')}
+        placeholder={placeholder ?? t('search.placeholder')}
         placeholderTextColor={Colors.text2}
-        accessibilityLabel={t('search.label')}
+        accessibilityLabel={placeholder ?? t('search.label')}
         accessibilityLanguage={script}
         returnKeyType="search"
         autoCorrect={false}

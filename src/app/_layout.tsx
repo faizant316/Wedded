@@ -23,7 +23,7 @@ import { Platform } from 'react-native';
 
 import { AppIntro } from '@/components/app-intro';
 import { WebFrame } from '@/components/web-frame';
-import { useColors, useScheme } from '@/constants/theme';
+import { Radius, useColors, useScheme } from '@/constants/theme';
 import { queryClient } from '@/data/query-client';
 import { WeddingSync } from '@/data/wedding';
 import { SessionProvider } from '@/features/auth/session';
@@ -119,6 +119,19 @@ function AppShell() {
           <Stack.Screen name="delete-account" options={{ presentation: 'modal' }} />
           <Stack.Screen name="chat-quote" options={{ presentation: 'modal' }} />
           <Stack.Screen name="chat-menu" options={{ presentation: 'modal' }} />
+          {/* Half height over the reel, which keeps playing above it */}
+          <Stack.Screen
+            name="reel-comments"
+            options={{
+              presentation: 'formSheet',
+              sheetAllowedDetents: [0.62, 1],
+              sheetGrabberVisible: true,
+              sheetCornerRadius: Radius.sheet,
+            }}
+          />
+          <Stack.Screen name="reel-report" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="reels-viewer" options={{ animation: 'fade' }} />
+          <Stack.Screen name="post-reel" options={{ presentation: 'modal' }} />
           <Stack.Screen name="my-inquiries" />
           <Stack.Screen name="settings" />
           <Stack.Screen name="plan" />
