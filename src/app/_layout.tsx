@@ -111,6 +111,7 @@ function AppShell() {
           <Stack.Screen name="sign-in" options={{ presentation: 'modal' }} />
           <Stack.Screen name="phone-sign-in" options={{ presentation: 'fullScreenModal' }} />
           <Stack.Screen name="save-vendor" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="suggest" options={{ presentation: 'modal' }} />
           <Stack.Screen name="menu" options={{ presentation: 'modal' }} />
           <Stack.Screen name="location" options={{ presentation: 'modal' }} />
           <Stack.Screen name="filters" options={{ presentation: 'modal' }} />

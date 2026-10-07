@@ -6,8 +6,8 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(27);
 
--- People: Asha (sets up the wedding), Balwinder (joins as a planner),
--- Charan (joins as a viewer), Dev (a stranger)
+-- People: Asha (sets up the wedding), Balwinder (joins as an editor),
+-- Charan (joins as a suggester), Dev (a stranger)
 insert into auth.users (id, instance_id, aud, role, email) values
   ('a2000000-0000-4000-8000-00000000000a', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'asha@example.com'),
   ('b2000000-0000-4000-8000-00000000000b', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'balwinder@example.com'),
@@ -88,12 +88,12 @@ select is(
 
 select pg_temp.as_user('a2000000-0000-4000-8000-00000000000a');
 insert into pg_temp.ids
-select 'planner_invite', public.create_wedding_invite((select value::uuid from pg_temp.ids where name = 'wedding'));
+select 'editor_invite', public.create_wedding_invite((select value::uuid from pg_temp.ids where name = 'wedding'));
 insert into pg_temp.ids
-select 'viewer_invite', public.create_wedding_invite((select value::uuid from pg_temp.ids where name = 'wedding'), 'viewer');
+select 'suggester_invite', public.create_wedding_invite((select value::uuid from pg_temp.ids where name = 'wedding'), 'suggester');
 
 select ok(
-  (select value ~ '^[0-9a-f]{32}$' from pg_temp.ids where name = 'planner_invite'),
+  (select value ~ '^[0-9a-f]{32}$' from pg_temp.ids where name = 'editor_invite'),
   'An invite is a 32-character unguessable token'
 );
 reset role;
@@ -101,8 +101,8 @@ reset role;
 set local role anon;
 select results_eq(
   $$ select status, title, inviter_name, role
-     from public.wedding_invite_preview((select value from pg_temp.ids where name = 'planner_invite')) $$,
-  $$ values ('valid'::text, 'Jaspreet & Amrit'::text, 'Asha'::text, 'planner'::text) $$,
+     from public.wedding_invite_preview((select value from pg_temp.ids where name = 'editor_invite')) $$,
+  $$ values ('valid'::text, 'Jaspreet & Amrit'::text, 'Asha'::text, 'editor'::text) $$,
   'Before joining, anyone with the link sees the title and the inviter''s first name only'
 );
 select is(
@@ -115,63 +115,63 @@ reset role;
 set local role authenticated;
 select pg_temp.as_user('b2000000-0000-4000-8000-00000000000b');
 select is(
-  public.accept_wedding_invite((select value from pg_temp.ids where name = 'planner_invite'))::text,
+  public.accept_wedding_invite((select value from pg_temp.ids where name = 'editor_invite'))::text,
   (select value from pg_temp.ids where name = 'wedding'),
   'Joining with the link returns the wedding'
 );
 select is(
   (select role from public.wedding_members where user_id = 'b2000000-0000-4000-8000-00000000000b'),
-  'planner',
+  'editor',
   'and the person joins with the link''s role'
 );
 select is(
-  public.accept_wedding_invite((select value from pg_temp.ids where name = 'planner_invite'))::text,
+  public.accept_wedding_invite((select value from pg_temp.ids where name = 'editor_invite'))::text,
   (select value from pg_temp.ids where name = 'wedding'),
   'Joining again is harmless'
 );
 
--- Planners change things; viewers can only look --------------------------------------------
+-- Editors change things; suggesters can only suggest --------------------------------------------
 
 insert into public.wedding_bookings (wedding_id, event_slug, category_slug)
 values ((select value::uuid from pg_temp.ids where name = 'wedding'), 'jaago', 'photographer');
 select is(
   (select updated_by from public.wedding_bookings where category_slug = 'photographer'),
   'b2000000-0000-4000-8000-00000000000b'::uuid,
-  'A planner can tick off a booking, and it records who did'
+  'An editor can tick off a booking, and it records who did'
 );
 
 update public.weddings set traditions = '{punjabi-sikh,pakistani}';
 select is(
   (select traditions from public.weddings),
   '{punjabi-sikh,pakistani}'::text[],
-  'A planner can set the wedding''s traditions'
+  'An editor can set the wedding''s traditions'
 );
 
 select pg_temp.as_user('c2000000-0000-4000-8000-00000000000c');
 select lives_ok(
-  $$ select public.accept_wedding_invite((select value from pg_temp.ids where name = 'viewer_invite')) $$,
-  'A viewer link lets a relative join'
+  $$ select public.accept_wedding_invite((select value from pg_temp.ids where name = 'suggester_invite')) $$,
+  'A suggester link lets a relative join'
 );
 select throws_ok(
   $$ insert into public.wedding_bookings (wedding_id, event_slug, category_slug)
      values ((select value::uuid from pg_temp.ids where name = 'wedding'), 'jaago', 'caterer') $$,
   '42501', null,
-  'A viewer cannot change the plan'
+  'A suggester cannot change the plan'
 );
 update public.weddings set wedding_date = '2027-01-01';
 select is(
   (select wedding_date from public.weddings),
   '2027-06-12'::date,
-  'A viewer''s change to the date does nothing'
+  'A suggester''s change to the date does nothing'
 );
 select throws_ok(
   $$ select public.create_wedding_invite((select value::uuid from pg_temp.ids where name = 'wedding')) $$,
   '42501', null,
-  'A viewer cannot invite more people'
+  'A suggester cannot invite more people'
 );
 select results_eq(
   $$ select name, role from public.wedding_members_list((select value::uuid from pg_temp.ids where name = 'wedding')) $$,
-  $$ values ('Asha Kaur'::text, 'owner'::text), ('Balwinder Singh', 'planner'), ('Charan Gill', 'viewer') $$,
+  $$ values ('Asha Kaur'::text, 'owner'::text), ('Balwinder Singh', 'editor'), ('Charan Gill', 'suggester') $$,
   'Members see each other''s names, owner first'
 );
 select throws_ok(
@@ -186,21 +186,21 @@ select throws_ok(
 
 select pg_temp.as_user('a2000000-0000-4000-8000-00000000000a');
 update public.wedding_invites set revoked_at = now()
-where token = (select value from pg_temp.ids where name = 'viewer_invite');
+where token = (select value from pg_temp.ids where name = 'suggester_invite');
 
 select pg_temp.as_user('d2000000-0000-4000-8000-00000000000d');
 select throws_ok(
-  $$ select public.accept_wedding_invite((select value from pg_temp.ids where name = 'viewer_invite')) $$,
+  $$ select public.accept_wedding_invite((select value from pg_temp.ids where name = 'suggester_invite')) $$,
   'P0001', 'invite_revoked',
   'A cancelled link no longer works'
 );
 reset role;
 update public.wedding_invites set expires_at = now() - interval '1 minute'
-where token = (select value from pg_temp.ids where name = 'planner_invite');
+where token = (select value from pg_temp.ids where name = 'editor_invite');
 set local role authenticated;
 select pg_temp.as_user('d2000000-0000-4000-8000-00000000000d');
 select throws_ok(
-  $$ select public.accept_wedding_invite((select value from pg_temp.ids where name = 'planner_invite')) $$,
+  $$ select public.accept_wedding_invite((select value from pg_temp.ids where name = 'editor_invite')) $$,
   'P0001', 'invite_expired',
   'An expired link no longer works'
 );
@@ -215,7 +215,7 @@ reset role;
 select is(
   (select user_id from public.wedding_members where role = 'owner'),
   'b2000000-0000-4000-8000-00000000000b'::uuid,
-  'When the owner leaves, the longest-standing planner becomes the owner'
+  'When the owner leaves, the longest-standing editor becomes the owner'
 );
 
 delete from auth.users where id = 'b2000000-0000-4000-8000-00000000000b';

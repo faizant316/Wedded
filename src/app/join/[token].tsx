@@ -75,7 +75,7 @@ export default function JoinWeddingScreen() {
         </AppText>
         {weddingDate && <AppText variant="bodyLg">{formatDate(weddingDate)}</AppText>}
         <AppText color="text2">
-          {role === 'viewer' ? t('join.viewerExplain') : t('join.plannerExplain')}
+          {role === 'suggester' ? t('join.suggesterExplain') : t('join.editorExplain')}
         </AppText>
         <Button
           icon="people-outline"
