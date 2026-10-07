@@ -149,13 +149,22 @@ export const reelKeys = {
 };
 
 type Feed =
-  { mode: FeedMode } | { mode: 'person'; userId: string } | { mode: 'vendor'; vendorId: string };
+  /** `eventSlug` shows only the reels of that event (Jaago, Mehndi…). */
+  | { mode: FeedMode; eventSlug?: string | null }
+  | { mode: 'person'; userId: string }
+  | { mode: 'vendor'; vendorId: string };
 
 /** Pages of reels, newest first; load more with fetchNextPage. */
 export function useReelsFeed(feed: Feed) {
   const { session } = useSession();
   const me = session?.user.id ?? '';
-  const target = feed.mode === 'person' ? feed.userId : feed.mode === 'vendor' ? feed.vendorId : '';
+  const eventSlug = 'eventSlug' in feed ? (feed.eventSlug ?? null) : null;
+  const target =
+    feed.mode === 'person'
+      ? feed.userId
+      : feed.mode === 'vendor'
+        ? feed.vendorId
+        : (eventSlug ?? '');
   return useInfiniteQuery({
     queryKey: reelKeys.feed(feed.mode, me, target),
     initialPageParam: null as string | null,
@@ -166,6 +175,7 @@ export function useReelsFeed(feed: Feed) {
         p_limit: PAGE,
         p_user_id: feed.mode === 'person' ? feed.userId : undefined,
         p_vendor_id: feed.mode === 'vendor' ? feed.vendorId : undefined,
+        p_event_slug: eventSlug ?? undefined,
       });
       if (error) throw error;
       return (data as FeedRow[]).map(toReel);
