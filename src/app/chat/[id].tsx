@@ -26,7 +26,9 @@ import {
 } from '@/data/chat';
 import { useHomeEvents } from '@/data/reference';
 import { useVendorMenus } from '@/data/vendor-menus';
+import { sentPhotoUri } from '@/features/chat/chat-photo';
 import { layoutThread, type ThreadItem } from '@/features/chat/thread-layout';
+import { type PhotoUpload, usePhotoSender } from '@/features/chat/use-photo-sender';
 import { usd } from '@/features/vendors/profile-format';
 import { localized } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
@@ -36,7 +38,8 @@ const QUICK_REPLIES = ['available', 'price', 'visit', 'thanks'] as const;
 /**
  * One conversation between a family and a vendor, live. The family's inquiry
  * is the first card; then bubbles, photos, quotes and menus, grouped by day.
- * Families get quick replies; vendors get "Send a quote" and "Send a menu".
+ * Either side can send a photo. Families get quick replies; vendors get
+ * "Send a quote" and "Send a menu".
  * Opening it marks it read. /chat/{conversation id}
  */
 export default function ChatScreen() {
@@ -46,6 +49,7 @@ export default function ChatScreen() {
   const { t, locale } = useLocale();
   const thread = useConversation(id);
   const send = useSendMessage(id);
+  const photos = usePhotoSender(id, send);
   const [draft, setDraft] = useState('');
   const convo = thread.conversation;
   const side = convo?.side ?? 'family';
@@ -57,13 +61,19 @@ export default function ChatScreen() {
     setDraft('');
   };
 
-  // Newest at the bottom: an inverted list takes the rows newest first.
-  const items = layoutThread(thread.messages, side).reverse();
+  // Newest at the bottom: an inverted list takes the rows newest first,
+  // with photos still on their way below everything else.
+  const items: Row[] = [
+    ...photos.uploads
+      .map((upload) => ({ type: 'upload' as const, key: upload.id, upload }))
+      .reverse(),
+    ...layoutThread(thread.messages, side).reverse(),
+  ];
   const familyTexts = thread.messages.filter(
     (m) => m.senderRole === 'family' && m.kind === 'text',
   ).length;
 
-  let error: string | null = null;
+  let error: string | null = photos.notice;
   if (send.isError) error = t(`chat.errors.${sendErrorKind(send.error)}`);
 
   const title = convo
@@ -116,9 +126,17 @@ export default function ChatScreen() {
             inverted
             data={items}
             keyExtractor={(item) => item.key}
-            renderItem={({ item }) => (
-              <ThreadRow item={item} conversation={convo} onReply={setDraft} onSend={sendText} />
-            )}
+            renderItem={({ item }) =>
+              item.type === 'upload' ? (
+                <UploadRow
+                  upload={item.upload}
+                  onRetry={() => photos.retry(item.upload)}
+                  onRemove={() => photos.remove(item.upload.id)}
+                />
+              ) : (
+                <ThreadRow item={item} conversation={convo} onReply={setDraft} onSend={sendText} />
+              )
+            }
             contentContainerStyle={styles.list}
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="interactive"
@@ -152,6 +170,7 @@ export default function ChatScreen() {
             value={draft}
             onChangeText={setDraft}
             onSend={() => sendText(draft)}
+            onAddPhoto={convo ? photos.pick : undefined}
             sending={send.isPending}
             quickReplies={
               side === 'family' && familyTexts < 2
@@ -163,6 +182,61 @@ export default function ChatScreen() {
         </View>
       </KeyboardAvoidingView>
     </Screen>
+  );
+}
+
+type Row = ThreadItem | { type: 'upload'; key: string; upload: PhotoUpload };
+
+/** A photo of mine still on its way: "Sending…", or what went wrong and what to do. */
+function UploadRow({
+  upload,
+  onRetry,
+  onRemove,
+}: {
+  upload: PhotoUpload;
+  onRetry: () => void;
+  onRemove: () => void;
+}) {
+  const styles = useStyles();
+  const { t } = useLocale();
+  const failed = upload.status === 'failed';
+  return (
+    <View style={styles.upload}>
+      <View style={failed ? null : styles.pending}>
+        <PhotoBubble url={upload.uri} label={t('chat.photo')} />
+      </View>
+      {failed ? (
+        <>
+          <AppText variant="caption" color="error" style={styles.uploadText}>
+            {t('chat.photos.failed')}
+          </AppText>
+          <View style={styles.uploadActions}>
+            <Pressable
+              accessibilityRole="button"
+              onPress={onRetry}
+              style={({ pressed }) => [styles.uploadButton, pressed && styles.pressed]}
+            >
+              <AppText weight={700} color="primary">
+                {t('chat.photos.tryAgain')}
+              </AppText>
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              onPress={onRemove}
+              style={({ pressed }) => [styles.uploadButton, pressed && styles.pressed]}
+            >
+              <AppText weight={700} color="text2">
+                {t('chat.photos.remove')}
+              </AppText>
+            </Pressable>
+          </View>
+        </>
+      ) : (
+        <AppText variant="caption" color="text2" accessibilityLiveRegion="polite">
+          {t('chat.photos.sending')}
+        </AppText>
+      )}
+    </View>
   );
 }
 
@@ -274,9 +348,12 @@ function MessageContent({
 
 function ChatPhoto({ path, label }: { path: string | null; label: string }) {
   const styles = useStyles();
-  const url = useChatPhotoUrl(path);
-  if (!url.data) return <View style={styles.photoWait} accessibilityLabel={label} />;
-  return <PhotoBubble url={url.data} label={label} />;
+  // A photo sent from this phone shows from the phone's copy at once
+  const local = sentPhotoUri(path);
+  const url = useChatPhotoUrl(local ? null : path);
+  const uri = local ?? url.data;
+  if (!uri) return <View style={styles.photoWait} accessibilityLabel={label} />;
+  return <PhotoBubble url={uri} label={label} />;
 }
 
 function ChatMenu({ vendorId, menuId }: { vendorId: string; menuId: string }) {
@@ -333,6 +410,25 @@ const useStyles = makeStyles((Colors) => ({
   error: {
     paddingHorizontal: Sizes.pageGutter,
     paddingTop: Spacing.sm,
+  },
+  upload: {
+    alignSelf: 'flex-end',
+    alignItems: 'flex-end',
+    maxWidth: '82%',
+    gap: 3,
+    marginTop: Spacing.sm,
+  },
+  uploadText: {
+    textAlign: 'right',
+  },
+  uploadActions: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  uploadButton: {
+    minHeight: 48,
+    paddingHorizontal: Spacing.sm,
+    justifyContent: 'center',
   },
   tools: {
     flexDirection: 'row',

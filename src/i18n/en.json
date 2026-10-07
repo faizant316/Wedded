@@ -847,6 +847,21 @@
     "yesterday": "Yesterday",
     "photo": "Photo",
     "photoFrom": "Photo from {{name}}",
+    "photos": {
+      "whyTitle": "Send a photo",
+      "whyBody": "Your phone will ask to let Wedded App see your photos. You choose which one to send. Nothing else is shared.",
+      "continue": "Continue",
+      "notNow": "Not now",
+      "needAccess": "To send a photo, allow Wedded App to see your photos when your phone asks.",
+      "blockedTitle": "Photos are turned off",
+      "blockedBody": "To send a photo, allow Wedded App to see your photos in Settings.",
+      "openSettings": "Open Settings",
+      "cantOpen": "Your photos didn't open. Try again.",
+      "sending": "Sending…",
+      "failed": "Your photo didn't send. Check your internet, then try again.",
+      "tryAgain": "Try again",
+      "remove": "Remove"
+    },
     "quote": {
       "title": "Quote",
       "for": "For {{event}}",
