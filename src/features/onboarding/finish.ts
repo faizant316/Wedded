@@ -29,24 +29,34 @@ export function useFinishOnboarding() {
     const answers = getAnswers();
     const picked = (traditions.data ?? []).filter((t) => answers.traditions.includes(t.slug));
     const slugs = picked.map((t) => t.slug);
-    const events = startingEvents(picked);
+    // Events named in a search ("mehndi and jaago") join the main events
+    const known = new Set((traditions.data ?? []).flatMap((t) => t.events.map((e) => e.slug)));
+    const main = startingEvents(picked);
+    const named = answers.extraEvents.filter((slug) => known.has(slug) && !main.includes(slug));
+    const events = [...main, ...named];
+    const band = answers.guestBand;
 
     if (wedding.wedding) {
       if (slugs.length > 0) wedding.setTraditions(slugs);
       if (answers.weddingDate) wedding.setWeddingDate(answers.weddingDate);
       if (events.length > 0) wedding.addEvents(events);
+      if (band) for (const event of events) wedding.setEventGuests(event, band);
     } else {
       await startWedding.mutateAsync({
         ...EMPTY_PLAN,
         traditions: slugs,
         weddingDate: answers.weddingDate,
         events,
+        guests: band ? Object.fromEntries(events.map((event) => [event, band])) : {},
         planningFor: answers.planningFor,
       });
     }
 
+    // A city named in a search wins; otherwise the About you city, unless
+    // they've already picked an area
+    const searchedCity = cities.data?.find((c) => c.slug === answers.citySlug);
     const typed = profile?.city?.split(',')[0] ?? '';
-    const city = place ? undefined : matchCities(cities.data ?? [], typed, 1)[0];
+    const city = searchedCity ?? (place ? undefined : matchCities(cities.data ?? [], typed, 1)[0]);
     if (city) setPlace({ label: city.name, latitude: city.latitude, longitude: city.longitude });
 
     markOnboarding('done');

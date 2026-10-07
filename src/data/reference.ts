@@ -22,6 +22,8 @@ export const referenceKeys = {
   categories: () => [...referenceKeys.all, 'categories'] as const,
   traditions: () => [...referenceKeys.all, 'traditions'] as const,
   allEventNeeds: () => [...referenceKeys.all, 'all-event-needs'] as const,
+  backgrounds: () => [...referenceKeys.all, 'backgrounds'] as const,
+  faiths: () => [...referenceKeys.all, 'faiths'] as const,
 };
 
 /** The row's name, or its slug if the name is somehow unreadable. */
@@ -334,6 +336,38 @@ export function useAllEventNeeds() {
   return useQuery({
     queryKey: referenceKeys.allEventNeeds(),
     queryFn: fetchAllEventNeeds,
+    ...REFERENCE,
+  });
+}
+
+// Reading a search -------------------------------------------------------
+
+/** A place families are from (Punjab, Pakistan...) or a faith (Sikh, Muslim...). */
+export type Choice = { slug: string; name: LocalizedText };
+
+async function fetchChoices(table: 'backgrounds' | 'faiths'): Promise<Choice[]> {
+  const { data, error } = await supabase.from(table).select('slug, name').order('sort_order');
+  if (error) throw error;
+  return data.map((row) => ({ slug: row.slug, name: nameOf(row) }));
+}
+
+/**
+ * Where families are from, for reading a typed search ("punjabi wedding").
+ * The first questions no longer ask it (DECISIONS.md, 2026-10-02).
+ */
+export function useBackgrounds() {
+  return useQuery({
+    queryKey: referenceKeys.backgrounds(),
+    queryFn: () => fetchChoices('backgrounds'),
+    ...REFERENCE,
+  });
+}
+
+/** The faiths, for reading a typed search ("sikh wedding"). */
+export function useFaiths() {
+  return useQuery({
+    queryKey: referenceKeys.faiths(),
+    queryFn: () => fetchChoices('faiths'),
     ...REFERENCE,
   });
 }

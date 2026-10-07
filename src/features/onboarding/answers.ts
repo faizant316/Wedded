@@ -5,6 +5,8 @@
  */
 import { useSyncExternalStore } from 'react';
 
+import type { GuestBand } from '@/data/inquiries';
+
 /** Who the wedding is for, as weddings.planning_for stores it. */
 export type PlanningFor = 'self' | 'child' | 'sibling' | 'relative' | 'friend';
 
@@ -17,6 +19,12 @@ export type Answers = {
   weddingDate: string | null;
   /** They said they haven't picked a date yet. */
   noDateYet: boolean;
+  /** Events named in a search ("mehndi and jaago"), added to the traditions' main events. */
+  extraEvents: string[];
+  /** A guest count from a search ("for 300 people"), for every event. */
+  guestBand: GuestBand | null;
+  /** A city named in a search (cities.slug), searched around once the plan is made. */
+  citySlug: string | null;
 };
 
 const EMPTY: Answers = {
@@ -25,6 +33,9 @@ const EMPTY: Answers = {
   otherTradition: false,
   weddingDate: null,
   noDateYet: false,
+  extraEvents: [],
+  guestBand: null,
+  citySlug: null,
 };
 
 let answers: Answers = EMPTY;

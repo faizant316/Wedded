@@ -19,6 +19,7 @@ import { useVendorSearch } from '@/data/search';
 import { useCategoryVendorCounts } from '@/data/vendors';
 import { useSearchLocation } from '@/features/location/search-location';
 import { matchCategories } from '@/features/search/match-categories';
+import { PlanCard, usePlanFromQuery } from '@/features/search/plan-card';
 import { useDebouncedValue, vendorQuery } from '@/features/search/vendor-query';
 import { localized } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
@@ -35,6 +36,8 @@ const VENDOR_LIMIT = 10;
  * database, nearest first, at any distance so a vendor someone was told about
  * always turns up). Or pick from Popular or the A to Z grid.
  * Opened from Home's search box with ?focus=1, the keyboard comes up.
+ * Typing a wedding ("punjabi wedding in yuba city for 300") puts "Plan this
+ * wedding" on top, which opens the first questions already filled in.
  */
 export default function SearchScreen() {
   const { t, locale } = useLocale();
@@ -77,6 +80,7 @@ export default function SearchScreen() {
   const all = categories.data ?? [];
   const vendorCount = (slug: string) => counts.data?.[slug] ?? 0;
   const matches = matchCategories(all, query);
+  const planHint = usePlanFromQuery(query);
   const savedIds = new Set((saves.data ?? []).map((save) => save.vendorId));
   // Still typing or still fetching: don't say "nothing matches" yet.
   const vendorsSettling = typed !== null && (needle !== typed || vendors.isFetching);
@@ -93,7 +97,7 @@ export default function SearchScreen() {
     body = <StateView state="error" onRetry={() => void categories.refetch()} />;
   } else if (query.trim()) {
     body =
-      matches.length === 0 && foundVendors.length === 0 ? (
+      matches.length === 0 && foundVendors.length === 0 && !planHint ? (
         vendorsSettling ? (
           <StateView state="loading" />
         ) : vendors.isError ? (
@@ -107,6 +111,7 @@ export default function SearchScreen() {
         )
       ) : (
         <>
+          {planHint && <PlanCard hint={planHint} />}
           {matches.length > 0 && (
             <View style={styles.block}>
               <SectionTitle>{t('search.types')}</SectionTitle>
