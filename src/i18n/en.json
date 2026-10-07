@@ -700,25 +700,37 @@
     "you": "You",
     "someone": "Family member",
     "roles": {
-      "owner": "Set up this plan",
-      "planner": "Can help plan",
-      "viewer": "Can see the plan"
+      "owner": "Owner",
+      "editor": "Can edit",
+      "suggester": "Can suggest"
     },
-    "invite": "Invite family to help",
-    "inviteViewer": "Invite someone to only look",
-    "inviteHint": "You'll get a link to send, for example to your family WhatsApp group. It works for 14 days.",
+    "invite": "Invite family to edit",
+    "inviteHint": "Editors change the plan. Suggesters suggest vendors, and you decide. You'll get a link to send, for example to your family WhatsApp group. It works for 14 days.",
     "inviteMessage": "Help us plan the wedding on Wedded App. Tap to join our plan: {{link}}",
     "copied": "Invite copied. Paste it in WhatsApp or a text.",
     "inviteFailed": "The invite couldn't be made. Check your internet, then try again.",
     "failed": "That didn't work. Check your internet, then try again.",
     "saveFailed": "Your last change didn't save. Check your internet, then try again.",
-    "viewerNote": "You can see this plan. Ask whoever set it up to let you help plan it.",
     "leave": "Leave",
     "remove": "Remove",
     "leaveTitle": "Leave this plan?",
     "leaveBody": "You'll stop seeing it. Someone can invite you again.",
     "removeTitle": "Remove {{name}}?",
-    "removeBody": "They'll stop seeing this plan. You can invite them again."
+    "removeBody": "They'll stop seeing this plan. You can invite them again.",
+    "inviteSuggester": "Invite family to suggest",
+    "suggesterNote": "You can suggest vendors for each event. Whoever set up the plan, or an editor, decides.",
+    "access": {
+      "title": "{{name}}'s access",
+      "editor": "Can edit",
+      "editorDetail": "Changes the plan: dates, events and who is booked",
+      "suggester": "Can suggest",
+      "suggesterDetail": "Suggests vendors; the owner or an editor decides",
+      "owner": "Make owner",
+      "ownerTitle": "Make {{name}} the owner?",
+      "ownerBody": "They'll manage the plan and who's in it. You'll become an editor.",
+      "cancel": "Cancel",
+      "change": "Change"
+    }
   },
   "join": {
     "title": "Join the wedding plan",
@@ -727,8 +739,6 @@
     "invitedBy": "{{name}} invited you to help plan",
     "invited": "You're invited to help plan",
     "aWedding": "A family wedding",
-    "plannerExplain": "You'll see the plan and can tick off vendors as they're booked.",
-    "viewerExplain": "You'll be able to see the plan: the events, the date and who's booked.",
     "join": "Join the plan",
     "askForNewLink": "Ask the person who sent it for a new link.",
     "status": {
@@ -745,7 +755,9 @@
       "full": "This plan already has the most people it can.",
       "too_many": "You're already part of 10 wedding plans. Leave one to join this.",
       "failed": "Joining didn't work. Check your internet, then try again."
-    }
+    },
+    "editorExplain": "You'll see the plan and can change it: tick off vendors as they're booked, and add events.",
+    "suggesterExplain": "You'll see the plan and can suggest vendors for each event. The family decides."
   },
   "vendorStats": {
     "savedBy": {
@@ -957,6 +969,41 @@
       "firstUp": "First things to book",
       "go": "Take me to my wedding",
       "subtitleNoEvents": "Pick your events in My Wedding to see what to book."
+    }
+  },
+  "suggestions": {
+    "title": "Suggestions",
+    "howTo": "Find a vendor you like, then tap \"Suggest for our wedding\" on their page. The family decides.",
+    "for": "For {{event}} · {{category}}",
+    "by": "Suggested by {{name}}",
+    "byYou": "You suggested this",
+    "accept": "Accept",
+    "decline": "Decline",
+    "withdraw": "Take back",
+    "waiting": "Waiting for the family to decide",
+    "accepted": "Accepted: booked in the plan",
+    "declined": "Not this time",
+    "openCount": "Suggested: {{count}}",
+    "failed": "That didn't work. Check your internet, then try again.",
+    "button": "Suggest for our wedding",
+    "sheetTitle": "Suggest {{name}}",
+    "sheetSubtitle": "The family sees it on the plan and decides.",
+    "whichEvent": "For which event?",
+    "whichType": "As which vendor type?",
+    "noteLabel": "Why this vendor? (optional)",
+    "notePlaceholder": "For example: big parking lot, and the food was great at Pinky's wedding",
+    "send": "Send suggestion",
+    "sent": "Sent to the family",
+    "sentBody": "{{name}} is on the plan's suggestions. Whoever set up the plan, or an editor, will decide.",
+    "done": "Done",
+    "noEvents": "The plan has no events yet. Ask the family to add them first.",
+    "noPlan": "You're not part of a shared wedding plan.",
+    "errors": {
+      "notAllowed": "You're not part of this plan any more.",
+      "eventNotInPlan": "That event isn't in the plan any more. Pick another.",
+      "vendorGone": "This vendor isn't listed any more.",
+      "limit": "You have 20 suggestions waiting. Let the family decide some first.",
+      "failed": "Your suggestion didn't send. Check your internet, then try again."
     }
   },
   "phoneSignIn": {

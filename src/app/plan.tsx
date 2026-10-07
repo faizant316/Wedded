@@ -25,10 +25,12 @@ import { makeStyles, Radius, Sizes, Spacing, Springs, useColors } from '@/consta
 import type { EventNeed, EventNeedsSection, TraditionEvent } from '@/data/reference';
 import { GUEST_BANDS } from '@/features/inquiry/inquiry-helpers';
 import { CountdownCard } from '@/features/planner/countdown-card';
+import { openCounts, useWeddingSuggestions } from '@/data/wedding-suggestions';
 import { FamilyShortlist } from '@/features/planner/family-shortlist';
 import { findForPlan } from '@/features/planner/find-for-plan';
 import { essentialNeeds } from '@/features/planner/plan';
 import { PlanTogether } from '@/features/planner/plan-together';
+import { Suggestions } from '@/features/planner/suggestions';
 import { StartPlanCard } from '@/features/planner/start-plan-card';
 import { usePlanView } from '@/features/planner/use-plan-view';
 import { localized } from '@/i18n/localized';
@@ -52,6 +54,8 @@ export default function PlanScreen() {
   const { t, locale } = useLocale();
   const view = usePlanView();
   const { plan, wedding, canEdit, saveFailed, active, chosen, needsByEvent, progress } = view;
+  const suggestions = useWeddingSuggestions(wedding?.id ?? null);
+  const suggested = openCounts(suggestions.data ?? []);
 
   // The first event with an essential left to book starts open.
   const firstOpen =
@@ -197,6 +201,7 @@ export default function PlanScreen() {
               sections={needsByEvent[event.slug] ?? []}
               booked={plan.booked[event.slug] ?? []}
               bookedVendors={wedding?.bookedVendors ?? {}}
+              suggested={suggested}
               guests={plan.guests?.[event.slug] ?? null}
               canEdit={canEdit}
               open={openSlugs.includes(event.slug)}
@@ -209,6 +214,7 @@ export default function PlanScreen() {
         </View>
       )}
 
+      {wedding && <Suggestions wedding={wedding} events={chosen} />}
       {wedding && <PlanTogether wedding={wedding} />}
       {wedding && <FamilyShortlist weddingId={wedding.id} />}
     </NavScreen>
@@ -221,6 +227,7 @@ function EventPlan({
   sections,
   booked,
   bookedVendors,
+  suggested,
   guests,
   canEdit,
   open,
@@ -233,6 +240,8 @@ function EventPlan({
   sections: EventNeedsSection[];
   booked: string[];
   bookedVendors: BookedVendors;
+  /** Open suggestions per "event/category". */
+  suggested: Record<string, number>;
   guests: string | null;
   canEdit: boolean;
   open: boolean;
@@ -272,6 +281,7 @@ function EventPlan({
       eventSlug={event.slug}
       booked={booked.includes(need.categorySlug)}
       bookedWith={bookedVendors[`${event.slug}/${need.categorySlug}`]?.name ?? null}
+      suggested={suggested[`${event.slug}/${need.categorySlug}`] ?? 0}
       guests={guests}
       essential={isEssential}
       canEdit={canEdit}
@@ -380,6 +390,7 @@ function NeedRow({
   eventSlug,
   booked,
   bookedWith,
+  suggested,
   guests,
   essential,
   canEdit,
@@ -390,6 +401,8 @@ function NeedRow({
   booked: boolean;
   /** The vendor's name, when the booking names one. */
   bookedWith: string | null;
+  /** Open suggestions for it, waiting for the family to decide. */
+  suggested: number;
   /** The event's guest band, which Find turns into filters. */
   guests: string | null;
   essential: boolean;
@@ -430,6 +443,11 @@ function NeedRow({
         {essential && !booked && (
           <AppText variant="caption" color="kesari" weight={600}>
             {t('event.essential')}
+          </AppText>
+        )}
+        {suggested > 0 && (
+          <AppText variant="caption" color="primary" weight={600}>
+            {t('suggestions.openCount', { count: suggested })}
           </AppText>
         )}
       </View>
