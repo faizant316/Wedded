@@ -9,6 +9,7 @@ import { Icon } from '@/components/icon';
 import { makeStyles, Radius, Spacing, useColors } from '@/constants/theme';
 import { useCities } from '@/data/places';
 import { useBackgrounds, useFaiths, useTraditions } from '@/data/reference';
+import { useSession } from '@/features/auth/session';
 import { formatDate } from '@/features/inquiry/inquiry-helpers';
 import { resetAnswers, setAnswers } from '@/features/onboarding/answers';
 import { localized } from '@/i18n/localized';
@@ -17,6 +18,7 @@ import { selectionHaptic } from '@/lib/haptics';
 import { Motion } from '@/lib/motion';
 
 import { planFromQuery, type NamedEvent, type PlanHint } from './plan-from-query';
+import { traditionsForSearch } from './plan-traditions';
 
 /**
  * What a search says about a wedding (planFromQuery), with the database's
@@ -68,6 +70,7 @@ export function PlanCard({ hint }: { hint: PlanHint }) {
   const faiths = useFaiths();
   const traditions = useTraditions();
   const cities = useCities();
+  const { requireSignIn } = useSession();
 
   const eventName = (slug: string) => {
     for (const tradition of traditions.data ?? []) {
@@ -90,18 +93,22 @@ export function PlanCard({ hint }: { hint: PlanHint }) {
   if (city) understood.push(city.name);
   if (hint.date) understood.push(formatDate(hint.date));
 
+  // A plan belongs to an account: signed out, they sign in first, then the
+  // questions open with what they typed filled in
   function build() {
     selectionHaptic();
-    resetAnswers();
-    setAnswers({
-      backgrounds: hint.backgrounds,
-      faiths: hint.faiths,
-      extraEvents: hint.events,
-      guestBand: hint.guestBand,
-      areaCode: hint.city?.areaCode ?? null,
-      weddingDate: hint.date,
+    const kinds = traditionsForSearch(hint.backgrounds, hint.faiths, traditions.data ?? []);
+    requireSignIn(() => {
+      resetAnswers();
+      setAnswers({
+        traditions: kinds.map((tradition) => tradition.slug),
+        extraEvents: hint.events,
+        guestBand: hint.guestBand,
+        citySlug: hint.city?.slug ?? null,
+        weddingDate: hint.date,
+      });
+      router.push('/onboarding/who');
     });
-    router.push('/onboarding/who');
   }
 
   return (

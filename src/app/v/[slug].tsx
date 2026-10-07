@@ -42,6 +42,7 @@ import { useSavedEventsFor, useSaveVendor } from '@/data/saved';
 import { useVendorLinks, type LinkedVendor } from '@/data/vendor-links';
 import { useRealWeddingsAt, useVendorPhotos, type VendorPhoto } from '@/data/vendor-media';
 import { useVendor } from '@/data/vendors';
+import { useMyWeddings } from '@/data/wedding';
 import { useSession } from '@/features/auth/session';
 import { trackVendorActivity, useVendorPublicStats } from '@/data/vendor-stats';
 import { useStartConversation } from '@/data/chat';
@@ -213,6 +214,8 @@ export default function VendorProfileScreen() {
   const { requireSignIn } = useSession();
   const startChat = useStartConversation();
   const menus = useVendorMenus(vendorId);
+  // Suggesters on the family's shared plan suggest vendors rather than book them
+  const canSuggest = useMyWeddings().data?.[0]?.role === 'suggester';
 
   // One anonymous view per visit (trackVendorActivity de-dupes per session).
   useEffect(() => {
@@ -523,6 +526,19 @@ export default function VendorProfileScreen() {
               />
             ))}
           </View>
+        )}
+
+        {canSuggest && (
+          <Button
+            icon="bulb-outline"
+            label={t('suggestions.button')}
+            onPress={() =>
+              router.push({
+                pathname: '/suggest',
+                params: event ? { vendor: v.slug, event } : { vendor: v.slug },
+              })
+            }
+          />
         )}
 
         {isVenue && (

@@ -1,8 +1,7 @@
 /**
  * What a family answers in the first questions (src/app/onboarding), kept in
- * memory until they finish, when finishOnboarding() turns it into their plan.
- * Background and faith are only ever used here, to pick traditions: they're
- * never saved (docs/DECISIONS.md, 2026-09-30).
+ * memory until they finish, when useFinishOnboarding() turns it into their
+ * plan.
  */
 import { useSyncExternalStore } from 'react';
 
@@ -13,31 +12,30 @@ export type PlanningFor = 'self' | 'child' | 'sibling' | 'relative' | 'friend';
 
 export type Answers = {
   planningFor: PlanningFor | null;
+  /** The kinds of wedding they picked (cultures.slug); two for a mixed family. */
+  traditions: string[];
+  /** They said their kind of wedding isn't listed (they'll pick events themselves). */
+  otherTradition: boolean;
   weddingDate: string | null;
   /** They said they haven't picked a date yet. */
   noDateYet: boolean;
-  backgrounds: string[];
-  faiths: string[];
-  /** Null until the events question first shows; then it starts with the main events. */
-  events: string[] | null;
-  /** An area-code chip (area_codes.code) for where to search. */
-  areaCode: string | null;
-  /** Events named in a search ("mehndi and jaago"), ticked along with the main ones. */
+  /** Events named in a search ("mehndi and jaago"), added to the traditions' main events. */
   extraEvents: string[];
   /** A guest count from a search ("for 300 people"), for every event. */
   guestBand: GuestBand | null;
+  /** A city named in a search (cities.slug), searched around once the plan is made. */
+  citySlug: string | null;
 };
 
 const EMPTY: Answers = {
   planningFor: null,
+  traditions: [],
+  otherTradition: false,
   weddingDate: null,
   noDateYet: false,
-  backgrounds: [],
-  faiths: [],
-  events: null,
-  areaCode: null,
   extraEvents: [],
   guestBand: null,
+  citySlug: null,
 };
 
 let answers: Answers = EMPTY;

@@ -21,9 +21,9 @@ export const referenceKeys = {
   eventNeeds: (slug: string) => [...referenceKeys.all, 'event-needs', slug] as const,
   categories: () => [...referenceKeys.all, 'categories'] as const,
   traditions: () => [...referenceKeys.all, 'traditions'] as const,
+  allEventNeeds: () => [...referenceKeys.all, 'all-event-needs'] as const,
   backgrounds: () => [...referenceKeys.all, 'backgrounds'] as const,
   faiths: () => [...referenceKeys.all, 'faiths'] as const,
-  allEventNeeds: () => [...referenceKeys.all, 'all-event-needs'] as const,
 };
 
 /** The row's name, or its slug if the name is somehow unreadable. */
@@ -340,9 +340,9 @@ export function useAllEventNeeds() {
   });
 }
 
-// First questions ------------------------------------------------------------
+// Reading a search -------------------------------------------------------
 
-/** A background (Punjabi, Pakistani...) or faith (Sikh, Muslim...) to pick. */
+/** A place families are from (Punjab, Pakistan...) or a faith (Sikh, Muslim...). */
 export type Choice = { slug: string; name: LocalizedText };
 
 async function fetchChoices(table: 'backgrounds' | 'faiths'): Promise<Choice[]> {
@@ -351,7 +351,10 @@ async function fetchChoices(table: 'backgrounds' | 'faiths'): Promise<Choice[]> 
   return data.map((row) => ({ slug: row.slug, name: nameOf(row) }));
 }
 
-/** "Where is your family from?", in the founders' order. */
+/**
+ * Where families are from, for reading a typed search ("punjabi wedding").
+ * The first questions no longer ask it (DECISIONS.md, 2026-10-02).
+ */
 export function useBackgrounds() {
   return useQuery({
     queryKey: referenceKeys.backgrounds(),
@@ -360,7 +363,7 @@ export function useBackgrounds() {
   });
 }
 
-/** The faiths to pick from, in the founders' order. */
+/** The faiths, for reading a typed search ("sikh wedding"). */
 export function useFaiths() {
   return useQuery({
     queryKey: referenceKeys.faiths(),
