@@ -10,7 +10,9 @@ app ──PUT──▶ S3 uploads ──event──▶ Lambda (sharp) ──▶ 
 - **ProcessPhoto Lambda** (`lambda/process-photo.ts`, Node 24 on ARM): runs for each upload and writes `<vendor id>/<photo id>/{400,1080,1600}.webp` and `meta.json` (`{ width, height, blurhash }`) to the media bucket. The sizes and quality match `scripts/upload-vendor-photos.ts`, and the layout matches `vendor_media.storage_path` in Supabase, so `photoUrl()` could point here by changing its base URL.
 - **Media bucket** (private) behind **CloudFront** with Origin Access Control: only the distribution can read it, and files are cached for a year (each photo id is new, so a file never changes).
 
-The app doesn't use any of this yet. It still loads photos from Supabase Storage.
+**The app** loads photos from here when `EXPO_PUBLIC_MEDIA_URL` is set to `MediaUrl`, through `photoUrl()` in `src/data/vendor-media.ts`; otherwise it uses Supabase Storage. Photos get here with `npm run photos:upload -- <folder> --aws` or `npm run photos:samples -- --aws` (`scripts/aws-media.ts`). That script uploads each original, waits for the Lambda's `meta.json`, and saves the `vendor_media` row with its size and blurhash. Photos already in Supabase Storage are copied over with `npm run photos:to-aws` (`scripts/copy-photos-to-aws.ts`). They're already sized, so they go straight to the media bucket.
+
+Vendors can't upload from the app yet. That needs a hosted Supabase project, because a Lambda can't reach a database on a laptop, and the "My business" screens.
 
 ## First time
 

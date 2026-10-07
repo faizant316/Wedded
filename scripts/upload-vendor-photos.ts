@@ -3,8 +3,8 @@
  * three WebP variants with a blurhash, uploads them and upserts by slug"; the
  * same tool later ingests real founding vendors).
  *
- *   npm run photos:upload -- <folder> [--local]
- *   npm run photos:samples                       (local; npm run photos:upload -- --samples for hosted)
+ *   npm run photos:upload -- <folder> [--local] [--aws]
+ *   npm run photos:samples [-- --aws]            (local; npm run photos:upload -- --samples for hosted)
  *
  * <folder> has one subfolder per vendor slug with .jpg, .jpeg, .png or .webp
  * files. Files are sorted by name; a file named cover.* (or the first file,
@@ -16,6 +16,11 @@
  * Each photo becomes vendor-media/<vendor id>/<photo id>/{400,1080,1600}.webp
  * plus a vendor_media row. Photo ids come from the vendor and file name, so
  * running it again updates photos instead of duplicating them.
+ *
+ * --aws sends the files through AWS instead (infra/, scripts/aws-media.ts):
+ * the original goes to the WeddedMedia uploads bucket, its Lambda makes the
+ * same three sizes for CloudFront (EXPO_PUBLIC_MEDIA_URL), and the row gets the
+ * size and blurhash it reports.
  *
  * --local uses the local Supabase (`supabase status`). Otherwise set
  * SUPABASE_URL and SUPABASE_SECRET_KEY (the service role key; never commit it).
@@ -31,6 +36,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { encode } from 'blurhash';
 import sharp from 'sharp';
 
+import { connectAws, processOnAws, type AwsMedia, type PhotoMeta } from './aws-media';
 import { connect, fail } from './connect';
 
 const WIDTHS = [400, 1080, 1600] as const;
@@ -64,7 +70,39 @@ async function vendorIdsBySlug(
   return new Map(data.map((row) => [row.slug as string, row.id as string]));
 }
 
-async function uploadVendorPhotos(supabase: SupabaseClient, vendorSlug: string, photos: Photo[]) {
+/** Resizes a photo here and uploads the sizes to the vendor-media bucket. */
+async function storeOnSupabase(
+  supabase: SupabaseClient,
+  storagePath: string,
+  photo: Photo,
+  label: string,
+): Promise<PhotoMeta> {
+  let largest = { width: 0, height: 0 };
+  for (const width of WIDTHS) {
+    const { data, info } = await sharp(photo.data)
+      .rotate()
+      .resize({ width, withoutEnlargement: true })
+      .webp({ quality: width === 400 ? 70 : 80 })
+      .toBuffer({ resolveWithObject: true });
+    largest = { width: info.width, height: info.height };
+    const { error } = await supabase.storage
+      .from(BUCKET)
+      .upload(`${storagePath}/${width}.webp`, data, {
+        contentType: 'image/webp',
+        cacheControl: '31536000',
+        upsert: true,
+      });
+    if (error) fail(`Upload failed for ${label}: ${error.message}`);
+  }
+  return { ...largest, blurhash: await blurhashOf(photo.data) };
+}
+
+async function uploadVendorPhotos(
+  supabase: SupabaseClient,
+  aws: AwsMedia | null,
+  vendorSlug: string,
+  photos: Photo[],
+) {
   const tagSlugs = photos
     .flatMap((photo) => [photo.tags.venue, photo.tags.credit])
     .filter(Boolean) as string[];
@@ -80,31 +118,25 @@ async function uploadVendorPhotos(supabase: SupabaseClient, vendorSlug: string, 
   let nextOrder = Math.max(0, ...(existing ?? []).map((row) => row.sort_order as number)) + 1;
   const explicitCover = photos.some((photo) => photo.isCover || /^cover\./i.test(photo.fileName));
 
-  for (const [index, photo] of photos.entries()) {
-    const photoId = stableId(`${vendorId}/${photo.fileName}`);
-    const storagePath = `${vendorId}/${photoId}`;
-    const source = sharp(photo.data).rotate();
-    const meta = await source.metadata();
-    if (!meta.width || !meta.height)
-      fail(`${vendorSlug}/${photo.fileName} is not a readable image.`);
+  // Resize every photo first (at the same time, which matters on AWS), then
+  // save the rows in order
+  const photoIds = photos.map((photo) => stableId(`${vendorId}/${photo.fileName}`));
+  const stored = await Promise.all(
+    photos.map(async (photo, index) => {
+      const label = `${vendorSlug}/${photo.fileName}`;
+      const meta = await sharp(photo.data).metadata();
+      if (!meta.width || !meta.height) fail(`${label} is not a readable image.`);
+      const storagePath = `${vendorId}/${photoIds[index]}`;
+      return aws
+        ? processOnAws(aws, storagePath, photo.fileName, photo.data)
+        : storeOnSupabase(supabase, storagePath, photo, label);
+    }),
+  );
 
-    let largest = { width: meta.width, height: meta.height };
-    for (const width of WIDTHS) {
-      const { data, info } = await sharp(photo.data)
-        .rotate()
-        .resize({ width, withoutEnlargement: true })
-        .webp({ quality: width === 400 ? 70 : 80 })
-        .toBuffer({ resolveWithObject: true });
-      largest = { width: info.width, height: info.height };
-      const { error } = await supabase.storage
-        .from(BUCKET)
-        .upload(`${storagePath}/${width}.webp`, data, {
-          contentType: 'image/webp',
-          cacheControl: '31536000',
-          upsert: true,
-        });
-      if (error) fail(`Upload failed for ${vendorSlug}/${photo.fileName}: ${error.message}`);
-    }
+  for (const [index, photo] of photos.entries()) {
+    const photoId = photoIds[index];
+    const storagePath = `${vendorId}/${photoId}`;
+    const { width, height, blurhash } = stored[index];
 
     const isCover = explicitCover
       ? Boolean(photo.isCover || /^cover\./i.test(photo.fileName))
@@ -123,9 +155,9 @@ async function uploadVendorPhotos(supabase: SupabaseClient, vendorSlug: string, 
       id: photoId,
       vendor_id: vendorId,
       storage_path: storagePath,
-      width: largest.width,
-      height: largest.height,
-      blurhash: await blurhashOf(photo.data),
+      width,
+      height,
+      blurhash,
       is_cover: isCover,
       sort_order: already ? (already.sort_order as number) : nextOrder++,
       event_slug: photo.tags.event ?? null,
@@ -190,7 +222,7 @@ async function placeholder(name: string, caption: string, variant: number): Prom
   return sharp(Buffer.from(svg)).jpeg({ quality: 85 }).toBuffer();
 }
 
-async function uploadSamples(supabase: SupabaseClient, venueSlug: string) {
+async function uploadSamples(supabase: SupabaseClient, aws: AwsMedia | null, venueSlug: string) {
   const { data: venue } = await supabase
     .from('vendors')
     .select('name')
@@ -227,7 +259,7 @@ async function uploadSamples(supabase: SupabaseClient, venueSlug: string) {
         isCover: n === 1,
       });
     }
-    await uploadVendorPhotos(supabase, vendor.slug as string, photos);
+    await uploadVendorPhotos(supabase, aws, vendor.slug as string, photos);
   }
 }
 
@@ -240,15 +272,17 @@ async function main() {
     'royal-orchard-banquet-hall';
   const folder = args.find((arg) => !arg.startsWith('--'));
   const supabase = connect(local);
+  const aws = args.includes('--aws') ? await connectAws() : null;
+  if (aws) console.log(`Sending photos through AWS (${aws.uploadsBucket})…`);
 
   if (samples) {
     console.log('Uploading placeholder photos for the sample vendors…');
-    await uploadSamples(supabase, venueSlug);
+    await uploadSamples(supabase, aws, venueSlug);
   } else {
-    if (!folder) fail('Usage: npm run photos:upload -- <folder> [--local]');
+    if (!folder) fail('Usage: npm run photos:upload -- <folder> [--local] [--aws]');
     for (const [slug, photos] of readFolder(folder)) {
       console.log(`${slug}: ${photos.length} photo(s)`);
-      await uploadVendorPhotos(supabase, slug, photos);
+      await uploadVendorPhotos(supabase, aws, slug, photos);
     }
   }
   console.log('Done.');

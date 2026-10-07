@@ -1,7 +1,9 @@
 /**
- * Vendor photos (vision §6, §8 "Media"). Each photo is pre-sized in the public
- * vendor-media bucket: small (400 wide) for grids and cards, medium (1080) for
- * the profile, large (1600) for full screen. Never load a large one in a grid.
+ * Vendor photos (vision §6, §8 "Media"). Each photo is pre-sized: small (400
+ * wide) for grids and cards, medium (1080) for the profile, large (1600) for
+ * full screen. Never load a large one in a grid. They're served from the public
+ * vendor-media bucket in Supabase, or from AWS CloudFront (infra/) when
+ * EXPO_PUBLIC_MEDIA_URL is set; both use the same <storage_path>/<width>.webp.
  */
 import { useQuery } from '@tanstack/react-query';
 
@@ -12,10 +14,14 @@ export type PhotoSize = 'small' | 'medium' | 'large';
 
 const WIDTHS: Record<PhotoSize, number> = { small: 400, medium: 1080, large: 1600 };
 
+// The WeddedMedia stack's MediaUrl, e.g. https://d123.cloudfront.net
+const MEDIA_URL = process.env.EXPO_PUBLIC_MEDIA_URL?.replace(/\/+$/, '') || null;
+
 /** Public URL of one size of a photo, from its storage_path (vendor id/photo id). */
 export function photoUrl(storagePath: string, size: PhotoSize): string {
-  return supabase.storage.from('vendor-media').getPublicUrl(`${storagePath}/${WIDTHS[size]}.webp`)
-    .data.publicUrl;
+  const file = `${storagePath}/${WIDTHS[size]}.webp`;
+  if (MEDIA_URL) return `${MEDIA_URL}/${file}`;
+  return supabase.storage.from('vendor-media').getPublicUrl(file).data.publicUrl;
 }
 
 export type VendorPhoto = {
