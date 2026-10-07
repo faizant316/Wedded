@@ -27,7 +27,7 @@ import Animated, {
 import { AppText } from '@/components/app-text';
 import { Icon } from '@/components/icon';
 import { Radius, Spacing, Springs } from '@/constants/theme';
-import { compactCount, type Reel } from '@/data/reels';
+import { compactCount, type Reel, reelVendors } from '@/data/reels';
 import { initials } from '@/features/planner/plan-together';
 import { useLocale } from '@/i18n/locale-context';
 import { saveHaptic } from '@/lib/haptics';
@@ -38,6 +38,8 @@ export const REEL_INK = '#FFFFFF';
 export const REEL_DIM = 'rgba(255,255,255,0.78)';
 const PILL = 'rgba(255,255,255,0.18)';
 const LIKED = '#FF3B5C';
+// The app's maroon, so Book reads as the one thing to do on a reel
+const BOOK = 'rgba(138,28,51,0.95)';
 
 const DOUBLE_TAP_MS = 300;
 // After a double tap, every quick tap adds another heart (TikTok's combo)
@@ -82,6 +84,8 @@ export type ReelActions = {
   onComments: (reel: Reel) => void;
   onShare: (reel: Reel) => void;
   onMore: (reel: Reel) => void;
+  /** Book this vendor: the Ask screen, or a picker when the reel shows several. */
+  onBook: (reel: Reel) => void;
 };
 
 /**
@@ -91,8 +95,9 @@ export type ReelActions = {
  * tapped (keep tapping for more); holding pauses and hides everything so the
  * video shows whole. The rail on the right has the poster (with follow),
  * like, comments, share, sound and more; at the bottom are who posted it,
- * the caption (two lines, then "more"), the event and the vendors tagged in
- * it, each opening that vendor's page. Wide clips show whole, not cropped.
+ * the caption (two lines, then "more"), the event, the vendors in it (the
+ * one who posted it, then the ones tagged), each opening that vendor's page,
+ * and Book this vendor. Wide clips show whole, not cropped.
  */
 export function ReelItem({
   reel,
@@ -225,6 +230,7 @@ export function ReelItem({
   };
 
   const poster = reel.vendor?.name ?? reel.authorName ?? t('reels.someone');
+  const vendors = reelVendors(reel);
   // Wide clips show whole with bars, as TikTok does; upright ones fill the screen
   const fit = reel.width && reel.height && reel.width > reel.height ? 'contain' : 'cover';
   const openPoster = () =>
@@ -410,24 +416,45 @@ export function ReelItem({
             </AppText>
           </View>
         )}
-        {reel.tags.length > 0 && (
+        {vendors.length > 0 && (
           <View style={styles.tags}>
-            {reel.tags.map((tag) => (
+            {vendors.map((vendor) => (
               <Pressable
-                key={tag.vendorId}
+                key={vendor.slug}
                 accessibilityRole="link"
-                accessibilityLabel={t('reels.taggedVendor', { name: tag.name })}
-                onPress={() => router.push({ pathname: '/v/[slug]', params: { slug: tag.slug } })}
+                accessibilityLabel={t('reels.taggedVendor', { name: vendor.name })}
+                onPress={() =>
+                  router.push({ pathname: '/v/[slug]', params: { slug: vendor.slug } })
+                }
+                // The chip is slim over the video; its touch area is 48 tall
+                hitSlop={{ top: 6, bottom: 6 }}
                 style={({ pressed }) => [styles.tag, pressed && styles.pressed]}
               >
                 <Icon name="storefront-outline" size={14} color={REEL_INK} />
                 <AppText variant="label" weight={600} numberOfLines={1} style={styles.ink}>
-                  {tag.name}
+                  {vendor.name}
                 </AppText>
                 <Icon name="chevron-forward" size={12} color={REEL_DIM} />
               </Pressable>
             ))}
           </View>
+        )}
+        {vendors.length > 0 && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={
+              vendors.length === 1
+                ? t('reels.bookVendor', { name: vendors[0].name })
+                : t('reels.bookAny')
+            }
+            onPress={() => actions.onBook(reel)}
+            style={({ pressed }) => [styles.book, pressed && styles.pressed]}
+          >
+            <Icon name="calendar-outline" size={20} color={REEL_INK} />
+            <AppText weight={700} numberOfLines={1} style={styles.bookText}>
+              {vendors.length === 1 ? t('reels.bookThis') : t('reels.bookAny')}
+            </AppText>
+          </Pressable>
         )}
       </Animated.View>
 
@@ -620,5 +647,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     borderRadius: Radius.chip,
     backgroundColor: PILL,
+  },
+  book: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'flex-start',
+    gap: Spacing.sm,
+    minHeight: 48,
+    maxWidth: '100%',
+    paddingHorizontal: Spacing.lg,
+    marginTop: Spacing.xs,
+    borderRadius: Radius.chip,
+    backgroundColor: BOOK,
+  },
+  bookText: {
+    color: REEL_INK,
   },
 });

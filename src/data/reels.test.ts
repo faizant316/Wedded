@@ -1,4 +1,11 @@
-import { clipProblem, compactCount, postErrorKind, REEL_MAX_BYTES, toReel } from './reels';
+import {
+  clipProblem,
+  compactCount,
+  postErrorKind,
+  REEL_MAX_BYTES,
+  reelVendors,
+  toReel,
+} from './reels';
 
 jest.mock('@/lib/supabase', () => ({
   supabase: {
@@ -64,6 +71,22 @@ describe('reels', () => {
     });
     expect(reel.vendor).toEqual({ id: 'v9', slug: 'rang-mehndi', name: 'Rang Mehndi' });
     expect(reel.thumbUrl).toBeNull();
+  });
+
+  it('lists the posting vendor first, then the tagged ones, once each', () => {
+    const reel = toReel({
+      ...row,
+      vendor_id: 'v1',
+      vendor_slug: 'gabru-dhol',
+      vendor_name: 'Gabru Dhol Crew',
+    });
+    expect(reelVendors(reel).map((v) => v.slug)).toEqual(['gabru-dhol', 'golden-moments']);
+    expect(reelVendors({ vendor: null, tags: [] })).toEqual([]);
+    expect(reelVendors(toReel(row))[0]).toEqual({
+      id: 'v1',
+      slug: 'gabru-dhol',
+      name: 'Gabru Dhol Crew',
+    });
   });
 
   it('writes counts the way people read them under a reel', () => {
