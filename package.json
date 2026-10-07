@@ -101,7 +101,8 @@
     },
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/supabase/"
+      "/supabase/",
+      "/infra/"
     ]
   }
 }

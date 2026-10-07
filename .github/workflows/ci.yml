@@ -94,12 +94,34 @@ jobs:
           (cd supabase/functions/_shared && deno lint && deno fmt --check)
           echo "::endgroup::"
 
+  # AWS infrastructure (infra/): type-check, test the photo resizing and build
+  # the CloudFormation template, so a broken stack can't merge. Nothing is
+  # deployed from here yet: a founder runs `npx cdk deploy` (infra/README.md).
+  infra:
+    name: AWS infrastructure
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: infra/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npx cdk synth --quiet
+
   # Squash-merge the PR into main as soon as the checks pass, so nobody has to
   # click merge. Drafts are skipped: open a draft when the other founder should
   # look first, then mark it ready.
   merge:
     name: Merge when checks pass
-    needs: [check, database, functions]
+    needs: [check, database, functions, infra]
     if: github.event_name == 'pull_request' && !github.event.pull_request.draft && github.event.pull_request.base.ref == 'main'
     runs-on: ubuntu-latest
     timeout-minutes: 5

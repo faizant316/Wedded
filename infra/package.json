@@ -1,0 +1,28 @@
+{
+  "name": "wedded-infra",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "cdk": "cdk",
+    "synth": "cdk synth",
+    "diff": "cdk diff",
+    "deploy": "cdk deploy",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test \"lambda/**/*.test.ts\""
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.272.0",
+    "blurhash": "^2.0.5",
+    "constructs": "^10.8.1",
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-s3": "^3.1146.0",
+    "@types/aws-lambda": "^8.10.164",
+    "@types/node": "^22.18.0",
+    "aws-cdk": "2.1144.0",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3"
+  }
+}
