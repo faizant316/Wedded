@@ -101,7 +101,6 @@ const SF_SYMBOLS: Partial<Record<IconName, SFSymbol>> = {
   'volume-mute': 'speaker.slash.fill',
   'volume-high': 'speaker.wave.2.fill',
   'film-outline': 'film',
-  'ellipse-outline': 'circle',
   pause: 'pause.fill',
   'ellipsis-horizontal': 'ellipsis',
   'paper-plane-outline': 'paperplane',
