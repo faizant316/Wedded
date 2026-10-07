@@ -96,13 +96,19 @@ async function uploadVendorPhotos(supabase: SupabaseClient, vendorSlug: string, 
         .webp({ quality: width === 400 ? 70 : 80 })
         .toBuffer({ resolveWithObject: true });
       largest = { width: info.width, height: info.height };
-      const { error } = await supabase.storage
-        .from(BUCKET)
-        .upload(`${storagePath}/${width}.webp`, data, {
-          contentType: 'image/webp',
-          cacheControl: '31536000',
-          upsert: true,
-        });
+      // A dropped connection shouldn't stop a run of hundreds of uploads
+      let error: Error | null = null;
+      for (let attempt = 1; attempt <= 4; attempt++) {
+        ({ error } = await supabase.storage
+          .from(BUCKET)
+          .upload(`${storagePath}/${width}.webp`, data, {
+            contentType: 'image/webp',
+            cacheControl: '31536000',
+            upsert: true,
+          }));
+        if (!error) break;
+        await new Promise((resolve) => setTimeout(resolve, attempt * 2000));
+      }
       if (error) fail(`Upload failed for ${vendorSlug}/${photo.fileName}: ${error.message}`);
     }
 
