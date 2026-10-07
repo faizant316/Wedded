@@ -12,4 +12,6 @@ export const StorageKeys = {
   weddingPlan: 'planner.wedding',
   /** The welcome screen and first questions: "seen" (they chose to browse) or "done". */
   onboarding: 'settings.onboarding',
+  /** Reels' first-time "Swipe up for more": "done" once they've swiped. */
+  reelsSwipeHint: 'reels.swipeHint',
 } as const;
