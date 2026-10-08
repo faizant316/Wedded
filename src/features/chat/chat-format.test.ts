@@ -38,6 +38,12 @@ describe('lastMessagePreview', () => {
     );
     expect(lastMessagePreview(convo(null), t)).toBe('chat.noMessages');
   });
+
+  it('never shows a shared number in the inbox, only that it was shared', () => {
+    expect(lastMessagePreview(convo({ kind: 'phone', body: null, senderRole: 'family' }), t)).toBe(
+      'chat.preview.you {"text":"chat.preview.phone"}',
+    );
+  });
 });
 
 describe('inboxTime', () => {

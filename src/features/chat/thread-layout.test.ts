@@ -13,6 +13,7 @@ const message = (id: string, role: 'family' | 'vendor', at: string, readAt: stri
     quote: null,
     menuId: null,
     booking: null,
+    phone: null,
     createdAt: at,
     readAt,
   }) satisfies ChatMessage;
