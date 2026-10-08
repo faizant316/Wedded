@@ -23,6 +23,7 @@ import { useLocale } from '@/i18n/locale-context';
 export function Composer({
   value,
   onChangeText,
+  onBlur,
   onSend,
   onAddPhoto,
   sending = false,
@@ -31,6 +32,8 @@ export function Composer({
 }: {
   value: string;
   onChangeText: (text: string) => void;
+  /** The message box lost focus (e.g. to stop "typing…"). */
+  onBlur?: () => void;
   onSend: () => void;
   /** Leave out to hide the photo button. */
   onAddPhoto?: () => void;
@@ -74,6 +77,7 @@ export function Composer({
         <TextInput
           value={value}
           onChangeText={onChangeText}
+          onBlur={onBlur}
           placeholder={t('chat.placeholder')}
           placeholderTextColor={Colors.text2}
           accessibilityLabel={t('chat.placeholder')}
