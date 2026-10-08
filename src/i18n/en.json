@@ -909,14 +909,17 @@
       "photo": "Photo",
       "quote": "Sent a quote",
       "menu": "Sent a menu",
-      "booking": "Inquiry"
+      "booking": "Inquiry",
+      "phone": "Shared a phone number"
     },
     "errors": {
       "rate": "You're sending very fast. Wait a minute, then send again.",
       "empty": "Type a message first.",
       "notAllowed": "You can't send in this conversation.",
       "invalid": "That message couldn't be sent. Check it and try again.",
-      "failed": "That didn't send. Check your internet and try again."
+      "failed": "That didn't send. Check your internet and try again.",
+      "familyFirst": "You can reply once this family writes to you.",
+      "waitForReply": "You've followed up twice. Wait for the family to reply before writing again."
     },
     "quoteForm": {
       "title": "Send a quote",
@@ -932,6 +935,19 @@
       "title": "Send a menu",
       "hint": "Tap a menu to send it as a card.",
       "none": "You have no menus yet. Text the founders to add them."
+    },
+    "phone": {
+      "shareButton": "Share my number",
+      "confirmTitle": "Share your number?",
+      "confirm": "{{number}} will show in this chat, so the vendor can call or text you.",
+      "share": "Share",
+      "cancel": "Cancel",
+      "shared": "Their number",
+      "youShared": "You shared your number",
+      "call": "Call",
+      "text": "Text",
+      "callSpoken": "Call {{number}}",
+      "textSpoken": "Text {{number}}"
     }
   },
   "welcome": {

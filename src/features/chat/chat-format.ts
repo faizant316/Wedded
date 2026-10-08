@@ -21,6 +21,9 @@ export function lastMessagePreview(conversation: Conversation, t: Translate): st
     case 'booking':
       text = t('chat.preview.booking');
       break;
+    case 'phone':
+      text = t('chat.preview.phone');
+      break;
     default:
       text = (last.body ?? '').replace(/\s+/g, ' ').trim();
   }

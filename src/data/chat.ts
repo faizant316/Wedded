@@ -17,7 +17,7 @@ import type { Json } from '@/types/database';
 import { photoUrl } from './vendor-media';
 
 export type ChatSide = 'family' | 'vendor';
-export type MessageKind = 'text' | 'photo' | 'quote' | 'menu' | 'booking';
+export type MessageKind = 'text' | 'photo' | 'quote' | 'menu' | 'booking' | 'phone';
 
 export type Quote = {
   amount: number;
@@ -50,6 +50,8 @@ export type Message = {
   quote: Quote | null;
   menuId: string | null;
   booking: Booking | null;
+  /** A family's number, shown only after they tap "Share my number". */
+  phone: string | null;
   createdAt: string;
   /** When the other side had read it (for "Seen"); only on my own messages. */
   readAt: string | null;
@@ -262,6 +264,7 @@ export function toMessage(
                 : {},
           }
         : null,
+    phone: row.kind === 'phone' && typeof d.phone === 'string' ? d.phone : null,
     createdAt: row.created_at,
     readAt: mine && otherReadAt && otherReadAt >= row.created_at ? otherReadAt : null,
   };
@@ -341,7 +344,9 @@ export type NewMessage =
   | { kind: 'text'; body: string }
   | { kind: 'photo'; path: string; width?: number; height?: number; body?: string }
   | { kind: 'quote'; quote: Quote; body?: string }
-  | { kind: 'menu'; menuId: string; body?: string };
+  | { kind: 'menu'; menuId: string; body?: string }
+  /** The family shares the number on their profile (the database fills it in). */
+  | { kind: 'phone' };
 
 export function messagePayload(message: NewMessage): {
   kind: MessageKind;
@@ -361,6 +366,8 @@ export function messagePayload(message: NewMessage): {
       return { kind: 'quote', body: message.body ?? null, data: { ...message.quote } };
     case 'menu':
       return { kind: 'menu', body: message.body ?? null, data: { menuId: message.menuId } };
+    case 'phone':
+      return { kind: 'phone', body: null, data: {} };
   }
 }
 
@@ -416,9 +423,12 @@ export function useSendMessage(conversationId: string) {
 /** Which message to show when sending fails (the database's error names). */
 export function sendErrorKind(
   error: unknown,
-): 'rate' | 'empty' | 'notAllowed' | 'invalid' | 'failed' {
+): 'rate' | 'empty' | 'notAllowed' | 'familyFirst' | 'waitForReply' | 'invalid' | 'failed' {
   const message = error instanceof Error ? error.message : String(error ?? '');
   if (message.includes('message_rate')) return 'rate';
+  // The no-spam rules (C2): vendors only reply, and follow up at most twice
+  if (message.includes('family_first')) return 'familyFirst';
+  if (message.includes('wait_for_reply')) return 'waitForReply';
   if (message.includes('empty_message')) return 'empty';
   if (message.includes('not_allowed')) return 'notAllowed';
   if (message.includes('invalid_')) return 'invalid';

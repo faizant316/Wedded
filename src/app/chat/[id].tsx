@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { FlatList, KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
+import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/app-text';
@@ -9,6 +9,7 @@ import { BookingCard } from '@/components/chat/booking-card';
 import { Composer } from '@/components/chat/composer';
 import { DaySeparator } from '@/components/chat/day-separator';
 import { MessageRow, PhotoBubble, TextBubble } from '@/components/chat/message-row';
+import { PhoneCard } from '@/components/chat/phone-card';
 import { QuoteCard } from '@/components/chat/quote-card';
 import { TypingIndicator } from '@/components/chat/typing-indicator';
 import { Chip } from '@/components/chip';
@@ -31,9 +32,11 @@ import { useVendorMenus } from '@/data/vendor-menus';
 import { sentPhotoUri } from '@/features/chat/chat-photo';
 import { layoutThread, type ThreadItem } from '@/features/chat/thread-layout';
 import { type PhotoUpload, usePhotoSender } from '@/features/chat/use-photo-sender';
+import { useSession } from '@/features/auth/session';
 import { usd } from '@/features/vendors/profile-format';
 import { localized } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
+import { formatPhone } from '@/lib/phone';
 
 const QUICK_REPLIES = ['available', 'price', 'visit', 'thanks'] as const;
 
@@ -41,8 +44,9 @@ const QUICK_REPLIES = ['available', 'price', 'visit', 'thanks'] as const;
  * One conversation between a family and a vendor, live. The family's inquiry
  * is the first card; then bubbles, photos, quotes and menus, grouped by day.
  * Either side can send a photo, and sees "… is typing" while the other side
- * writes. Families get quick replies; vendors get "Send a quote" and "Send a
- * menu".
+ * writes. Families get quick replies and "Share my number" (their number never
+ * reaches the vendor otherwise, C2); vendors get "Send a quote" and "Send a
+ * menu", and only ever reply.
  * Opening it marks it read. /chat/{conversation id}
  */
 export default function ChatScreen() {
@@ -57,6 +61,23 @@ export default function ChatScreen() {
   const convo = thread.conversation;
   const side = convo?.side ?? 'family';
   const typing = useTyping(id, convo?.side ?? null);
+  const { profile } = useSession();
+  const sharedNumber = thread.messages.some((m) => m.kind === 'phone' && m.senderRole === 'family');
+
+  // Asked first, with the number shown, since it can't be taken back
+  const shareNumber = () => {
+    if (!profile?.phone) return;
+    const number = formatPhone(profile.phone);
+    const share = () => send.mutate({ kind: 'phone' });
+    if (Platform.OS === 'web') {
+      if (globalThis.confirm(t('chat.phone.confirm', { number }))) share();
+      return;
+    }
+    Alert.alert(t('chat.phone.confirmTitle'), t('chat.phone.confirm', { number }), [
+      { text: t('chat.phone.cancel'), style: 'cancel' },
+      { text: t('chat.phone.share'), onPress: share },
+    ]);
+  };
 
   const sendText = (text: string) => {
     const body = text.trim();
@@ -183,6 +204,11 @@ export default function ChatScreen() {
               />
             </View>
           )}
+          {side === 'family' && convo && profile?.phone && !sharedNumber && (
+            <View style={styles.tools}>
+              <Chip role="button" label={t('chat.phone.shareButton')} onPress={shareNumber} />
+            </View>
+          )}
           <Composer
             value={draft}
             onChangeText={changeDraft}
@@ -280,7 +306,12 @@ function ThreadRow({
         last={last}
         seen={seen}
         createdAt={message.createdAt}
-        wide={message.kind === 'quote' || message.kind === 'menu' || message.kind === 'booking'}
+        wide={
+          message.kind === 'quote' ||
+          message.kind === 'menu' ||
+          message.kind === 'booking' ||
+          message.kind === 'phone'
+        }
       >
         <MessageContent
           message={message}
@@ -359,6 +390,8 @@ function MessageContent({
           }
         />
       ) : null;
+    case 'phone':
+      return message.phone ? <PhoneCard phone={message.phone} mine={mine} /> : null;
     default:
       return <TextBubble text={message.body ?? ''} mine={mine} first={first} last={last} />;
   }
