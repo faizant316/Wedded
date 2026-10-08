@@ -11,6 +11,7 @@ import { DaySeparator } from '@/components/chat/day-separator';
 import { MessageRow, PhotoBubble, TextBubble } from '@/components/chat/message-row';
 import { PhoneCard } from '@/components/chat/phone-card';
 import { QuoteCard } from '@/components/chat/quote-card';
+import { TypingIndicator } from '@/components/chat/typing-indicator';
 import { Chip } from '@/components/chip';
 import { FieldError } from '@/components/field-error';
 import { MenuCard } from '@/components/menu-card';
@@ -25,6 +26,7 @@ import {
   type Conversation,
   type Message,
 } from '@/data/chat';
+import { useTyping } from '@/data/chat-typing';
 import { useHomeEvents } from '@/data/reference';
 import { useVendorMenus } from '@/data/vendor-menus';
 import { sentPhotoUri } from '@/features/chat/chat-photo';
@@ -41,9 +43,10 @@ const QUICK_REPLIES = ['available', 'price', 'visit', 'thanks'] as const;
 /**
  * One conversation between a family and a vendor, live. The family's inquiry
  * is the first card; then bubbles, photos, quotes and menus, grouped by day.
- * Either side can send a photo. Families get quick replies and "Share my
- * number" (their number never reaches the vendor otherwise, C2); vendors get
- * "Send a quote" and "Send a menu", and only ever reply.
+ * Either side can send a photo, and sees "… is typing" while the other side
+ * writes. Families get quick replies and "Share my number" (their number never
+ * reaches the vendor otherwise, C2); vendors get "Send a quote" and "Send a
+ * menu", and only ever reply.
  * Opening it marks it read. /chat/{conversation id}
  */
 export default function ChatScreen() {
@@ -57,6 +60,7 @@ export default function ChatScreen() {
   const [draft, setDraft] = useState('');
   const convo = thread.conversation;
   const side = convo?.side ?? 'family';
+  const typing = useTyping(id, convo?.side ?? null);
   const { profile } = useSession();
   const sharedNumber = thread.messages.some((m) => m.kind === 'phone' && m.senderRole === 'family');
 
@@ -78,8 +82,15 @@ export default function ChatScreen() {
   const sendText = (text: string) => {
     const body = text.trim();
     if (!body) return;
+    typing.stopped();
     send.mutate({ kind: 'text', body });
     setDraft('');
+  };
+
+  const changeDraft = (text: string) => {
+    setDraft(text);
+    if (text.trim()) typing.typed();
+    else typing.stopped();
   };
 
   // Newest at the bottom: an inverted list takes the rows newest first,
@@ -162,6 +173,12 @@ export default function ChatScreen() {
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="interactive"
             ListFooterComponent={<View style={styles.top} />}
+            // Inverted, the header sits at the bottom, under the newest message
+            ListHeaderComponent={
+              typing.otherTyping && title ? (
+                <TypingIndicator label={t('chat.typing', { name: title })} />
+              ) : null
+            }
           />
         )}
 
@@ -194,7 +211,8 @@ export default function ChatScreen() {
           )}
           <Composer
             value={draft}
-            onChangeText={setDraft}
+            onChangeText={changeDraft}
+            onBlur={typing.stopped}
             onSend={() => sendText(draft)}
             onAddPhoto={convo ? photos.pick : undefined}
             sending={send.isPending}

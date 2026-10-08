@@ -843,6 +843,7 @@
     "send": "Send",
     "addPhoto": "Add a photo",
     "seen": "Seen",
+    "typing": "{{name}} is typing…",
     "today": "Today",
     "yesterday": "Yesterday",
     "photo": "Photo",
