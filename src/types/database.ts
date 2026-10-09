@@ -667,6 +667,7 @@ export type Database = {
           id: string;
           inquiry_id: string | null;
           kind: string;
+          reply_to: string | null;
           sender_role: string;
           sender_user_id: string | null;
         };
@@ -678,6 +679,7 @@ export type Database = {
           id?: string;
           inquiry_id?: string | null;
           kind?: string;
+          reply_to?: string | null;
           sender_role: string;
           sender_user_id?: string | null;
         };
@@ -689,6 +691,7 @@ export type Database = {
           id?: string;
           inquiry_id?: string | null;
           kind?: string;
+          reply_to?: string | null;
           sender_role?: string;
           sender_user_id?: string | null;
         };
@@ -706,6 +709,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'inquiries';
             referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'messages_reply_to_fkey';
+            columns: ['conversation_id', 'reply_to'];
+            isOneToOne: false;
+            referencedRelation: 'messages';
+            referencedColumns: ['conversation_id', 'id'];
           },
         ];
       };
@@ -2190,7 +2200,13 @@ export type Database = {
         }[];
       };
       send_message: {
-        Args: { p_body?: string; p_conversation_id: string; p_data?: Json; p_kind?: string };
+        Args: {
+          p_body?: string;
+          p_conversation_id: string;
+          p_data?: Json;
+          p_kind?: string;
+          p_reply_to?: string;
+        };
         Returns: string;
       };
       set_wedding_member_role: {
