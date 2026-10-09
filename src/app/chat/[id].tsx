@@ -10,6 +10,8 @@ import { Composer } from '@/components/chat/composer';
 import { DaySeparator } from '@/components/chat/day-separator';
 import { MessageRow, PhotoBubble, TextBubble } from '@/components/chat/message-row';
 import { PhoneCard } from '@/components/chat/phone-card';
+import { ReactionChips } from '@/components/chat/reaction-chips';
+import { ReactionPicker } from '@/components/chat/reaction-picker';
 import { QuoteCard } from '@/components/chat/quote-card';
 import { TypingIndicator } from '@/components/chat/typing-indicator';
 import { Chip } from '@/components/chip';
@@ -22,6 +24,7 @@ import {
   sendErrorKind,
   useChatPhotoUrl,
   useConversation,
+  useReactToMessage,
   useSendMessage,
   type Conversation,
   type Message,
@@ -30,12 +33,14 @@ import { useTyping } from '@/data/chat-typing';
 import { useHomeEvents } from '@/data/reference';
 import { useVendorMenus } from '@/data/vendor-menus';
 import { sentPhotoUri } from '@/features/chat/chat-photo';
+import { nextReaction, type ReactionCode } from '@/features/chat/reactions';
 import { layoutThread, type ThreadItem } from '@/features/chat/thread-layout';
 import { type PhotoUpload, usePhotoSender } from '@/features/chat/use-photo-sender';
 import { useSession } from '@/features/auth/session';
 import { usd } from '@/features/vendors/profile-format';
 import { localized } from '@/i18n/localized';
 import { useLocale } from '@/i18n/locale-context';
+import { selectionHaptic } from '@/lib/haptics';
 import { formatPhone } from '@/lib/phone';
 
 const QUICK_REPLIES = ['available', 'price', 'visit', 'thanks'] as const;
@@ -56,6 +61,12 @@ export default function ChatScreen() {
   const { t, locale } = useLocale();
   const thread = useConversation(id);
   const send = useSendMessage(id);
+  const react = useReactToMessage(id);
+  // The message being reacted to, while the picker is open (hold a message)
+  const [reactingTo, setReactingTo] = useState<Message | null>(null);
+  const myReaction = (message: Message) => message.reactions.find((r) => r.mine)?.code ?? null;
+  const toggleReaction = (message: Message, picked: ReactionCode) =>
+    react.mutate({ messageId: message.id, reaction: nextReaction(myReaction(message), picked) });
   const photos = usePhotoSender(id, send);
   const [draft, setDraft] = useState('');
   const convo = thread.conversation;
@@ -166,7 +177,17 @@ export default function ChatScreen() {
                   onRemove={() => photos.remove(item.upload.id)}
                 />
               ) : (
-                <ThreadRow item={item} conversation={convo} onReply={setDraft} onSend={sendText} />
+                <ThreadRow
+                  item={item}
+                  conversation={convo}
+                  onReply={setDraft}
+                  onSend={sendText}
+                  onHold={(message) => {
+                    selectionHaptic();
+                    setReactingTo(message);
+                  }}
+                  onToggleReaction={toggleReaction}
+                />
               )
             }
             contentContainerStyle={styles.list}
@@ -225,6 +246,15 @@ export default function ChatScreen() {
           />
         </View>
       </KeyboardAvoidingView>
+      <ReactionPicker
+        visible={reactingTo !== null}
+        current={reactingTo ? myReaction(reactingTo) : null}
+        onPick={(picked) => {
+          if (reactingTo) toggleReaction(reactingTo, picked);
+          setReactingTo(null);
+        }}
+        onClose={() => setReactingTo(null)}
+      />
     </Screen>
   );
 }
@@ -290,15 +320,23 @@ function ThreadRow({
   conversation,
   onReply,
   onSend,
+  onHold,
+  onToggleReaction,
 }: {
   item: ThreadItem;
   conversation: Conversation | null;
   onReply: (text: string) => void;
   onSend: (text: string) => void;
+  /** Held: pick a reaction (C5c). */
+  onHold: (message: Message) => void;
+  onToggleReaction: (message: Message, reaction: ReactionCode) => void;
 }) {
   const styles = useStyles();
+  const { t } = useLocale();
   if (item.type === 'day') return <DaySeparator day={item.day} />;
   const { message, mine, first, last, seen } = item;
+  // Not until it's saved: a reaction needs the message's real id
+  const canReact = !message.id.startsWith('pending-');
   return (
     <View style={message.id.startsWith('pending-') ? styles.pending : null}>
       <MessageRow
@@ -313,14 +351,28 @@ function ThreadRow({
           message.kind === 'phone'
         }
       >
-        <MessageContent
-          message={message}
+        <Pressable
+          onLongPress={canReact ? () => onHold(message) : undefined}
+          delayLongPress={350}
+          accessibilityActions={canReact ? [{ name: 'react', label: t('chat.react.action') }] : []}
+          onAccessibilityAction={(e) => {
+            if (e.nativeEvent.actionName === 'react') onHold(message);
+          }}
+        >
+          <MessageContent
+            message={message}
+            mine={mine}
+            first={first}
+            last={last}
+            conversation={conversation}
+            onReply={onReply}
+            onSend={onSend}
+          />
+        </Pressable>
+        <ReactionChips
+          reactions={message.reactions}
           mine={mine}
-          first={first}
-          last={last}
-          conversation={conversation}
-          onReply={onReply}
-          onSend={onSend}
+          onToggle={(reaction) => onToggleReaction(message, reaction)}
         />
       </MessageRow>
     </View>
