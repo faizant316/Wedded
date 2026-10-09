@@ -1,6 +1,15 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
-import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
+import { useRef, useState } from 'react';
+import {
+  Alert,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  type TextInput,
+  View,
+} from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/components/app-text';
@@ -11,6 +20,8 @@ import { DaySeparator } from '@/components/chat/day-separator';
 import { MessageRow, PhotoBubble, TextBubble } from '@/components/chat/message-row';
 import { PhoneCard } from '@/components/chat/phone-card';
 import { QuoteCard } from '@/components/chat/quote-card';
+import { ReplyBar, ReplyQuote } from '@/components/chat/reply-quote';
+import { SwipeToReply } from '@/components/chat/swipe-to-reply';
 import { TypingIndicator } from '@/components/chat/typing-indicator';
 import { Chip } from '@/components/chip';
 import { FieldError } from '@/components/field-error';
@@ -29,6 +40,7 @@ import {
 import { useTyping } from '@/data/chat-typing';
 import { useHomeEvents } from '@/data/reference';
 import { useVendorMenus } from '@/data/vendor-menus';
+import { messageSnippet } from '@/features/chat/chat-format';
 import { sentPhotoUri } from '@/features/chat/chat-photo';
 import { layoutThread, type ThreadItem } from '@/features/chat/thread-layout';
 import { type PhotoUpload, usePhotoSender } from '@/features/chat/use-photo-sender';
@@ -46,7 +58,8 @@ const QUICK_REPLIES = ['available', 'price', 'visit', 'thanks'] as const;
  * Either side can send a photo, and sees "… is typing" while the other side
  * writes. Families get quick replies and "Share my number" (their number never
  * reaches the vendor otherwise, C2); vendors get "Send a quote" and "Send a
- * menu", and only ever reply.
+ * menu", and only ever reply. Swiping a message (or the screen reader's
+ * Reply action) replies to it, quoting it above the reply.
  * Opening it marks it read. /chat/{conversation id}
  */
 export default function ChatScreen() {
@@ -58,6 +71,8 @@ export default function ChatScreen() {
   const send = useSendMessage(id);
   const photos = usePhotoSender(id, send);
   const [draft, setDraft] = useState('');
+  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
+  const input = useRef<TextInput>(null);
   const convo = thread.conversation;
   const side = convo?.side ?? 'family';
   const typing = useTyping(id, convo?.side ?? null);
@@ -83,8 +98,14 @@ export default function ChatScreen() {
     const body = text.trim();
     if (!body) return;
     typing.stopped();
-    send.mutate({ kind: 'text', body });
+    send.mutate({ kind: 'text', body, replyTo: replyingTo?.id });
     setDraft('');
+    setReplyingTo(null);
+  };
+
+  const startReply = (message: Message) => {
+    setReplyingTo(message);
+    input.current?.focus();
   };
 
   const changeDraft = (text: string) => {
@@ -114,118 +135,147 @@ export default function ChatScreen() {
       : localized(convo.vendor.name, locale)
     : '';
 
+  // Who wrote a quoted message, and the messages a reply can point at
+  const authorOf = (message: Message) =>
+    message.senderRole === side ? t('chat.reply.you') : title;
+  const byId = new Map(thread.messages.map((m) => [m.id, m]));
+
   return (
-    <Screen edges={['top']}>
-      <View style={styles.bar}>
-        <BackButton />
-        {convo && (
-          <Pressable
-            accessibilityRole={side === 'family' ? 'link' : 'header'}
-            accessibilityLabel={side === 'family' ? t('chat.openProfile', { name: title }) : title}
-            disabled={side !== 'family'}
-            onPress={() =>
-              router.push({ pathname: '/v/[slug]', params: { slug: convo.vendor.slug } })
-            }
-            style={({ pressed }) => [styles.titleWrap, pressed && styles.pressed]}
-          >
-            <AppText variant="heading" weight={700} numberOfLines={1}>
-              {title}
-            </AppText>
-            <AppText
-              variant="caption"
-              color={side === 'family' ? 'primary' : 'text2'}
-              numberOfLines={1}
+    <GestureHandlerRootView style={styles.root}>
+      <Screen edges={['top']}>
+        <View style={styles.bar}>
+          <BackButton />
+          {convo && (
+            <Pressable
+              accessibilityRole={side === 'family' ? 'link' : 'header'}
+              accessibilityLabel={
+                side === 'family' ? t('chat.openProfile', { name: title }) : title
+              }
+              disabled={side !== 'family'}
+              onPress={() =>
+                router.push({ pathname: '/v/[slug]', params: { slug: convo.vendor.slug } })
+              }
+              style={({ pressed }) => [styles.titleWrap, pressed && styles.pressed]}
             >
-              {side === 'family'
-                ? t('chat.viewProfile')
-                : t('chat.forBusiness', { name: localized(convo.vendor.name, locale) })}
-            </AppText>
-          </Pressable>
-        )}
-      </View>
-
-      <KeyboardAvoidingView
-        style={styles.fill}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={0}
-      >
-        {thread.isPending ? (
-          <StateView state="loading" />
-        ) : thread.isError ? (
-          <StateView state="error" onRetry={() => void thread.refetch()} />
-        ) : (
-          <FlatList
-            inverted
-            data={items}
-            keyExtractor={(item) => item.key}
-            renderItem={({ item }) =>
-              item.type === 'upload' ? (
-                <UploadRow
-                  upload={item.upload}
-                  onRetry={() => photos.retry(item.upload)}
-                  onRemove={() => photos.remove(item.upload.id)}
-                />
-              ) : (
-                <ThreadRow item={item} conversation={convo} onReply={setDraft} onSend={sendText} />
-              )
-            }
-            contentContainerStyle={styles.list}
-            keyboardShouldPersistTaps="handled"
-            keyboardDismissMode="interactive"
-            ListFooterComponent={<View style={styles.top} />}
-            // Inverted, the header sits at the bottom, under the newest message
-            ListHeaderComponent={
-              typing.otherTyping && title ? (
-                <TypingIndicator label={t('chat.typing', { name: title })} />
-              ) : null
-            }
-          />
-        )}
-
-        <View style={[styles.bottom, { paddingBottom: Math.max(insets.bottom, Spacing.md) }]}>
-          {error && (
-            <View style={styles.error}>
-              <FieldError message={error} />
-            </View>
+              <AppText variant="heading" weight={700} numberOfLines={1}>
+                {title}
+              </AppText>
+              <AppText
+                variant="caption"
+                color={side === 'family' ? 'primary' : 'text2'}
+                numberOfLines={1}
+              >
+                {side === 'family'
+                  ? t('chat.viewProfile')
+                  : t('chat.forBusiness', { name: localized(convo.vendor.name, locale) })}
+              </AppText>
+            </Pressable>
           )}
-          {side === 'vendor' && convo && (
-            <View style={styles.tools}>
-              <Chip
-                role="button"
-                label={t('chat.sendQuote')}
-                onPress={() => router.push({ pathname: '/chat-quote', params: { id } })}
-              />
-              <Chip
-                role="button"
-                label={t('chat.sendMenu')}
-                onPress={() =>
-                  router.push({ pathname: '/chat-menu', params: { id, vendorId: convo.vendor.id } })
-                }
-              />
-            </View>
-          )}
-          {side === 'family' && convo && profile?.phone && !sharedNumber && (
-            <View style={styles.tools}>
-              <Chip role="button" label={t('chat.phone.shareButton')} onPress={shareNumber} />
-            </View>
-          )}
-          <Composer
-            value={draft}
-            onChangeText={changeDraft}
-            onBlur={typing.stopped}
-            onSend={() => sendText(draft)}
-            onAddPhoto={convo ? photos.pick : undefined}
-            sending={send.isPending}
-            quickReplies={
-              side === 'family' && familyTexts < 2
-                ? QUICK_REPLIES.map((key) => t(`chat.quickReplies.${key}`))
-                : undefined
-            }
-            onQuickReply={sendText}
-          />
         </View>
-      </KeyboardAvoidingView>
-    </Screen>
+
+        <KeyboardAvoidingView
+          style={styles.fill}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={0}
+        >
+          {thread.isPending ? (
+            <StateView state="loading" />
+          ) : thread.isError ? (
+            <StateView state="error" onRetry={() => void thread.refetch()} />
+          ) : (
+            <FlatList
+              inverted
+              data={items}
+              keyExtractor={(item) => item.key}
+              renderItem={({ item }) =>
+                item.type === 'upload' ? (
+                  <UploadRow
+                    upload={item.upload}
+                    onRetry={() => photos.retry(item.upload)}
+                    onRemove={() => photos.remove(item.upload.id)}
+                  />
+                ) : (
+                  <ThreadRow
+                    item={item}
+                    conversation={convo}
+                    quoted={item.type === 'message' ? quotedFor(item.message, byId) : undefined}
+                    authorOf={authorOf}
+                    onStartReply={startReply}
+                    onReply={setDraft}
+                    onSend={sendText}
+                  />
+                )
+              }
+              contentContainerStyle={styles.list}
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="interactive"
+              ListFooterComponent={<View style={styles.top} />}
+              // Inverted, the header sits at the bottom, under the newest message
+              ListHeaderComponent={
+                typing.otherTyping && title ? (
+                  <TypingIndicator label={t('chat.typing', { name: title })} />
+                ) : null
+              }
+            />
+          )}
+
+          <View style={[styles.bottom, { paddingBottom: Math.max(insets.bottom, Spacing.md) }]}>
+            {error && (
+              <View style={styles.error}>
+                <FieldError message={error} />
+              </View>
+            )}
+            {side === 'vendor' && convo && (
+              <View style={styles.tools}>
+                <Chip
+                  role="button"
+                  label={t('chat.sendQuote')}
+                  onPress={() => router.push({ pathname: '/chat-quote', params: { id } })}
+                />
+                <Chip
+                  role="button"
+                  label={t('chat.sendMenu')}
+                  onPress={() =>
+                    router.push({
+                      pathname: '/chat-menu',
+                      params: { id, vendorId: convo.vendor.id },
+                    })
+                  }
+                />
+              </View>
+            )}
+            {side === 'family' && convo && profile?.phone && !sharedNumber && (
+              <View style={styles.tools}>
+                <Chip role="button" label={t('chat.phone.shareButton')} onPress={shareNumber} />
+              </View>
+            )}
+            {replyingTo && (
+              <ReplyBar
+                title={t('chat.reply.replyingTo', { name: authorOf(replyingTo) })}
+                text={messageSnippet(replyingTo, t)}
+                cancelLabel={t('chat.reply.cancel')}
+                onCancel={() => setReplyingTo(null)}
+              />
+            )}
+            <Composer
+              inputRef={input}
+              value={draft}
+              onChangeText={changeDraft}
+              onBlur={typing.stopped}
+              onSend={() => sendText(draft)}
+              onAddPhoto={convo ? photos.pick : undefined}
+              sending={send.isPending}
+              quickReplies={
+                side === 'family' && familyTexts < 2
+                  ? QUICK_REPLIES.map((key) => t(`chat.quickReplies.${key}`))
+                  : undefined
+              }
+              onQuickReply={sendText}
+            />
+          </View>
+        </KeyboardAvoidingView>
+      </Screen>
+    </GestureHandlerRootView>
   );
 }
 
@@ -284,44 +334,79 @@ function UploadRow({
   );
 }
 
-/** A day heading or one message, drawn by its kind. */
+/**
+ * What a reply quotes: the message, null when it isn't loaded or is gone,
+ * or undefined when the message isn't a reply.
+ */
+function quotedFor(message: Message, byId: Map<string, Message>): Message | null | undefined {
+  if (!message.replyTo) return undefined;
+  return byId.get(message.replyTo) ?? null;
+}
+
+/** A day heading or one message, drawn by its kind, with the message it replies to above it. */
 function ThreadRow({
   item,
   conversation,
+  quoted,
+  authorOf,
+  onStartReply,
   onReply,
   onSend,
 }: {
   item: ThreadItem;
   conversation: Conversation | null;
+  quoted: Message | null | undefined;
+  authorOf: (message: Message) => string;
+  onStartReply: (message: Message) => void;
   onReply: (text: string) => void;
   onSend: (text: string) => void;
 }) {
   const styles = useStyles();
+  const { t } = useLocale();
   if (item.type === 'day') return <DaySeparator day={item.day} />;
   const { message, mine, first, last, seen } = item;
+  const wide =
+    message.kind === 'quote' ||
+    message.kind === 'menu' ||
+    message.kind === 'booking' ||
+    message.kind === 'phone';
+  const pending = message.id.startsWith('pending-');
+  const quotedName = quoted ? authorOf(quoted) : '';
+  const quotedText = quoted ? messageSnippet(quoted, t) : t('chat.reply.unavailable');
+  // Bubbles are read as one item with a Reply action; cards keep their own buttons
+  const spoken =
+    message.kind === 'text'
+      ? (message.body ?? '')
+      : message.kind === 'photo'
+        ? t('chat.photo')
+        : undefined;
   return (
-    <View style={message.id.startsWith('pending-') ? styles.pending : null}>
-      <MessageRow
-        mine={mine}
-        last={last}
-        seen={seen}
-        createdAt={message.createdAt}
-        wide={
-          message.kind === 'quote' ||
-          message.kind === 'menu' ||
-          message.kind === 'booking' ||
-          message.kind === 'phone'
-        }
-      >
-        <MessageContent
-          message={message}
-          mine={mine}
-          first={first}
-          last={last}
-          conversation={conversation}
-          onReply={onReply}
-          onSend={onSend}
-        />
+    <View style={pending ? styles.pending : null}>
+      <MessageRow mine={mine} last={last} seen={seen} createdAt={message.createdAt} wide={wide}>
+        {quoted !== undefined && (
+          <ReplyQuote
+            name={quotedName}
+            text={quotedText}
+            spoken={t('chat.reply.inReplyTo', { name: quotedName, text: quotedText })}
+          />
+        )}
+        <SwipeToReply
+          enabled={!pending}
+          align={wide ? 'stretch' : mine ? 'right' : 'left'}
+          onReply={() => onStartReply(message)}
+          actionLabel={t('chat.reply.action')}
+          label={spoken}
+        >
+          <MessageContent
+            message={message}
+            mine={mine}
+            first={first}
+            last={last}
+            conversation={conversation}
+            onReply={onReply}
+            onSend={onSend}
+          />
+        </SwipeToReply>
       </MessageRow>
     </View>
   );
@@ -420,6 +505,9 @@ function ChatMenu({ vendorId, menuId }: { vendorId: string; menuId: string }) {
 }
 
 const useStyles = makeStyles((Colors) => ({
+  root: {
+    flex: 1,
+  },
   bar: {
     minHeight: Sizes.navBar + 4,
     flexDirection: 'row',
